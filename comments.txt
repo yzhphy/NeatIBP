@@ -1,0 +1,23 @@
+What if one AnalyzeSectors failed unexpectedly? The system will consider this sector still computing, eternally.
+
+[SyzygyRed.wl]
+There are some global variables named "m" or "z" etc. in the code. 
+  They`d better be changed to some longer names, to avoid possible \
+contradiction with user`s code. (Like Litered`s "j").
+  But considering we will use this in commandLine, this is not that \
+important
+ No, it is important if user defines some kinematic variables like m[1]...
+
+Some parameters need to be made optional, eg. degree bound
+
+SDim seems unecessary in the code, try get rid of it?
+
+The IntegralOrder is a global variable... not so good, we would be better set a default value of it. 
+
+
+issue in the dev_log.txt at 2022.0923 [II] needs to be improved.
+
+Generate nFIBPs is slow because of CoefficientRules, I do not know the way to improve it.
+Zurich seeding step for high degree seeds is slow, which is due to Replacements in function IntegralRealization. Also, no idea for improvements for now.
+
+Need to consider a situation: what if a worker quits unexpectedly? The current system will not discover this and it would think the worker is still working.

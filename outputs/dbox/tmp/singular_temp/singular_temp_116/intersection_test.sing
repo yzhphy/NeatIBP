@@ -1,0 +1,18 @@
+LIB "matrix.lib";
+ring R = (0), (z1, z2, z4, z8, z9, z3, z5, z6, z7, c1, c2), (dp(9),dp(2));
+option(prot);
+degBound=5;
+module m1 = (-z1 + z2)*gen(1) + (-z1 + z2)*gen(2) + (c1 - z1 + z2)*gen(3) + (-z1 + z2 - z6 + z9)*gen(7) + (c2 - z1 + z2)*gen(8), (-c1 - z6 + z9)*gen(4) + (c2 - z6 + z9)*gen(5) + (-z6 + z9)*gen(6) + (-z1 + z2 - z6 + z9)*gen(7) + (-z6 + z9)*gen(9), (-c1 - z2 + z3)*gen(1) + (-z2 + z3)*gen(2) + (-z2 + z3)*gen(3) + (-z2 + z3 - z4 + 2*z6 - z9)*gen(7) + (-2*c1 - c2 - z2 + z3)*gen(8), (-z4 + 2*z6 - z9)*gen(4) + (-c2 - z4 + 2*z6 - z9)*gen(5) + (c1 - z4 + 2*z6 - z9)*gen(6) + (-z2 + z3 - z4 + 2*z6 - z9)*gen(7) + (2*c1 - z4 + 2*z6 - z9)*gen(9), (-z1 + z8)*gen(1) + (c2 - z1 + z8)*gen(2) + (-c1 - z1 + z8)*gen(3) + (-z1 + z5 - z6 + z8)*gen(7) + (-z1 + z8)*gen(8), (c1 + z5 - z6)*gen(4) + (z5 - z6)*gen(5) + (z5 - z6)*gen(6) + (-z1 + z5 - z6 + z8)*gen(7) + (c2 + z5 - z6)*gen(9), 2*z1*gen(1) + (z1 + z2)*gen(2) + (-c1 + z1 + z3)*gen(3) + (z1 - z6 + z7)*gen(7) + (z1 + z8)*gen(8), (c1 - z3 - z6 + z7)*gen(4) + (-2*z1 - z6 + z7 + z8)*gen(5) + (-z1 - z6 + z7)*gen(6) + (z1 - z6 + z7)*gen(7) + (-2*z1 + z2 - z6 + z7)*gen(9), (-z1 - z6 + z7)*gen(1) + (-z1 - 2*z6 + z7 + z9)*gen(2) + (c1 - z1 - z4 + z7)*gen(3) + (-z1 + z6 + z7)*gen(7) + (-z1 + z5 - 2*z6 + z7)*gen(8), (-c1 + z4 + z6)*gen(4) + (z5 + z6)*gen(5) + 2*z6*gen(6) + (-z1 + z6 + z7)*gen(7) + (z6 + z9)*gen(9);
+module m2 = gen(1), gen(2), z3*gen(3), gen(4), z5*gen(5), z6*gen(6), z7*gen(7), gen(8), gen(9);
+module m=m1,m2;
+module m1ext = (-z1 + z2)*gen(1) + (-z1 + z2)*gen(2) + (c1 - z1 + z2)*gen(3) + (-z1 + z2 - z6 + z9)*gen(7) + (c2 - z1 + z2)*gen(8), (-c1 - z6 + z9)*gen(4) + (c2 - z6 + z9)*gen(5) + (-z6 + z9)*gen(6) + (-z1 + z2 - z6 + z9)*gen(7) + (-z6 + z9)*gen(9), (-c1 - z2 + z3)*gen(1) + (-z2 + z3)*gen(2) + (-z2 + z3)*gen(3) + (-z2 + z3 - z4 + 2*z6 - z9)*gen(7) + (-2*c1 - c2 - z2 + z3)*gen(8), (-z4 + 2*z6 - z9)*gen(4) + (-c2 - z4 + 2*z6 - z9)*gen(5) + (c1 - z4 + 2*z6 - z9)*gen(6) + (-z2 + z3 - z4 + 2*z6 - z9)*gen(7) + (2*c1 - z4 + 2*z6 - z9)*gen(9), (-z1 + z8)*gen(1) + (c2 - z1 + z8)*gen(2) + (-c1 - z1 + z8)*gen(3) + (-z1 + z5 - z6 + z8)*gen(7) + (-z1 + z8)*gen(8), (c1 + z5 - z6)*gen(4) + (z5 - z6)*gen(5) + (z5 - z6)*gen(6) + (-z1 + z5 - z6 + z8)*gen(7) + (c2 + z5 - z6)*gen(9), 2*z1*gen(1) + (z1 + z2)*gen(2) + (-c1 + z1 + z3)*gen(3) + (z1 - z6 + z7)*gen(7) + (z1 + z8)*gen(8) - 2*gen(10), (c1 - z3 - z6 + z7)*gen(4) + (-2*z1 - z6 + z7 + z8)*gen(5) + (-z1 - z6 + z7)*gen(6) + (z1 - z6 + z7)*gen(7) + (-2*z1 + z2 - z6 + z7)*gen(9), (-z1 - z6 + z7)*gen(1) + (-z1 - 2*z6 + z7 + z9)*gen(2) + (c1 - z1 - z4 + z7)*gen(3) + (-z1 + z6 + z7)*gen(7) + (-z1 + z5 - 2*z6 + z7)*gen(8), (-c1 + z4 + z6)*gen(4) + (z5 + z6)*gen(5) + 2*z6*gen(6) + (-z1 + z6 + z7)*gen(7) + (z6 + z9)*gen(9) - 2*gen(10);
+module a=syz(m);
+matrix matrixa=a;
+matrix matrixa1=submat(matrixa,1..10,1..size(a));
+matrix matrixm1ext=m1ext;
+module m12old=module(matrixm1ext*matrixa1);
+ring R2 = (0,c1, c2), (z1, z2, z4, z8, z9, z3, z5, z6, z7), dp(9);
+module m12=imap(R,m12old);
+module mInt=simplify(m12,12);
+write("/home/zihao/projects/SyzygyRed/Parallelization/SyzygyRed_Parallel_v2_release220927/outputs/dbox/tmp/singular_temp/singular_temp_116/intersection_result.txt",string(mInt));
+exit;

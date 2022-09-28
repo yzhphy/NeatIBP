@@ -1,0 +1,309 @@
+
+=======================
+ver 1
+=======================
+In SyzygyRed.wl
+
+I have changed "!=" somewhere to "=!="  (zihao 2022.04 .06)
+I have changed the name of variable "FF" to "FF1" in function \
+SingularIdeal, to avoid possible contradiction with FiniteFlow. \
+(zihao 2022.04 .08)
+I have added some timing reports in the codes. 
+  For this, a new variable is declared named TimingReportOfRowReduce. \
+(zihao 2022.04 .08)
+I have added many time reports (zihao someday)
+I have added "exit;" in SingularIntersectionText and SingularSyzText \
+in order to use them in command line (zihao 2022.04 .25)
+I added PrintAndLog function. I replaced all Print[ 
+  to PrintAndLog[ (zihao 2022.04 .29)
+       I added an option to probe (zihao 2022.05 .03)
+       
+       zihao 2022.05 .06 :
+      Function pivots[matrix] is defined twice. 
+        I removed the first one. 
+        I have make the RowReduceFunction optional. 
+        By default using Hefeng`s SRSparseRowReduce.
+        I have changed the default prime modulus from 32452843 to 42013
+       I have modified \
+"Mext=Join[Transpose[M],IdentityMatrix[M//Length]]//Transpose" to \
+"Mext=Join[Transpose[M],SparseIdentityMatrix[M//Length]]//Transpose" 
+       	in function UsedRelations. Where SparseIdentityMatrix[n_] := 
+     SparseArray[Table[{k, k} -> 1, {k, n}]]
+      	
+      zihao 2022.05 .07
+      I have deleted the step "CollectG" in function SectorAnalyze
+      
+      zihao 2022.05 .09
+      In function SectorAnalyze, 
+    		IBPISPdegrees = 
+     IBPISPSectorDegree[#, sector] & /@ (CornerIBP /. GenericD // 
+          Expand)
+       has been modified to 
+       		IBPISPdegrees = IBPISPSectorDegree[
+         			Collect[
+          				# /. GenericD /. GenericPoint,
+          				Cases[Variables[#], _G]
+          			]
+         			, sector
+         		] & /@ (CornerIBP);
+    		
+    zihao 2022.05 .12  
+     when cauculating sector #938 of the triplebox example, 
+    the SingularIntersection returned a VectorList, 
+    such that VectorList[[212]] = 0, 
+    but it is supposed to be a vector, not 0.
+     The phenomenon comes from the Singular running step, 
+    after simplify (m12, 12) command, 
+    the 212 th element of the result matrix is 0, 
+    but it is supposed to be linear combinations of gen ( ...)
+     The Singular website is failed, 
+    so I cannot study why this is happening (maybe because the \
+simplification mode 12)
+     The problem singular script is in  /home/zihao/projects/
+         SyzygyRed/Parallelization/test_triplebox/
+      intersection_test _bug _ 938. sing, 
+    we should study what maybe wrong as soon as the Singular website \
+recovered.
+      Now, we have no choice but to add a command 
+     If[Count[vectors, 0] > 0, 
+      PrinAndLog["#", secNum, 
+       "  ZEROs in VectorList Encountored!!They are deleted."]; 
+      vectors = DeleteCases[vectors, 0]]; 
+    in function IntersectionRead.
+       BUT REMEMBER!! This is a YAN - ER - DAO - LING behaviour, 
+    because it is possible that there DO EXIST some BUGs in the \
+Singular step, 
+    and we just temply turn off the warning ... so ... The result may \
+be WRONG!
+     MAKE SURE you fix the possible bug once Singular website \
+recover!/home/zihao/projects/SyzygyRed/Parallelization/
+      test_double _pentagon/Analyze_Sector.wl
+     
+     zihao  2022.05 .13
+     Singular web site has recovered.
+      After looking it up, we can delete the command 
+     If[Count[vectors, 0] > 0, 
+      PrinAndLog["#", secNum, 
+       "  ZEROs in VectorList Encountored!!They are deleted."]; 
+      vectors = DeleteCases[vectors, 0]]; 
+    in function IntersectionRead. 
+      There seems to be no error. 
+      What we only need to do is just modify the OptionSimplification \
+from 12 to 14.
+     
+     zihao 2022.05 .16
+     I added option in SectorAnalyze to choose module intersection \
+method, Linear or Singular
+      
+      zihao 2022.05 .18
+      required the program to report ByteCount of VectorList
+      
+      zihao 2022.05 .24
+      Added an option to shorten the module M1 and M2
+      
+      In function SingularIntersectionMaker 
+      varpara = Variables[Join[M1, M2]];
+    is modified to 
+      varpara = Variables[Join[M1ext, M2]];
+    
+    in string SingularIntersectionText
+      module m = m1 + m2; is modified to module m = m1, m2;
+    
+    zihao 2022.09 .09
+     added functions :
+      FIBPSectorISPDegree
+       FIntegralSectorISPDegree
+       In function SectorAnalyze, 
+    	IBPISPdegrees = IBPISPSectorDegree[
+        			Collect[
+         				# /. GenericD /. GenericPoint,
+         				Cases[Variables[#], _G]
+         			]
+        			, sector
+        		] & /@ (CornerIBP);
+    has been modified to 
+      IBPISPdegrees = FIBPSectorISPDegree[#, sector] & /@ FIBPs;
+    Before the modification, 
+    Zurich seeding gives more MIs than expected.
+
+=======================
+ver 2
+=======================
+
+
+-----------------------------
+2022.09.13
+support calculation in one folder
+
+
+-----------------------------
+2022.09.20
+made a backup
+
+
+-----------------------------
+2022.09.22
+[I]
+put codes in Symmetry.wl into SyzygyRed.wl , but it still needs to include Pak.wl\
+
+In SyzygyRed.wl added a step, sector mapping, before removing zero sector integrals (nearly at the botom of main function). Consequently, there will be no new target integrals in mapped sectors while complying AnalyzeSector.wl. 
+
+[II]
+Changed "Initialization.wl" so that:
+
+A.set a framewor to deal with mapped integral targets.
+The framework is set as:
+1. The only mapped targets will occur as an input. If NeedSymmetry Option is turned on, we map these targets at initilalization, export the symmetry relations as IBPs, and export {} as MI.
+2. Export the mission status of mapped sectors to be "ComputationFinished"
+
+B.Moreover, at initialization, we additionally export zero integrals as zero.
+
+[III]
+created summary.wl
+----------------------------------
+2022.09.23
+
+[I]
+In SyzygyRed.wl
+For[i=1,i<=Length[Global`NonZeroSectors],i++,
+			subsector=Global`NonZeroSectors[[i]];
+			Global`ReductionTasks[subsector]=Union[Global`ReductionTasks[subsector],Select[SubsectorInts,Sector[#]==subsector&]];
+		];
+
+changed Global`NonZeroSectors to tailSectors(=DeleteDuplicates[Sector/@SubsectorInts])
+
+[II]
+Added function MappedAndSubSectorsAllFinder in SyzygyRed.wl
+Modified AnalyzeSector.wl to use MappedAndSubSectorsAllFinder rather than SubSectorsAllFinder to find RelavantSectors if NeedSymmetry is on. However, Initialization.wl temply remain the same, this may cause trouble when input targets are not in top sector but in separate subsectors. NEED TO BE IMPROVED!!!
+
+[III]
+Cancelled function SuperSectors[] in all .wl files but MissionStatusChecke.wl, because it is not used theres.
+
+Modified function SuperSectors[] in MissionStatusChecke.wl (backuped old version using (**)). Originally, master missions were calculated real-timely. In new version, this tree structure is calculated at initialization and saved on the disk. The new function only read it and use.
+
+[IV]
+made a backup 
+
+
+-----------------------
+2022.09.26
+[I]
+In function SyzygyRed.wl, the step "sorting nFIPBs" is too slow, sometimes taking 50% the time cost.
+I added some timeing reports in this step. 
+As observed, the bottle neck link is IBPSubSectorDegree <- IntegralList <- SortBy
+The IntegralList command automatically sort the integrals, but in this step we do not need.
+So, I added an option to function IntegralList, to determine weather we sort the integrals. Default is yes.
+Then ,I added option value SortTheIntegrals->False to function IntegralList where it was called by: 
+IBPWeight
+IBPSubSectorDegree
+IBPISPSectorDegree
+Length
+
+[II]
+added a criterion of step "sort nFIBPs": ByteCount
+
+[III]
+added function SectorSelfSymmetryIBPs
+
+[IV]
+made a backup. We will keep on adding symmetry inside sectors
+
+
+
+
+----------------------
+2022.09.27
+
+[I]
+Add sector self symmetry related codes in SyzygyRed.wl
+
+modified codes from 
+
+	nIBPs=rawIBPs/.FI[i_]:>nFIBPs[[i]]/.IntegralR->IntegralRealization;
+
+to
+
+	If[NeedSymmetry===False,
+			nIBPs=rawIBPs/.FI[i_]:>nFIBPs[[i]]/.IntegralR->IntegralRealization/.Cut
+		,
+			rawIBPs=Join[
+				rawIBPs,
+				Table[SelfSymmetryR[ZM[i],seeds[[j]]],{i,1,Length[zMaps]},{j,1,Length[seeds]}]//Flatten
+			];
+			nIBPs=rawIBPs;
+			nIBPs=nIBPs/.FI[i_]:>nFIBPs[[i]]/.IntegralR->IntegralRealization;
+			nIBPs=nIBPs/.ZM[i_]:>zMaps[[i]]/.SelfSymmetryR->SelfSymmetryRealization;
+			nIBPs=nIBPs/.Cut;
+		];
+
+from 
+	rawIBPs=Join[rawIBPs,newIBPs];
+	nIBPs=Join[nIBPs,newIBPs/.FI[i_]:>nFIBPs[[i]]/.IntegralR->IntegralRealization/.Cut];
+
+to
+	If[NeedSymmetry===False,
+		rawIBPs=Join[rawIBPs,newIBPs];
+		nIBPs=Join[nIBPs,newIBPs/.FI[i_]:>nFIBPs[[i]]/.IntegralR->IntegralRealization/.Cut];
+	,
+		newIBPs=Join[
+			newIBPs,
+			Table[SelfSymmetryR[ZM[i],seeds[[j]]],{i,1,Length[zMaps]},{j,1,Length[seeds]}]//Flatten
+		];
+		rawIBPs=Join[rawIBPs,newIBPs];
+		newNIBPs=newIBPs;
+		newNIBPs=newNIBPs/.FI[i_]:>nFIBPs[[i]]/.IntegralR->IntegralRealization;
+		newNIBPs=newNIBPs/.ZM[i_]:>(zMaps[[i]]/.GenericPoint)/.SelfSymmetryR->SelfSymmetryRealization;
+		newNIBPs=newNIBPs/.Cut;
+		nIBPs=Join[nIBPs,newNIBPs]
+	];
+Added codes afer Zurich seedings:
+If[Not[NeedSymmetry===False],
+	timer2=AbsoluteTime[];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  \t","Appending self-symmetries at current step..."];];
+
+	seeds=Flatten[SeedMerge[NumeratorShifts[sector,#],DenominatorTypes]&/@Range[0,OptionValue[ZurichInitialSteps]],1];
+	
+	rawIBPs=Join[
+		rawIBPs,
+		Table[SelfSymmetryR[ZM[i],seeds[[j]]],{i,1,Length[zMaps]},{j,1,Length[seeds]}]//Flatten
+	];
+	
+	nIBPs=Join[
+		nIBPs,
+		Table[SelfSymmetryRealization[zMaps[[i]]/.GenericPoint,seeds[[j]]],{i,1,Length[zMaps]},{j,1,Length[seeds]}]//Flatten
+	];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ","\t\tAppending self-symmetries finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s)."]];
+	
+	];
+or 
+
+If[Not[NeedSymmetry===False],
+		timer2=AbsoluteTime[];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  \t","Appending self-symmetries at current step..."];];
+		seeds=Flatten[SeedMerge[NumeratorShifts[sector,#],DenominatorTypes]&/@Range[0,OptionValue[ZurichInitialSteps]],1];
+		NewrawIBPs=Join[
+			NewrawIBPs,
+			Table[SelfSymmetryR[ZM[i],seeds[[j]]],{i,1,Length[zMaps]},{j,1,Length[seeds]}]//Flatten
+		];
+		NewnIBPs=Join[
+			NewnIBPs,
+			Table[SelfSymmetryRealization[zMaps[[i]]/.GenericPoint,seeds[[j]]],{i,1,Length[zMaps]},{j,1,Length[seeds]}]//Flatten
+		];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ","\t\tAppending self-symmetries finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s)."]];
+	];
+
+
+
+At step obtaining the analytic IBPs, added codes:
+
+
+
+
+
+
+
+
+
+
+
+
