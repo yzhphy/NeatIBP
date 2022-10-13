@@ -74,7 +74,7 @@ If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectory]
 TemporaryDirectorySingular = TemporaryDirectory<>"singular_temp/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectorySingular]
 SingularDirectory = "/usr/bin/Singular"
-Get[workingPath<>"Pak/Pak.wl"]
+Get[workingPath<>"Pak_Algorithm/Pak_Algorithm.wl"]
 Get[SyzygyRedPackageFile](*I think the place of this .wl file can be fixed*)
 runningScriptFolder=outputPath<>"tmp/running_scripts/"
 
@@ -150,7 +150,7 @@ For[i=1,i<=Length[mappedSectors],i++,
 	mappedSector=mappedSectors[[i]];
 	mappedTargets=Select[ReductionTargets,Sector[#]===mappedSector&];
 	mappedSectorID=SectorNumber[mappedSector];
-	mapIBPs=#-(#/.G[x__]:>GMapped[sectorMaps,{x}])&/@mappedTargets;
+	mapIBPs=#-(SymmetryMap[sectorMaps,#])&/@mappedTargets;
 	Export[resultMIFolder<>ToString[mappedSectorID]<>".txt",{}//InputForm//ToString];
 	Export[resultIBPFolder<>ToString[mappedSectorID]<>".txt",mapIBPs//InputForm//ToString];
 	newReductionTargets=Union[newReductionTargets,IntegralList[mapIBPs]]

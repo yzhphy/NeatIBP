@@ -295,15 +295,36 @@ If[Not[NeedSymmetry===False],
 
 
 At step obtaining the analytic IBPs, added codes:
+(it seems nothing need to be added here --- 2022.10.13)
+--------------
+2022.09.28
+[I]
+made a backup
 
+[II]
+added SparseRREF package in the working folder. Modified <<SparseRREF` to Get[workingPath<>"SparseRREF/SparseRREF.m"]
+After this , we expect that user no longer need to install SparseRREF manually when they get this program
 
+--------------------
+2022.10.13
+[I]
+renamed "Pak" to "Pak_Algorithm"
+deleted functions not used in the package Pak_Algorithm.wl
 
+[II]
+fixed an error in Initialization.wl
+modified 
+mapIBPs=#-(#/.G[x__]:>GMapped[sectorMaps,{x}])&/@mappedTargets;
+to
+mapIBPs=#-(SymmetryMap[sectorMaps,#])&/@mappedTargets;
 
+the former one is old wrong way of mapping
 
-
-
-
-
+[III]
+modified
+SDim=Length[Flatten[MIs][[1]]/.G->List]
+in Summary.wl to
+SDim=Length[Cases[Variables[IBPs],_G][[1]]/.G->List]
 
 
 

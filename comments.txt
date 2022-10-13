@@ -21,3 +21,7 @@ Generate nFIBPs is slow because of CoefficientRules, I do not know the way to im
 Zurich seeding step for high degree seeds is slow, which is due to Replacements in function IntegralRealization. Also, no idea for improvements for now.
 
 Need to consider a situation: what if a worker quits unexpectedly? The current system will not discover this and it would think the worker is still working.
+
+RelavantIntegrals is useless... We do not need to export them.
+
+Copy right of SPASM
