@@ -1,8 +1,5 @@
 (* ::Package:: *)
 
-getSparseRREF=<<SparseRREF`
-
-
 OptionSimplification=12;
 moduleIntersectionMethod="Singular"
 
@@ -106,7 +103,7 @@ If[!DirectoryQ[#],Run["mkdir -p "<>#]]&[revalantIntegralsFolder]
 Run["echo "<>ToString[sectorID]<>":\tStart\t"<>ToString[InputForm[FromUnixTime[UnixTime[]]]]<>" >> "<>outputPath<>"log2.txt"]
 
 
-If[getSparseRREF===$Failed,
+If[Get[workingPath<>"SparseRREF/SparseRREF.m"]===$Failed,
 	PrintAndLog["Unable to Get SparseRREF. Exiting."];
 	Run["echo "<>ToString[sectorID]<>":\tExit[Unable to Get SparseRREF]\t"<>ToString[InputForm[FromUnixTime[UnixTime[]]]]<>" >> "<>outputPath<>"log2.txt"];
 	Exit[]
@@ -118,7 +115,7 @@ TemporaryDirectory = outputPath<>"tmp/singular_temp/singular_temp_"<>ToString[se
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectory]
 SingularDirectory = "/usr/bin/Singular"
 
-Get[workingPath<>"Pak/Pak.wl"]
+Get[workingPath<>"Pak_Algorithm/Pak_Algorithm.wl"]
 Get[SyzygyRedPackageFile]
 
 reductionTasksFolder=outputPath<>"tmp/reduction_tasks/"

@@ -80,7 +80,8 @@ ordering=SortBy[Range[Length[sectorIDsIBP]],{-Total[SectorNumberToSectorIndex[se
 sectorIDsIBP=sectorIDsIBP[[ordering]]
 IBPs=IBPs[[ordering]]
 
-SDim=Length[Flatten[MIs][[1]]/.G->List]
+
+SDim=Length[Cases[Variables[IBPs],_G][[1]]/.G->List]
 
 timer=AbsoluteTime[];
 relavantIntegrals=Get/@FileNames[All,outputPath<>"tmp/relavant_integrals/"];
