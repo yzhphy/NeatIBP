@@ -1,13 +1,14 @@
 (* ::Package:: *)
 
-OptionSimplification=12;
+
 
 
 commandLineMode=True
 
 
 If[commandLineMode,
-	workingPath=DirectoryName[$InputFileName];
+	packagePath=DirectoryName[$InputFileName];
+	workingPath=Directory[];
 	missionInput=$CommandLine[[-1]];
 (*	AppendTo[$Path,workingPath];
 	Get[missionInput]*)
@@ -29,17 +30,18 @@ AppendTo[$Path,workingPath];
 If[Get[missionInput]===$Failed,Print["Unable to open "<>missionInput<>". Exiting.";Exit[]]]
 
 
-outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/"
+If[outputPath===Automatic,
+	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
+	Print["Output path has been set as "<>outputPath]
+]
 
 
 TemporaryDirectory = outputPath<>"tmp/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectory]
-SingularDirectory = "/usr/bin/Singular"
-Get[SyzygyRedPackageFile]
+Get[packagePath<>"SyzygyRed.wl"]
 
 
-(*IntegralOrder="Global";
-Prepare[];*)
+
 
 
 missionStatusFolder=TemporaryDirectory<>"mission_status/"

@@ -1,6 +1,6 @@
 (* ::Package:: *)
 
-OptionSimplification=12;
+
 
 
 commandLineMode=True
@@ -10,7 +10,8 @@ commandLineMode=True
 
 
 If[commandLineMode,
-	workingPath=DirectoryName[$InputFileName];
+	packagePath=DirectoryName[$InputFileName];
+	workingPath=Directory[];
 	missionInput=$CommandLine[[-1]];
 
 	,
@@ -43,13 +44,16 @@ If[Get[missionInput]===$Failed,Print["echo \"Unable to open "<>missionInput<>". 
 If[Get[missionInput]===$Failed,Print["echo \"Unable to get SparseRREF. Exiting.\""];Exit[]]
 
 
-outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/"
+If[outputPath===Automatic,
+	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
+	Print["Output path has been set as "<>outputPath]
+]
 
 
-SingularDirectory = "/usr/bin/Singular"
+
 TemporaryDirectory=outputPath<>"tmp"
-Get[SyzygyRedPackageFile]
-IntegralOrder="Global"
+Get[packagePath<>"SyzygyRed.wl"]
+
 
 
 

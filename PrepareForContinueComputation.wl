@@ -1,6 +1,6 @@
 (* ::Package:: *)
 
-OptionSimplification=12;
+
 
 
 commandLineMode=True
@@ -10,7 +10,8 @@ commandLineMode=True
 
 
 If[commandLineMode,
-	workingPath=DirectoryName[$InputFileName];
+	packagePath=DirectoryName[$InputFileName];
+	workingPath=Directory[];
 	missionInput=$CommandLine[[-1]];
 
 	,
@@ -27,15 +28,17 @@ If[commandLineMode,
 ]
 
 
-(*If[FileExistsQ[workingPath<>#],Run["rm -f "<>workingPath<>#]]&/@
-{"log.txt","log1.txt","log2.txt","log3.txt","log4.txt"}*)
+
 
 
 AppendTo[$Path,workingPath];
 If[Get[missionInput]===$Failed,Print["Unable to open "<>missionInput<>". Exiting.";Exit[]]]
 
 
-outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/"
+If[outputPath===Automatic,
+	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
+	Print["Output path has been set as "<>outputPath]
+]
 
 
 Print["Preparering for continue computation."]
@@ -49,13 +52,13 @@ TemporaryDirectory = outputPath<>"tmp/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectory]
 TemporaryDirectorySingular = TemporaryDirectory<>"singular_temp/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectorySingular]
-SingularDirectory = "/usr/bin/Singular"
-Get[SyzygyRedPackageFile]
+
+Get[packagePath<>"SyzygyRed.wl"]
 runningScriptFolder=outputPath<>"tmp/running_scripts/"
 
 
 
-IntegralOrder="Global";
+
 Prepare[];
 
 

@@ -52,12 +52,6 @@ SectorNumber[sec_]:=FromDigits[sec//Reverse,2];
 
 
 
-(*TemporaryDirectory = workingPath<>"tmp/singular_temp/"
-If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectory]
-SingularDirectory = "/usr/bin/Singular"
-Get["/home/zihao/projects/SyzygyRed/source/SyzygyRed.wl"]
-
-reductionTasksFolder=workingPath<>"tmp/reduction_tasks/"*)
 
 
 
