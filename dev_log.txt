@@ -332,11 +332,23 @@ ver 3
 Statement:
 Ver2 is up-to-date at 2022.10.13
 In the new version I am going to refine the folder structure, which will be brand new. 
-Also, the backup branch is pushed to github named 'branch20221013' 
+Also, the backup branch is pushed to github named 'branch20221013'. 
+The Folder 'SyzygyRed_Parallel_v2' should be remained unchanged from now
 --------------------------
-2022.10.14
+2022.11.07
+made a backup (codes only, no .git or more github related files) at 'github' folder
 
-
+--------------------------
+2022.11.14
+[I]
+seperated the workingPath and packagePath in all codes. 
+removed the SyzygyRedPackagePath variable, it is useless.
+moved settings
+	SingularDirectory = "/usr/bin/Singular"
+	IntegralOrder = "Global"
+	OptionSimplification = 12;
+into input files.
+Added outputPath=Automatic. We need to test what if it is not Automatic
 
 
 

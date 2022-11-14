@@ -1,0 +1,6 @@
+(*
+This config file will be included into several mathematica scripts using Get.
+Please make sure the paths are absolute paths.
+*)
+
+outputPath="";

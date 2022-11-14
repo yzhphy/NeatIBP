@@ -4,7 +4,8 @@ commandLineMode=True
 
 
 If[commandLineMode,
-	workingPath=DirectoryName[$InputFileName];
+	packagePath=DirectoryName[$InputFileName];
+	workingPath=Directory[];
 	missionInput=$CommandLine[[-1]];
 
 	,
@@ -28,14 +29,17 @@ If[Get[missionInput]===$Failed,Print["echo \"Unable to open "<>missionInput<>". 
 
 
 
-getSparseRREF=True
-getSparseRREF=<<SparseRREF`
+(*getSparseRREF=True
+getSparseRREF=<<SparseRREF`*)
 
 
 If[Get[missionInput]===$Failed,Print["echo \"Unable to get SparseRREF. Exiting.\""];Exit[]]
 
 
-outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/"
+If[outputPath===Automatic,
+	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
+	Print["Output path has been set as "<>outputPath]
+]
 
 
 missionStatusFolder=outputPath<>"tmp/mission_status/"
@@ -51,7 +55,7 @@ missionStatus={ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//S
 If[DeleteCases[Union[missionStatus[[All,2]]],"ComputationFinished"]==={},
 	script="echo \"All mission finished!\"\n"
 	,
-	script="math -script MissionStatusChecker.wl "<>missionInput<>" | sh"
+	script="math -script "<>packagePath<>"MissionStatusChecker.wl "<>missionInput<>" | sh"
 ]
 
 Print[script]

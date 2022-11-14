@@ -24,5 +24,8 @@ G[1,1,1,1,1,1,0,0,-5]
 };
 MemoryUsedLimit=200000;(*MB*)
 ThreadUsedLimit=16;
-SyzygyRedPackageFile=workingPath<>"SyzygyRed.wl"
+SingularDirectory = "/usr/bin/Singular"
+IntegralOrder = "Global"
+OptionSimplification = 12;
 NeedSymmetry=True;
+outputPath=Automatic;

@@ -25,3 +25,12 @@ Need to consider a situation: what if a worker quits unexpectedly? The current s
 RelavantIntegrals is useless... We do not need to export them.
 
 Copy right of SPASM
+
+Consider a question: Can user compute 2 or more different projects at the same time?
+
+Clean up useless trashes!
+
+in dev_log there is a issue at 2022.11.14:
+Added outputPath=Automatic. We need to test what if it is not Automatic
+
+in MissionStatusChecker.wl, the first code block, ......=Infinity, I do not know why...

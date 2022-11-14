@@ -1,6 +1,9 @@
 (* ::Package:: *)
 
-OptionSimplification=12;
+ 
+
+
+
 
 
 commandLineMode=True
@@ -9,15 +12,20 @@ commandLineMode=True
 
 
 
-If[commandLineMode,
-	workingPath=DirectoryName[$InputFileName];
-	missionInput=$CommandLine[[-1]];
 
+
+
+If[commandLineMode,
+	(*workingPath=DirectoryName[$InputFileName];*)
+	missionInput=$CommandLine[[-1]];
+	packagePath=DirectoryName[$InputFileName];
+	workingPath=Directory[];
 	,
 	Print["WARNING: program is not running in command line mode!"];
 	workingPath=NotebookDirectory[];
 	missionInput="example.txt"
-	(*LoopMomenta={l1,l2};
+	(*
+	LoopMomenta={l1,l2};
 	ExternalMomenta={k1,k2,k4};
 	Propagators={l1^2,(l1-k1)^2,(l1-k1-k2)^2,(l2+k1+k2)^2,(l2-k4)^2,l2^2,(l1+l2)^2,(l1+k4)^2,(l2+k1)^2};
 	Kinematics={k1^2->0,k2^2->0,k4^2->0,k1 k2->s/2,k1 k4->t/2,k2 k4->(-s/2-t/2)};
@@ -25,6 +33,9 @@ If[commandLineMode,
 	TargetIntegrals={G[1,1,1,1,1,1,1,-5,0],G[1,1,1,1,1,1,1,-4,-1],G[1,1,1,1,1,1,1,-1,-4]}*)
 	
 ]
+
+
+
 
 
 Print["Initializing."]
@@ -45,10 +56,13 @@ If[Get[missionInput]===$Failed,Print["Unable to open "<>missionInput<>". Exiting
 
 
 
-If[!DirectoryQ[#],Run["mkdir "<>#]]&[workingPath<>"outputs"]
-outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/"
+If[outputPath===Automatic,
+	If[!DirectoryQ[#],Run["mkdir "<>#]]&[workingPath<>"outputs"];
+	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
+	Print["Output path has been set as "<>outputPath]
+]
 If[DirectoryQ[outputPath],
-	continueQ=InputString["Reduction outputs \""<>ReductionOutputName<>"\" already exists. Do you want to overwrite them? Type Y or y to continue. Type others to abort.\n"];
+	continueQ=InputString["Output path \""<>outputPath<>"\" already exists. Do you want to delete it? Type Y or y to continue. Type others to abort.\n"];
 	
 	If[Or[continueQ=="y",continueQ=="Y"],
 		Print["Removing "<>outputPath];
@@ -56,11 +70,11 @@ If[DirectoryQ[outputPath],
 		Print["done."]
 		,
 		Print["Aborted."];
-		Print["You can modify \"inputs_and_config.txt\" to change ReductionOutputName"];
+		Print["You can modify input file(s) to change ReductionOutputName"];
 		Exit[0]
 	]
 ]
-Run["mkdir "<>outputPath]
+Run["mkdir -p "<>outputPath]
 Run["cp "<>workingPath<>missionInput<>" "outputPath<>missionInput]
 
 
@@ -69,18 +83,19 @@ SectorNumberToSectorIndex[num_]:=IntegerDigits[num,2,Length[Propagators]]//Rever
 
 
 TemporaryDirectory = outputPath<>"tmp/"
-Run["rm -rf "<>TemporaryDirectory];
+(*Run["rm -rf "<>TemporaryDirectory];*)(*It seems to be useless*)
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectory]
 TemporaryDirectorySingular = TemporaryDirectory<>"singular_temp/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectorySingular]
-SingularDirectory = "/usr/bin/Singular"
-Get[workingPath<>"Pak_Algorithm/Pak_Algorithm.wl"]
-Get[SyzygyRedPackageFile](*I think the place of this .wl file can be fixed*)
+
+
+Get[packagePath<>"Pak_Algorithm/Pak_Algorithm.wl"]
+Get[packagePath<>"SyzygyRed.wl"]
 runningScriptFolder=outputPath<>"tmp/running_scripts/"
 
 
 
-IntegralOrder="Global";
+
 Prepare[];
 
 

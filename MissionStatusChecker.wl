@@ -2,13 +2,15 @@
 
 MemoryUsedLimit=Infinity
 ThreadUsedLimit=Infinity
+(*why?*)
 
 
 commandLineMode=True
 
 
 If[commandLineMode,
-	workingPath=DirectoryName[$InputFileName];
+	packagePath=DirectoryName[$InputFileName];
+	workingPath=Directory[];
 	missionInput=$CommandLine[[-1]];
 
 	,
@@ -32,7 +34,10 @@ AppendTo[$Path,workingPath];
 If[Get[missionInput]===$Failed,Print["echo \"Unable to open "<>missionInput<>". Exiting.\""];Exit[]]
 
 
-outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/"
+If[outputPath===Automatic,
+	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
+	Print["Output path has been set as "<>outputPath]
+]
 
 
 missionStatusFolder=outputPath<>"tmp/mission_status/"
@@ -166,8 +171,8 @@ While[True,
 		newComputingSectorNumbers=SectorNumber/@newComputingSectors;
 		Export[missionStatusFolder<>ToString[#]<>".txt","Computing"//InputForm//ToString]&/@newComputingSectorNumbers;
 		script=""<>
-			StringRiffle["math -script Analyze_Sector.wl "<>missionInput<>" "<>ToString[#]<>" &\n"&/@newComputingSectorNumbers,""]<>
-			"math -script AllMissionCompleteQ.wl "<>missionInput<>" | sh &\n"<>
+			StringRiffle["math -script "<>packagePath<>"Analyze_Sector.wl "<>missionInput<>" "<>ToString[#]<>" &\n"&/@newComputingSectorNumbers,""]<>
+			"math -script "<>packagePath<>"AllMissionCompleteQ.wl "<>missionInput<>" | sh &\n"<>
 			"wait\n";
 			(*script=StringRiffle["math -script Analyze_Sector.wl "<>missionInput<>" "<>ToString[#]<>"\n"&/@newReadySectorNumbers,""];*)
 		Break[];

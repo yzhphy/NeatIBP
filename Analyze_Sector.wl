@@ -1,6 +1,5 @@
 (* ::Package:: *)
 
-OptionSimplification=12;
 moduleIntersectionMethod="Singular"
 
 
@@ -8,7 +7,9 @@ commandLineMode=True
 
 
 If[commandLineMode,
-	workingPath=DirectoryName[$InputFileName];
+	
+	packagePath=DirectoryName[$InputFileName];
+	workingPath=Directory[];
 	missionInput=$CommandLine[[-2]];
 	sectorID=$CommandLine[[-1]]//ToExpression;
 	,
@@ -90,7 +91,10 @@ PrintAndLog[SDim]*)
 
 
 
-outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/"
+If[outputPath===Automatic,
+	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
+	Print["Output path has been set as "<>outputPath]
+]
 
 
 missionStatusFolder=outputPath<>"tmp/mission_status/"
@@ -103,7 +107,7 @@ If[!DirectoryQ[#],Run["mkdir -p "<>#]]&[revalantIntegralsFolder]
 Run["echo "<>ToString[sectorID]<>":\tStart\t"<>ToString[InputForm[FromUnixTime[UnixTime[]]]]<>" >> "<>outputPath<>"log2.txt"]
 
 
-If[Get[workingPath<>"SparseRREF/SparseRREF.m"]===$Failed,
+If[Get[packagePath<>"SparseRREF/SparseRREF.m"]===$Failed,
 	PrintAndLog["Unable to Get SparseRREF. Exiting."];
 	Run["echo "<>ToString[sectorID]<>":\tExit[Unable to Get SparseRREF]\t"<>ToString[InputForm[FromUnixTime[UnixTime[]]]]<>" >> "<>outputPath<>"log2.txt"];
 	Exit[]
@@ -113,10 +117,10 @@ If[Get[workingPath<>"SparseRREF/SparseRREF.m"]===$Failed,
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[outputPath<>"tmp/"]
 TemporaryDirectory = outputPath<>"tmp/singular_temp/singular_temp_"<>ToString[sectorID]<>"/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectory]
-SingularDirectory = "/usr/bin/Singular"
 
-Get[workingPath<>"Pak_Algorithm/Pak_Algorithm.wl"]
-Get[SyzygyRedPackageFile]
+
+Get[packagePath<>"Pak_Algorithm/Pak_Algorithm.wl"]
+Get[packagePath<>"SyzygyRed.wl"]
 
 reductionTasksFolder=outputPath<>"tmp/reduction_tasks/"
 
@@ -127,7 +131,7 @@ If[!DirectoryQ[#],Run["mkdir "<>#]]&[LogPath]
 
 
 
-IntegralOrder="Global";
+
 PrintAndLog["Preparing"]
 Prepare[];
 PrintAndLog["Prepared"]
