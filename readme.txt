@@ -1,4 +1,7 @@
 Dependencies:
+Singular
+https://www.singular.uni-kl.de/
+
 SparseRREF by RWinter. 
 url: https://github.com/RWUSTC/RW-s-Sparse-Matrix-RREF
 Try to type

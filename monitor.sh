@@ -1,1 +1,2 @@
-math -script MissionStatusMonitor.wl inputs_and_config.txt
+packagePath=$(dirname $( realpath ${BASH_SOURCE}))
+math -script $packagePath/MissionStatusMonitor.wl config.txt

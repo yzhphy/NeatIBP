@@ -1,3 +1,4 @@
-math -script Initialization.wl inputs_and_config.txt
-math -script AllMissionCompleteQ.wl inputs_and_config.txt | sh
-math -script Summary.wl inputs_and_config.txt
+packagePath=$(dirname $( realpath ${BASH_SOURCE}))
+math -script $packagePath/Initialization.wl config.txt
+math -script $packagePath/AllMissionCompleteQ.wl config.txt | sh
+math -script $packagePath/Summary.wl config.txt

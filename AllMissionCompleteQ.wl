@@ -5,13 +5,14 @@ commandLineMode=True
 
 If[commandLineMode,
 	packagePath=DirectoryName[$InputFileName];
-	workingPath=Directory[];
+	workingPath=Directory[]<>"/";
 	missionInput=$CommandLine[[-1]];
 
 	,
 	Print["WARNING: program is not running in command line mode!"];
-	workingPath=NotebookDirectory[];
-	missionInput="example.txt"
+	workingPath=NotebookDirectory[]<>"examples/dbox/";
+	packagePath=NotebookDirectory[];
+	missionInput="inputs_and_config.txt"
 	(*LoopMomenta={l1,l2};
 	ExternalMomenta={k1,k2,k4};
 	Propagators={l1^2,(l1-k1)^2,(l1-k1-k2)^2,(l2+k1+k2)^2,(l2-k4)^2,l2^2,(l1+l2)^2,(l1+k4)^2,(l2+k1)^2};
@@ -22,23 +23,23 @@ If[commandLineMode,
 ]
 
 
-AppendTo[$Path,workingPath];
-If[Get[missionInput]===$Failed,Print["echo \"Unable to open "<>missionInput<>". Exiting.\""];Exit[]]
-
-
-
+(*AppendTo[$Path,workingPath];*)
+If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting.";Exit[]]]
+If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting.";Exit[]]]
+TargetIntegrals=Get[targetIntegralsFile]
+If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting.";Exit[]]]
 
 
 (*getSparseRREF=True
 getSparseRREF=<<SparseRREF`*)
 
 
-If[Get[missionInput]===$Failed,Print["echo \"Unable to get SparseRREF. Exiting.\""];Exit[]]
+
 
 
 If[outputPath===Automatic,
 	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
-	Print["Output path has been set as "<>outputPath]
+	
 ]
 
 
@@ -60,4 +61,7 @@ If[DeleteCases[Union[missionStatus[[All,2]]],"ComputationFinished"]==={},
 
 Print[script]
 Run["echo \""<>script<>"\" >> "<>outputPath<>"log3.txt"]
+
+
+
 

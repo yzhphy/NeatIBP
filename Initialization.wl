@@ -17,9 +17,10 @@ commandLineMode=True
 
 If[commandLineMode,
 	(*workingPath=DirectoryName[$InputFileName];*)
-	missionInput=$CommandLine[[-1]];
+	
 	packagePath=DirectoryName[$InputFileName];
-	workingPath=Directory[];
+	workingPath=Directory[]<>"/";
+	missionInput=$CommandLine[[-1]];
 	,
 	Print["WARNING: program is not running in command line mode!"];
 	workingPath=NotebookDirectory[];
@@ -51,20 +52,26 @@ If[FileExistsQ[workingPath<>#],Run["rm -f "<>workingPath<>#]]&/@
 {"log.txt","log1.txt","log2.txt","log3.txt","log4.txt"}
 
 
-AppendTo[$Path,workingPath];
-If[Get[missionInput]===$Failed,Print["Unable to open "<>missionInput<>". Exiting.";Exit[]]]
-
+(*AppendTo[$Path,workingPath];*)
+If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting.";Exit[]]]
+If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting.";Exit[]]]
+TargetIntegrals=Get[targetIntegralsFile]
+If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting.";Exit[]]]
 
 
 If[outputPath===Automatic,
+	automaticOutputPath=True;
 	If[!DirectoryQ[#],Run["mkdir "<>#]]&[workingPath<>"outputs"];
 	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
 	Print["Output path has been set as "<>outputPath]
+	,
+	automaticOutputPath=False;
 ]
-If[DirectoryQ[outputPath],
-	continueQ=InputString["Output path \""<>outputPath<>"\" already exists. Do you want to delete it? Type Y or y to continue. Type others to abort.\n"];
+If[And[DirectoryQ[outputPath],automaticOutputPath],
+	continueQ=InputString["Output directory \""<>outputPath<>"\" already exists. Do you want to delete it? Type Y or y to continue. Type others to abort.\n"];
 	
 	If[Or[continueQ=="y",continueQ=="Y"],
+		
 		Print["Removing "<>outputPath];
 		Run["rm -rf "<>outputPath];
 		Print["done."]
@@ -74,8 +81,19 @@ If[DirectoryQ[outputPath],
 		Exit[0]
 	]
 ]
+If[And[DirectoryQ[outputPath],!automaticOutputPath],
+	continueQ=InputString["Output directory \""<>outputPath<>"\" already exists.
+Since this is not an automatic output folder, I cannot delete it for you considering security.
+Please reset outputPath in "<>workingPath<>"config.txt, or delete "<>outputPath<>" manually. Then try again.
+Type in anything to continue.
+"];
+	
+	Exit[0];
+]
 Run["mkdir -p "<>outputPath]
 Run["cp "<>workingPath<>missionInput<>" "outputPath<>missionInput]
+Run["cp "<>kinematicsFile<>" "outputPath]
+Run["cp "<>targetIntegralsFile<>" "outputPath]
 
 
 SectorNumberToSectorIndex//ClearAll

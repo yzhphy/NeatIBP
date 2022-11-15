@@ -9,7 +9,7 @@ commandLineMode=True
 If[commandLineMode,
 	
 	packagePath=DirectoryName[$InputFileName];
-	workingPath=Directory[];
+	workingPath=Directory[]<>"/";
 	missionInput=$CommandLine[[-2]];
 	sectorID=$CommandLine[[-1]]//ToExpression;
 	,
@@ -78,13 +78,18 @@ SectorNumberToSectorIndex[num_]:=IntegerDigits[num,2,Length[Propagators]]//Rever
 
 
 
-AppendTo[$Path,workingPath];
-If[Get[missionInput]===$Failed,
-	PrintAndLog["Unable to open "<>missionInput<>". Exiting."];
+(*AppendTo[$Path,workingPath];*)
+If[Get[workingPath<>missionInput]===$Failed,
+	PrintAndLog["Unable to open "<>workingPath<>missionInput<>". Exiting."];
 	(*Run["echo "<>ToString[sectorID]<>":\tExit[Unable to open "<>missionInput<>"]\t"<>ToString[InputForm[FromUnixTime[UnixTime[]]]]<>" >> log2.txt"];*)
 	Exit[]
 ];
-TargetIntegrals//Clear;
+
+
+If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting.";Exit[]]]
+(*TargetIntegrals=Get[targetIntegralsFile]
+If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting.";Exit[]]]
+TargetIntegrals//Clear;*)
 (*PrintAndLog[sectorID,missionInput,Propagators//InputForm//ToString]
 PrintAndLog[Head/@{sectorID,missionInput,Propagators//InputForm}]
 PrintAndLog[SDim]*)

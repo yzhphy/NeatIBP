@@ -279,8 +279,8 @@ MatrixOutput[sector_]:=Module[{Modules},
 
 PrintAndLog["SyzygyRed: A Mathematica Interface for Generating simple IBPs with the module interesection method."];
 PrintAndLog["Janko Boehm, Xiaodi Li, Rourou Ma, Zihao Wu, Yang Zhang\n"];
-Print["If you see an error message saying cannot open LinearSyzForLinearModule_FF_v2.wl, you can ignore it for the current version:"]
-Get["/home/zihao/projects/SyzygyRed/LinearSyz/LinearSyzForLinearModule_FF_v2.wl"]
+(*Print["If you see an error message saying cannot open LinearSyzForLinearModule_FF_v2.wl, you can ignore it for the current version:"]
+Get["/home/zihao/projects/SyzygyRed/LinearSyz/LinearSyzForLinearModule_FF_v2.wl"]*)
 
 
 (* ::Section:: *)
@@ -554,7 +554,7 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 	varOrder=Join[Complement[var,Variables[M2]]//Sort,Intersection[var,Variables[M2]]//Sort];
 	(* PrintAndLog[varOrder]; *)
 	SingularIntersectionMaker[M1,M1ext,M2,varOrder,Parameters,ScriptFile->OptionValue[ScriptFile],OutputFile->OptionValue[OutputFile],Modulus->OptionValue[Modulus],SimplificationRules->OptionValue[SimplificationRules],degBound->OptionValue[degBound]];
-	SingularCommand=SingularDirectory<>" "<>OptionValue[ScriptFile];
+	SingularCommand=SingularApp<>" "<>OptionValue[ScriptFile];
 	timer=AbsoluteTime[];
 	Run[SingularCommand];
 	PrintAndLog["Singular running time ... ",AbsoluteTime[]-timer];

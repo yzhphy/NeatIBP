@@ -3,4 +3,28 @@ This config file will be included into several mathematica scripts using Get.
 Please make sure the paths are absolute paths.
 *)
 
-outputPath="";
+(*------------input files----------------*)
+kinematicsFile = workingPath<>"kinematics.txt";(*workingPath will be set as the current working path*)
+targetIntegralsFile = workingPath<>"targetIntegrals.txt";
+
+(*-----------dependency settings---------*)
+SingularApp = "/usr/bin/Singular";
+
+(*-----------directory settings----------*)
+ReductionOutputName="dbox1";
+outputPath=Automatic;(*recommended*)
+
+(*outputPath=workingPath<>"test/";*)(*alternative*)
+
+
+(*-----------math settings---------------*)
+IntegralOrder = "Global"
+OptionSimplification = 12;
+NeedSymmetry=True;
+
+(*-----------usage settings--------------*)
+MemoryUsedLimit=100000;(*MB*)
+ThreadUsedLimit=16;
+
+
+

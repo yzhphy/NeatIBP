@@ -1,8 +1,5 @@
 (* ::Package:: *)
 
-
-
-
 commandLineMode=True
 
 
@@ -11,7 +8,7 @@ commandLineMode=True
 
 If[commandLineMode,
 	packagePath=DirectoryName[$InputFileName];
-	workingPath=Directory[];
+	workingPath=Directory[]<>"/";
 	missionInput=$CommandLine[[-1]];
 
 	,
@@ -31,8 +28,11 @@ If[commandLineMode,
 
 
 
-AppendTo[$Path,workingPath];
-If[Get[missionInput]===$Failed,Print["Unable to open "<>missionInput<>". Exiting.";Exit[]]]
+(*AppendTo[$Path,workingPath];*)
+If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting.";Exit[]]]
+If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting.";Exit[]]]
+(*TargetIntegrals=Get[targetIntegralsFile]
+If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting.";Exit[]]]*)
 
 
 If[outputPath===Automatic,

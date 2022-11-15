@@ -1,2 +1,3 @@
-math -script PrepareForContinueComputation.wl inputs_and_config.txt
-math -script AllMissionCompleteQ.wl inputs_and_config.txt | sh
+packagePath=$(dirname $( realpath ${BASH_SOURCE}))
+math -script $packagePath/PrepareForContinueComputation.wl config.txt
+math -script $packagePath/AllMissionCompleteQ.wl config.txt | sh

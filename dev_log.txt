@@ -350,7 +350,16 @@ moved settings
 into input files.
 Added outputPath=Automatic. We need to test what if it is not Automatic
 
+-------------------------------
+2022.11.15
+made some adjustments to tha shell scripts (and .wl files) to fit in the changes yesterday.
 
+(**)ed codes
+Print["If you see an error message saying cannot open LinearSyzForLinearModule_FF_v2.wl, you can ignore it for the current version:"]
+Get["/home/zihao/projects/SyzygyRed/LinearSyz/LinearSyzForLinearModule_FF_v2.wl"]
+in SyzygyRed.wl
+
+renamed SingularDirectory to SingularApp to avoid confusion, in SyzygyRed.wl and config.txt
 
 
 
