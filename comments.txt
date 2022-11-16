@@ -1,4 +1,15 @@
-What if one AnalyzeSectors failed unexpectedly? The system will consider this sector still computing, eternally.
+==========Urgent===================
+
+
+Need to consider a situation: what if a AnalyzeSectors.wl process quits unexpectedly? The current system will not discover this and it would think the worker is still working.
+
+Copy right of SPASM
+
+issue in the dev_log.txt at 2022.0923 [II] needs to be improved.
+
+
+==========Important=================
+
 
 [SyzygyRed.wl]
 There are some global variables named "m" or "z" etc. in the code. 
@@ -15,22 +26,24 @@ SDim seems unecessary in the code, try get rid of it?
 The IntegralOrder is a global variable... not so good, we would be better set a default value of it. 
 
 
-issue in the dev_log.txt at 2022.0923 [II] needs to be improved.
 
-Generate nFIBPs is slow because of CoefficientRules, I do not know the way to improve it.
-Zurich seeding step for high degree seeds is slow, which is due to Replacements in function IntegralRealization. Also, no idea for improvements for now.
 
-Need to consider a situation: what if a worker quits unexpectedly? The current system will not discover this and it would think the worker is still working.
 
 RelavantIntegrals is useless... We do not need to export them.
 
-Copy right of SPASM
 
 Consider a question: Can user compute 2 or more different projects at the same time?
 
 Clean up useless trashes!
 
-in dev_log there is a issue at 2022.11.14:
-Added outputPath=Automatic. We need to test what if it is not Automatic
+
+
+=============Not Important=================
+why do we need to set TemporaryDirectory everywhere?
+
+Generate nFIBPs is slow because of CoefficientRules, I do not know the way to improve it.
+Zurich seeding step for high degree seeds is slow, which is due to Replacements in function IntegralRealization. Also, no idea for improvements for now.
 
 in MissionStatusChecker.wl, the first code block, ......=Infinity, I do not know why...
+
+what does "mapped sectors" mean? the naming in the codes are confusing. the concept "mapped and sub sectors" is not accurate. it should be "image or sub sectors."

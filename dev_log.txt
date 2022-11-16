@@ -348,7 +348,7 @@ moved settings
 	IntegralOrder = "Global"
 	OptionSimplification = 12;
 into input files.
-Added outputPath=Automatic. We need to test what if it is not Automatic
+Added outputPath=Automatic. We need to test what if it is not Automatic (tested)
 
 -------------------------------
 2022.11.15
