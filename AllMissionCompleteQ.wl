@@ -41,6 +41,15 @@ If[outputPath===Automatic,
 	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
 	
 ]
+If[Intersection[StringSplit[outputPath,""],{" ","\t","\n","?","@","#","$","*","&","(",")","\"","\'","|"}]=!={},
+	Print["echo \"Path "<>outputPath<>" is illegal. Exiting.\""];
+	Exit[0];
+
+]
+If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
+
+
+StringSplit["asjias",""][[-1]]=="s"
 
 
 missionStatusFolder=outputPath<>"tmp/mission_status/"
@@ -60,7 +69,7 @@ If[DeleteCases[Union[missionStatus[[All,2]]],"ComputationFinished"]==={},
 ]
 
 Print[script]
-Run["echo \""<>script<>"\" >> "<>outputPath<>"log3.txt"]
+Run["echo \""<>script<>"\" >> "<>outputPath<>"tmp/log3.txt"]
 
 
 

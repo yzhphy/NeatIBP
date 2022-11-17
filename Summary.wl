@@ -45,7 +45,12 @@ If[outputPath===Automatic,
 	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
 	Print["Output path has been set as "<>outputPath]
 ]
+If[Intersection[StringSplit[outputPath,""],{" ","\t","\n","?","@","#","$","*","&","(",")","\"","\'","|"}]=!={},
+	Print["Path "<>outputPath<>" is illegal. Exiting."];
+	Exit[0];
 
+]
+If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
 
 TemporaryDirectory=outputPath<>"tmp"

@@ -81,7 +81,7 @@ SectorNumberToSectorIndex[num_]:=IntegerDigits[num,2,Length[Propagators]]//Rever
 (*AppendTo[$Path,workingPath];*)
 If[Get[workingPath<>missionInput]===$Failed,
 	PrintAndLog["Unable to open "<>workingPath<>missionInput<>". Exiting."];
-	(*Run["echo "<>ToString[sectorID]<>":\tExit[Unable to open "<>missionInput<>"]\t"<>ToString[InputForm[FromUnixTime[UnixTime[]]]]<>" >> log2.txt"];*)
+	(*Run["echo "<>ToString[sectorID]<>":\tExit[Unable to open "<>missionInput<>"]\t"<>ToString[InputForm[FromUnixTime[UnixTime[]]]]<>" >> tmp/log2.txt"];*)
 	Exit[]
 ];
 
@@ -100,6 +100,12 @@ If[outputPath===Automatic,
 	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
 	Print["Output path has been set as "<>outputPath]
 ]
+If[Intersection[StringSplit[outputPath,""],{" ","\t","\n","?","@","#","$","*","&","(",")","\"","\'","|"}]=!={},
+	Print["Path "<>outputPath<>" is illegal. Exiting."];
+	Exit[0];
+
+]
+If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
 
 missionStatusFolder=outputPath<>"tmp/mission_status/"
@@ -109,12 +115,12 @@ revalantIntegralsFolder=outputPath<>"tmp/relavant_integrals/"
 If[!DirectoryQ[#],Run["mkdir -p "<>#]]&[revalantIntegralsFolder]
 
 
-Run["echo "<>ToString[sectorID]<>":\tStart\t"<>ToString[InputForm[FromUnixTime[UnixTime[]]]]<>" >> "<>outputPath<>"log2.txt"]
+Run["echo "<>ToString[sectorID]<>":\tStart\t"<>ToString[InputForm[FromUnixTime[UnixTime[]]]]<>" >> "<>outputPath<>"tmp/log2.txt"]
 
 
 If[Get[packagePath<>"SparseRREF/SparseRREF.m"]===$Failed,
 	PrintAndLog["Unable to Get SparseRREF. Exiting."];
-	Run["echo "<>ToString[sectorID]<>":\tExit[Unable to Get SparseRREF]\t"<>ToString[InputForm[FromUnixTime[UnixTime[]]]]<>" >> "<>outputPath<>"log2.txt"];
+	Run["echo "<>ToString[sectorID]<>":\tExit[Unable to Get SparseRREF]\t"<>ToString[InputForm[FromUnixTime[UnixTime[]]]]<>" >> "<>outputPath<>"tmp/log2.txt"];
 	Exit[]
 ]
 
@@ -173,7 +179,7 @@ CuttedQ[integral_,cut_]:=MemberQ[Union[Sign/@((List@@integral[[cut]])-1)],-1](* 
 If[sectorID=!=-1,
 	LogFile=LogPath<>ToString[sectorID]<>".txt";
 	
-	sectorMaps=Get[outputPath<>"sectorMaps.txt"];
+	sectorMaps=Get[outputPath<>"tmp/sectorMaps.txt"];
 	
 	PrintAndLog["Analyzing sector "<>ToString[InputForm[SectorNumberToSectorIndex[sectorID]]]<>"."];
 	Sectors=SortBy[Union[Sector/@TargetIntegrals],SectorOrdering]//Reverse;
@@ -295,7 +301,7 @@ Export[
 If[sectorID=!=-1,PrintAndLog["Sector ",sectorID," finished."]]
 
 
-Run["echo "<>ToString[sectorID]<>":\tFinished\t"<>ToString[InputForm[FromUnixTime[UnixTime[]]]]<>" >> "<>outputPath<>"log2.txt"]
+Run["echo "<>ToString[sectorID]<>":\tFinished\t"<>ToString[InputForm[FromUnixTime[UnixTime[]]]]<>" >> "<>outputPath<>"tmp/log2.txt"]
 
 
 reportString=
@@ -303,4 +309,4 @@ reportString=
 ToString[InputForm[Round[MaxMemoryUsed[]/(1024^2)]]]<>" MB."
 
 
-Run["echo \""<>reportString<>"\" >> "<>outputPath<>"log.txt"]
+Run["echo \""<>reportString<>"\" >> "<>outputPath<>"tmp/log.txt"]

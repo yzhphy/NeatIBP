@@ -377,6 +377,9 @@ modified Cuts in SectorAnalyze[] in SyzygyRed,wl to sectorCuts to avoid name con
 Continue:
 Add Cut opetion in AnalyzeSector.wl
 
+put some temp files into tmp folder (where they should be)
+
+if outputPath dosenot end with "/", add a "/"
 
 
 

@@ -41,6 +41,12 @@ If[outputPath===Automatic,
 	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
 
 ]
+If[Intersection[StringSplit[outputPath,""],{" ","\t","\n","?","@","#","$","*","&","(",")","\"","\'","|"}]=!={},
+	Print["Path "<>outputPath<>" is illegal. Exiting."];
+	Exit[0];
+
+]
+If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
 
 missionStatusFolder=outputPath<>"tmp/mission_status/"
@@ -75,7 +81,7 @@ SuperSectors[sector_]:=Module[{addingPositions,possibleSupersectors},
 	possibleSupersectors=Add1[sector,#]&/@addingPositions;
 	SortBy[Intersection[NonZeroSectors,possibleSupersectors],SectorOrdering]
 ]*)
-superOrSourceSectors=Get[outputPath<>"superOrSourceSectors.txt"];
+superOrSourceSectors=Get[outputPath<>"tmp/superOrSourceSectors.txt"];
 SuperSectors[sector_]:=sector/.superOrSourceSectors
 
 
@@ -92,8 +98,8 @@ PoissonWinzorize[list_,abnormalBound_]:=Module[{oldList,newList},
 
 MissionLimitByMemory[number_,maxUsage_]:=Module[{MUH,AMUH},
 	(*MUH:memory usage history*)
-	If[!FileExistsQ[outputPath<>"log.txt"],Return[Infinity]];
-	MUH=ToExpression[StringSplit[#," "][[-2]]]&/@StringSplit[Import[outputPath<>"log.txt"],"\n"];
+	If[!FileExistsQ[outputPath<>"tmp/log.txt"],Return[Infinity]];
+	MUH=ToExpression[StringSplit[#," "][[-2]]]&/@StringSplit[Import[outputPath<>"tmp/log.txt"],"\n"];
 	If[MUH==={},Return[Infinity]];
 	MUH=PoissonWinzorize[MUH,3];(*The value "3" is put in by hand, can be modified*)
 	If[Length[MUH]<number,MUH=Join[MUH,Table[Round[N[Total[MUH]/Length[MUH]]],number-Length[MUH]]]];
@@ -134,7 +140,7 @@ While[True,
 	
 (*	Run["echo \""<>
 			TimeString[]<>"\t Mission status checked and possibly changed"<>
-			"\" >> log4.txt"
+			"\" >> tmp/log4.txt"
 	];*)
 	
 	missionReadyToCompute=(
@@ -159,7 +165,7 @@ While[True,
 				MissionLimitByMemory[Length[missionReadyToCompute]+Length[missionComputing],MemoryUsedLimit]-Length[missionComputing]
 				(*Max[MissionLimitByMemory[Length[missionReadyToCompute],Round[MemoryAvailable[]/(1024^2)]-MinMemoryReserved]-Length[missionComputing],0]*)
 			}]]<>
-			"\" >> "<>outputPath<>"log4.txt"
+			"\" >> "<>outputPath<>"tmp/log4.txt"
 		]
 	];
 	reportClock=Mod[reportClock+1,1000];
@@ -178,4 +184,4 @@ While[True,
 
 
 Print[script]
-Run["echo \""<>script<>"\" >> "<>outputPath<>"log3.txt"]
+Run["echo \""<>script<>"\" >> "<>outputPath<>"tmp/log3.txt"]

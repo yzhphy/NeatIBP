@@ -90,6 +90,13 @@ If[outputPath===Automatic,
 	,
 	automaticOutputPath=False;
 ]
+If[Intersection[StringSplit[outputPath,""],{" ","\t","\n","?","@","#","$","*","&","(",")","\"","\'","|"}]=!={},
+	Print["Path "<>outputPath<>" is illegal. Exiting."];
+	Exit[0];
+
+]
+If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
+
 If[And[DirectoryQ[outputPath],automaticOutputPath],
 	continueQ=InputString["Output directory \""<>outputPath<>"\" already exists. Do you want to delete it? Type Y or y to continue. Type others to abort.\n"];
 	
@@ -218,7 +225,7 @@ If[NeedSymmetry===False,
 	{uniqueSectors,mappedSectors,sectorMaps}=SectorMaps[NonZeroSectors];
 	
 ]
-Export[outputPath<>"sectorMaps.txt",sectorMaps//InputForm//ToString]
+Export[outputPath<>"tmp/sectorMaps.txt",sectorMaps//InputForm//ToString]
 Print[Length[mappedSectors]," mapped sector(s) found."];
 Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
@@ -289,7 +296,7 @@ For[indexK=1,indexK<=Length[uniqueSectors],indexK++,
 	]
 	
 ]
-Export[outputPath<>"superOrSourceSectors.txt",superOrSourceSectors//InputForm//ToString]
+Export[outputPath<>"tmp/superOrSourceSectors.txt",superOrSourceSectors//InputForm//ToString]
 Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
