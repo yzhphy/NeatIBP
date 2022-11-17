@@ -890,10 +890,10 @@ FindReducedIntegrals[rIBPs_,MIs_]:=Module[{result,tempInts,i},
 
 
 Options[SectorAnalyze]:={SeedingMethod->"Zurich",Verbosity->0,AdditionalDegree->3,DirectInitialSteps->2,TestOnly->False,
-ZurichInitialSteps->3,ModuleIntersectionMethod->"Singular",SectorMappingRules->{}
+ZurichInitialSteps->3,ModuleIntersectionMethod->"Singular",SectorMappingRules->{},Cut->{}
 };
 SectorAnalyze[sector_,OptionsPattern[]]:=Module[{secheight,secindex,VectorList,timer,FIBPs,numshifts,r,s,LocalTargets,DenominatorTypes,
-i,Cut,FIBPs1,CornerIBP,baseIBP,propLocus,ISPLocus,BaikovCut,rawIBPs={},nIBPs={},MIs={},step,newIBPs,seeds,integrals,SectorIntegrals,redIndex,irredIndex,rIBPs,
+i,sectorCut,FIBPs1,CornerIBP,baseIBP,propLocus,ISPLocus,BaikovCut,rawIBPs={},nIBPs={},MIs={},step,newIBPs,seeds,integrals,SectorIntegrals,redIndex,irredIndex,rIBPs,
 nFIBPs,WellAddressedIntegrals,secNo,degRep,rr,IBPDegreeList,IBPIndex,ReducedIntegrals,UsedIndex,subsector,SubsectorInts,tempInts,
 IBPISPdegrees,NewrawIBPs,NewnIBPs,timer2,M1,M1ext,M2,sectorMaps,mappedSectors,tailSectors,leafCounts,byteCounts,
 zs,zMaps,newNIBPs
@@ -927,7 +927,7 @@ zs,zMaps,newNIBPs
 	propLocus=Position[sector,1]//Flatten;
 	ISPLocus=Position[sector,0]//Flatten;
 	
-	Cut=SectorCut[sector];	
+	sectorCut=SectorCut[sector];	
 	BaikovCut=Table[z[propLocus[[i]]]->0,{i,1,Length[propLocus]}];
 	
 	r=Max[IntegralPropagatorDegree/@LocalTargets];
@@ -939,7 +939,7 @@ zs,zMaps,newNIBPs
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Solving module intersections..."]];
 	Switch[OptionValue[ModuleIntersectionMethod],
 		"Singular",
-		VectorList=SingularIntersection[secindex,degBound->5,VariableOrder->(var//Reverse)]
+		VectorList=SingularIntersection[secindex,degBound->5,VariableOrder->(var//Reverse),Cut->OptionValue[Cut]]
 		,
 		"Linear",
 		{M1,M1ext,M2}=TangentModules[secindex,{}];
@@ -954,7 +954,7 @@ zs,zMaps,newNIBPs
 	If[probeTheFunctions===True,Print["{secindex,VectorList} probed"];probe["{secindex,VectorList}",secNum]={secindex,VectorList}];
 	
 	
-	FIBPs=IBPGenerator[#,secindex]&/@VectorList;
+	FIBPs=IBPGenerator[#,secindex,Cut->OptionValue[Cut]]&/@VectorList;
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Formal IBPs generated. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
 	timer=AbsoluteTime[];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Driving DenominatorTypes..."]];
@@ -971,7 +971,7 @@ zs,zMaps,newNIBPs
 	For[i=1,i<=Length[FIBPs],i++,
 		baseIBP=IntegralRealization[FIBPs[[i]],sector];
 		
-		If[(baseIBP/.Cut)===0&&(Union[VectorList[[i,propLocus]]/.BaikovCut]==={0}),
+		If[(baseIBP/.sectorCut)===0&&(Union[VectorList[[i,propLocus]]/.BaikovCut]==={0}),
 			Continue[];  (* This IBP corresponds to a lower sector *)
 		]; 
 		AppendTo[FIBPs1,FIBPs[[i]]];
@@ -1022,7 +1022,7 @@ zs,zMaps,newNIBPs
 		rawIBPs=Table[IntegralR[FI[i],seeds[[j]]],{i,1,Length[FIBPs]},{j,1,Length[seeds]}]//Flatten;
 		
 		If[NeedSymmetry===False,
-			nIBPs=rawIBPs/.FI[i_]:>nFIBPs[[i]]/.IntegralR->IntegralRealization/.Cut
+			nIBPs=rawIBPs/.FI[i_]:>nFIBPs[[i]]/.IntegralR->IntegralRealization/.sectorCut
 		,
 			rawIBPs=Join[
 				rawIBPs,
@@ -1031,12 +1031,12 @@ zs,zMaps,newNIBPs
 			nIBPs=rawIBPs;
 			nIBPs=nIBPs/.FI[i_]:>nFIBPs[[i]]/.IntegralR->IntegralRealization;
 			nIBPs=nIBPs/.ZM[i_]:>(zMaps[[i]]/.GenericPoint)/.SelfSymmetryR->SelfSymmetryRealization;
-			nIBPs=nIBPs/.Cut;
+			nIBPs=nIBPs/.sectorCut;
 		];
 		
 		
 		
-		If[probeTheFunctions===True,Print["{rawIBPs,nFIBPs,Cut} probed"];probe["{rawIBPs,nFIBPs,Cut}",secNum]={rawIBPs,nFIBPs,Cut}];
+		If[probeTheFunctions===True,Print["{rawIBPs,nFIBPs,sectorCut} probed"];probe["{rawIBPs,nFIBPs,sectorCut}",secNum]={rawIBPs,nFIBPs,sectorCut}];
 		
 		If[OptionValue[Verbosity]==1,PrintAndLog["\t\t nIBPs created. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s)."]];
 		timer2=AbsoluteTime[];
@@ -1072,7 +1072,7 @@ zs,zMaps,newNIBPs
 			
 			If[NeedSymmetry===False,
 				rawIBPs=Join[rawIBPs,newIBPs];
-				nIBPs=Join[nIBPs,newIBPs/.FI[i_]:>nFIBPs[[i]]/.IntegralR->IntegralRealization/.Cut];
+				nIBPs=Join[nIBPs,newIBPs/.FI[i_]:>nFIBPs[[i]]/.IntegralR->IntegralRealization/.sectorCut];
 			,
 				newIBPs=Join[
 					newIBPs,
@@ -1082,7 +1082,7 @@ zs,zMaps,newNIBPs
 				newNIBPs=newIBPs;
 				newNIBPs=newNIBPs/.FI[i_]:>nFIBPs[[i]]/.IntegralR->IntegralRealization;
 				newNIBPs=newNIBPs/.ZM[i_]:>(zMaps[[i]]/.GenericPoint)/.SelfSymmetryR->SelfSymmetryRealization;
-				newNIBPs=newNIBPs/.Cut;
+				newNIBPs=newNIBPs/.sectorCut;
 				nIBPs=Join[nIBPs,newNIBPs]
 			];
 			
@@ -1090,7 +1090,7 @@ zs,zMaps,newNIBPs
 		
 			
 			
-			If[probeTheFunctions===True,Print["{nIBPs,newIBPs,nFIBPs,Cut} probed"];probe["{nIBPs,newIBPs,nFIBPs,Cut}",secNum]={nIBPs,newIBPs,nFIBPs,Cut}];
+			If[probeTheFunctions===True,Print["{nIBPs,newIBPs,nFIBPs,sectorCut} probed"];probe["{nIBPs,newIBPs,nFIBPs,sectorCut}",secNum]={nIBPs,newIBPs,nFIBPs,sectorCut}];
 			
 			If[OptionValue[Verbosity]==1,PrintAndLog["\t\t nIBPs created. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s)."]];
 			timer2=AbsoluteTime[];
@@ -1297,7 +1297,7 @@ FullForm]\);(*?*)
 	IBPIndex=IndepedentSet[nIBPs,SectorIntegrals];
 	rawIBPs=rawIBPs[[IBPIndex]];
 	
-	rawIBPs=rawIBPs/.FI[i_]:>FIBPs[[i]]/.IntegralR->IntegralRealization;   (* Only at this step, we obtain the analytic IBPs *)(*Why not /.Cut?*)
+	rawIBPs=rawIBPs/.FI[i_]:>FIBPs[[i]]/.IntegralR->IntegralRealization;   (* Only at this step, we obtain the analytic IBPs *)(*Why not /.sectorCut?*)
 	If[Not[NeedSymmetry===False],
 		rawIBPs=rawIBPs/.ZM[i_]:>(zMaps[[i]])/.SelfSymmetryR->SelfSymmetryRealization;
 	];

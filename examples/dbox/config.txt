@@ -11,7 +11,7 @@ targetIntegralsFile = workingPath<>"targetIntegrals.txt";
 SingularApp = "/usr/bin/Singular";
 
 (*-----------directory settings----------*)
-ReductionOutputName="dbox1";
+ReductionOutputName="dboxCut257";
 outputPath=Automatic;(*recommended*)
 
 (*outputPath=workingPath<>"test/";*)(*alternative*)
@@ -20,7 +20,8 @@ outputPath=Automatic;(*recommended*)
 (*-----------math settings---------------*)
 IntegralOrder = "Global"
 OptionSimplification = 12;
-NeedSymmetry=True;
+NeedSymmetry=False;
+
 
 (*-----------usage settings--------------*)
 MemoryUsedLimit=100000;(*MB*)

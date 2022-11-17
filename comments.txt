@@ -7,7 +7,7 @@ Copy right of SPASM
 
 issue in the dev_log.txt at 2022.0923 [II] needs to be improved.
 
-
+test cutting double propagators, the program should refuse to compute.
 ==========Important=================
 
 

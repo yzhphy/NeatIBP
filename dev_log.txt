@@ -361,5 +361,22 @@ in SyzygyRed.wl
 
 renamed SingularDirectory to SingularApp to avoid confusion, in SyzygyRed.wl and config.txt
 
+------------------------------
+2022.11.16
+made a backup (for new developments for Cuts)
+
+
+some modifications in Initialization.wl, preparing for cuts
+
+-------------------------------
+2022.11.17
+allowing cuts
+
+modified Cuts in SectorAnalyze[] in SyzygyRed,wl to sectorCuts to avoid name contradiction
+
+Continue:
+Add Cut opetion in AnalyzeSector.wl
+
+
 
 

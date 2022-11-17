@@ -46,10 +46,14 @@ If[MemberQ[StringSplit[workingPath,""]," "],
 	Print["Character \"space\" in working path, aborting."];
 	Exit[0]
 ]
+If[MemberQ[StringSplit[packagePath,""]," "],
+	Print["Character \"space\" in package path, aborting."];
+	Exit[0]
+]
 
 
-If[FileExistsQ[workingPath<>#],Run["rm -f "<>workingPath<>#]]&/@
-{"log.txt","log1.txt","log2.txt","log3.txt","log4.txt"}
+(*If[FileExistsQ[workingPath<>#],Run["rm -f "<>workingPath<>#]]&/@
+{"log.txt","log1.txt","log2.txt","log3.txt","log4.txt"}*)
 
 
 (*AppendTo[$Path,workingPath];*)
@@ -57,6 +61,25 @@ If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<
 If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting.";Exit[]]]
 TargetIntegrals=Get[targetIntegralsFile]
 If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting.";Exit[]]]
+
+
+If[CutIndices=!={}&&NeedSymmetry,
+	Print["Please turn off symmetry if there is any cut indices. Exiting..."];
+	Exit[0]
+]
+
+
+CutableQ[integral_,cut_]:=!MemberQ[Union[Sign/@((List@@integral[[cut]])-1)],1](* index that are cut must \[LessEqual] 1*)
+CuttedQ[integral_,cut_]:=MemberQ[Union[Sign/@((List@@integral[[cut]])-1)],-1](* index that are cut <1 then return True*)
+
+
+If[MemberQ[CutableQ[#,CutIndices]&/@TargetIntegrals,False],
+	Print["Sorry, this version dose not support cutting indices larger than 1. Please remove corresponding target integrals with such multiple propagators.\nExiting..."];
+	Exit[0];
+]
+
+
+
 
 
 If[outputPath===Automatic,
@@ -107,6 +130,15 @@ TemporaryDirectorySingular = TemporaryDirectory<>"singular_temp/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectorySingular]
 
 
+resultFolder=outputPath<>"results/";
+If[!DirectoryQ[#],Run["mkdir "<>#]]&[resultFolder];
+resultMIFolder=resultFolder<>"MI/";
+If[!DirectoryQ[#],Run["mkdir "<>#]]&[resultMIFolder];
+resultIBPFolder=resultFolder<>"IBP/";
+If[!DirectoryQ[#],Run["mkdir "<>#]]&[resultIBPFolder];
+
+
+
 Get[packagePath<>"Pak_Algorithm/Pak_Algorithm.wl"]
 Get[packagePath<>"SyzygyRed.wl"]
 runningScriptFolder=outputPath<>"tmp/running_scripts/"
@@ -123,10 +155,31 @@ reductionTasksFolder=TemporaryDirectory<>"reduction_tasks/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[reductionTasksFolder]
 
 
+If[CutIndices=!={},
+	Print["Removing target integrals vanishing on cut "<>ToString[InputForm[CutIndices]]];
+	cuttedTargets=Select[TargetIntegrals,CuttedQ[#,CutIndices]&];
+	TargetIntegrals=Complement[TargetIntegrals,cuttedTargets];
+	gatheredCuttedTargets=GatherBy[cuttedTargets,Sector];
+	For[i=1,i<=Length[gatheredCuttedTargets],i++,
+		gatheredCuttedTargetsOnASector=gatheredCuttedTargets[[i]];
+		cuttedSector=Sector[gatheredCuttedTargetsOnASector[[1]]];
+		cuttedSectorID=SectorNumber[cuttedSector];
+		Export[resultMIFolder<>ToString[cuttedSectorID]<>".txt",{}//InputForm//ToString];
+		Export[resultIBPFolder<>ToString[cuttedSectorID]<>".txt",gatheredCuttedTargetsOnASector//InputForm//ToString]
+	];
+	Print["\t"<>ToString[Length[cuttedTargets]]<>"vanishing targets removed. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+]
+
+
 Print["Finding nonzero sectors..."]
 timer=AbsoluteTime[];
 Sectors=SortBy[Union[Sector/@TargetIntegrals],SectorOrdering]//Reverse;
 RelavantSectors=SubsectorAllFinder[Sectors];
+
+If[CutIndices=!={},
+	RelavantSectors=Select[RelavantSectors,!CuttedQ[#,CutIndices]&]
+];
+
 ZeroSectors=Select[RelavantSectors,ZeroSectorQ];
 NonZeroSectors=SortBy[Complement[RelavantSectors,Global`ZeroSectors],SectorOrdering]//Reverse;
 Print[Length[NonZeroSectors]," non-zero sector(s) are found."];
@@ -140,12 +193,9 @@ Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 
-resultFolder=outputPath<>"results/";
-If[!DirectoryQ[#],Run["mkdir "<>#]]&[resultFolder];
-resultMIFolder=resultFolder<>"MI/";
-If[!DirectoryQ[#],Run["mkdir "<>#]]&[resultMIFolder];
-resultIBPFolder=resultFolder<>"IBP/";
-If[!DirectoryQ[#],Run["mkdir "<>#]]&[resultIBPFolder];
+
+
+
 
 Print["Exporting zero targets..."];
 timer=AbsoluteTime[];
@@ -220,7 +270,6 @@ For[indexI=1,indexI<=Length[uniqueSectors],indexI++,
 	]
 ]
 
-(*Print["ysudgfasljkdfkasfdg;laslk;dsfgjkasjkedfghak;lfsdgl"];*)
 
 superOrSourceSectors={}
 For[indexK=1,indexK<=Length[uniqueSectors],indexK++,
@@ -272,7 +321,7 @@ timer=AbsoluteTime[];
 For[i=1,i<=Length[uniqueSectors],i++,
 	currentSecNum=SectorNumber[uniqueSectors[[i]]];
 	reductionTasksFolderForSector[currentSecNum]=reductionTasksFolder<>ToString[currentSecNum]<>"/";
-	Run["rm -rf "<>reductionTasksFolderForSector[currentSecNum]];
+	(*Run["rm -rf "<>reductionTasksFolderForSector[currentSecNum]];*)
 	If[!DirectoryQ[#],Run["mkdir "<>#]]&[reductionTasksFolderForSector[currentSecNum]];
 	Export[reductionTasksFolderForSector[currentSecNum]<>"-1.txt",Select[ReductionTargets,Sector[#]===uniqueSectors[[i]]&]//InputForm//ToString]
 ]

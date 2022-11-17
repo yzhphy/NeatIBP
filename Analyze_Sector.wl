@@ -167,6 +167,9 @@ SuperSectors[sector_]:=Module[{addingPositions,possibleSupersectors},
 If[!commandLineMode,probeTheFunctions=True];
 
 
+CuttedQ[integral_,cut_]:=MemberQ[Union[Sign/@((List@@integral[[cut]])-1)],-1](* index that are cut <1 then return True*)
+
+
 If[sectorID=!=-1,
 	LogFile=LogPath<>ToString[sectorID]<>".txt";
 	
@@ -182,7 +185,10 @@ If[sectorID=!=-1,
 		RelavantSectors=MappedAndSubSectorsAllFinder[sectorMaps,Sectors]
 	];
 	
-	
+	(*assuming all targets are in the current sector, which is not a cutted sector*)
+	If[CutIndices=!={},
+		RelavantSectors=Select[RelavantSectors,!CuttedQ[#,CutIndices]&]
+	];
 	
 	ZeroSectors=Select[RelavantSectors,ZeroSectorQ];
 	NonZeroSectors=SortBy[Complement[RelavantSectors,Global`ZeroSectors],SectorOrdering]//Reverse;
@@ -199,7 +205,15 @@ If[sectorID=!=-1,
 	RelavantIntegrals=Association[Table[NonZeroSectors[[i]]->{},{i,1,Length[NonZeroSectors]}]];
 	
 		
-	SectorAnalyze[SectorNumberToSectorIndex[sectorID],SeedingMethod->"Zurich",Verbosity->1,ModuleIntersectionMethod->moduleIntersectionMethod,SectorMappingRules->sectorMaps];
+	SectorAnalyze[SectorNumberToSectorIndex[sectorID],
+		SeedingMethod->"Zurich",
+		Verbosity->1,
+		ModuleIntersectionMethod->moduleIntersectionMethod,
+		SectorMappingRules->sectorMaps,
+		Cut->CutIndices
+	];
+	
+	
 	resultFolder=outputPath<>"results/";
 	If[!DirectoryQ[#],Run["mkdir "<>#]]&[resultFolder];
 	resultMIFolder=resultFolder<>"MI/";

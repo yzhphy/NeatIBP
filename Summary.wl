@@ -89,6 +89,8 @@ relavantIntegrals=Get/@FileNames[All,outputPath<>"tmp/relavant_integrals/"];
 (*integralList=IntegralList[relavantIntegrals]*)
 integralList=IntegralList[IBPs]
 Export[outputPath<>"results/OrderedIntegrals.txt",integralList//InputForm//ToString];
+Export[outputPath<>"results/MI_all.txt",MIs//Flatten//InputForm//ToString];
+Export[outputPath<>"results/IBP_all.txt",IBPs//Flatten//InputForm//ToString];
 
 Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
