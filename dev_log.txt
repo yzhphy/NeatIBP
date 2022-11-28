@@ -381,5 +381,13 @@ put some temp files into tmp folder (where they should be)
 
 if outputPath dosenot end with "/", add a "/"
 
+-------------------------------
+2022.11.28
+
+modified in SyzygyRed.wl: from 
+Std[f_,ref_]:=Total[(G@@(ref-#[[1]]))*#[[2]]&/@CoefficientRules[f,var,DegreeReverseLexicographic]];
+to 
+Std[f_,ref_]:=Total[(G@@(ref-#[[1]]))*Factor[#[[2]]]&/@CoefficientRules[f,var,DegreeReverseLexicographic]];
+
 
 

@@ -107,6 +107,7 @@ Print["=================Summary==================="]
 
 Print["Total MI number: ",Length[Flatten[MIs]]]
 Print["Total IBP number: ",Length[Flatten[IBPs]]]
+Print["Total integral number: ",Length[Flatten[integralList]]]
 Print["---------------MIs-------------------------"]
 Print[Flatten[MIs]//InputForm//ToString]
 Print["---------------MI numbers------------------"]

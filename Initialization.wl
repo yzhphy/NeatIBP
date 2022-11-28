@@ -57,14 +57,20 @@ If[MemberQ[StringSplit[packagePath,""]," "],
 
 
 (*AppendTo[$Path,workingPath];*)
-If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting.";Exit[]]]
-If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting.";Exit[]]]
+If[Get[workingPath<>missionInput]===$Failed,Print["****  Unable to open config file "<>workingPath<>missionInput<>". Exiting.";Exit[]]]
+If[Get[kinematicsFile]===$Failed,Print["****  Unable to open kinematics file "<>kinematicsFile<>". Exiting.";Exit[]]]
 TargetIntegrals=Get[targetIntegralsFile]
-If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting.";Exit[]]]
+If[TargetIntegrals===$Failed,Print["****  Unable to open target intergals file "<>targetIntegralsFile<>". Exiting.";Exit[]]]
+
+
+If[Union[(Length[Propagators]===Length[#])&/@TargetIntegrals]=!={True},
+	Print["****  Length of Propagators and indices of TargetIntegrals mismatch. Exiting..."];
+	Exit[0];
+]
 
 
 If[CutIndices=!={}&&NeedSymmetry,
-	Print["Please turn off symmetry if there is any cut indices. Exiting..."];
+	Print["****  Please turn off symmetry if there is any cut indices. Exiting..."];
 	Exit[0]
 ]
 
@@ -74,7 +80,7 @@ CuttedQ[integral_,cut_]:=MemberQ[Union[Sign/@((List@@integral[[cut]])-1)],-1](* 
 
 
 If[MemberQ[CutableQ[#,CutIndices]&/@TargetIntegrals,False],
-	Print["Sorry, this version dose not support cutting indices larger than 1. Please remove corresponding target integrals with such multiple propagators.\nExiting..."];
+	Print["****  Sorry, this version dose not support cutting indices larger than 1. Please remove corresponding target integrals with such multiple propagators.\nExiting..."];
 	Exit[0];
 ]
 
@@ -91,7 +97,7 @@ If[outputPath===Automatic,
 	automaticOutputPath=False;
 ]
 If[Intersection[StringSplit[outputPath,""],{" ","\t","\n","?","@","#","$","*","&","(",")","\"","\'","|"}]=!={},
-	Print["Path "<>outputPath<>" is illegal. Exiting."];
+	Print["****  Path "<>outputPath<>" is illegal. Exiting."];
 	Exit[0];
 
 ]
@@ -153,6 +159,9 @@ runningScriptFolder=outputPath<>"tmp/running_scripts/"
 
 
 
+
+
+
 Prepare[];
 
 
@@ -164,6 +173,7 @@ If[!DirectoryQ[#],Run["mkdir "<>#]]&[reductionTasksFolder]
 
 If[CutIndices=!={},
 	Print["Removing target integrals vanishing on cut "<>ToString[InputForm[CutIndices]]];
+	timer=AbsoluteTime[];
 	cuttedTargets=Select[TargetIntegrals,CuttedQ[#,CutIndices]&];
 	TargetIntegrals=Complement[TargetIntegrals,cuttedTargets];
 	gatheredCuttedTargets=GatherBy[cuttedTargets,Sector];
@@ -181,11 +191,13 @@ If[CutIndices=!={},
 Print["Finding nonzero sectors..."]
 timer=AbsoluteTime[];
 Sectors=SortBy[Union[Sector/@TargetIntegrals],SectorOrdering]//Reverse;
+
 RelavantSectors=SubsectorAllFinder[Sectors];
 
 If[CutIndices=!={},
 	RelavantSectors=Select[RelavantSectors,!CuttedQ[#,CutIndices]&]
 ];
+
 
 ZeroSectors=Select[RelavantSectors,ZeroSectorQ];
 NonZeroSectors=SortBy[Complement[RelavantSectors,Global`ZeroSectors],SectorOrdering]//Reverse;

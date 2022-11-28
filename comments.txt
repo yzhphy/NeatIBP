@@ -9,7 +9,7 @@ issue in the dev_log.txt at 2022.0923 [II] needs to be improved.
 
 test cutting double propagators, the program should refuse to compute.
 ==========Important=================
-
+Check if replacement replaces the variables to numerics, if not, send a warning
 
 [SyzygyRed.wl]
 There are some global variables named "m" or "z" etc. in the code. 

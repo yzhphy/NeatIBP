@@ -9,7 +9,12 @@ Try to type
 In a test mathematica notebook to test if this dependency is functioning. 
 
 
-To use SyzygyRed_Parallel, edit "inputs_and_config.txt" first. Then run command
+To use SyzygyRed_Parallel, edit "config.txt" first. Makesure you edit the following 
+SingularApp
+
+
+
+Then run command
 ./run.sh
 The reduction procedure will run in parallel automatically.
 

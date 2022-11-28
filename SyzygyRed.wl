@@ -266,7 +266,6 @@ TangentModules[propIndex_,cutIndex_]:=Module[{M1,M2,M1ext,cut,ISPcondition},
 		M1=Global`TangentSet/.cut;
 		M1ext=Global`ExtendedTangentSet/.cut;
 		M2=DiagonalMatrix[var]/.ISPcondition/.cut;
-		
 		Return[{M1,M1ext,M2}];
 
 ];
@@ -567,7 +566,7 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 (*IBP generator*)
 
 
-Std[f_,ref_]:=Total[(G@@(ref-#[[1]]))*#[[2]]&/@CoefficientRules[f,var,DegreeReverseLexicographic]];
+Std[f_,ref_]:=Total[(G@@(ref-#[[1]]))*Factor[#[[2]]]&/@CoefficientRules[f,var,DegreeReverseLexicographic]];
 
 
 Options[IBPGenerator]:={Cut->{}};
