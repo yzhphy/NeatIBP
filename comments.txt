@@ -9,6 +9,8 @@ issue in the dev_log.txt at 2022.0923 [II] needs to be improved.
 
 test cutting double propagators, the program should refuse to compute.
 ==========Important=================
+test continue.sh!
+
 Check if replacement replaces the variables to numerics, if not, send a warning
 
 [SyzygyRed.wl]
@@ -18,6 +20,10 @@ contradiction with user`s code. (Like Litered`s "j").
   But considering we will use this in commandLine, this is not that \
 important
  No, it is important if user defines some kinematic variables like m[1]...
+
+also, n=Length[ExternalMomenta]+1;
+	L=Length[LoopMomenta];
+same issue as above
 
 Some parameters need to be made optional, eg. degree bound
 

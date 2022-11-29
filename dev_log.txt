@@ -389,5 +389,28 @@ Std[f_,ref_]:=Total[(G@@(ref-#[[1]]))*#[[2]]&/@CoefficientRules[f,var,DegreeReve
 to 
 Std[f_,ref_]:=Total[(G@@(ref-#[[1]]))*Factor[#[[2]]]&/@CoefficientRules[f,var,DegreeReverseLexicographic]];
 
+modified in MappedIntegral[zMap_,indices_] in SyzygyRed.wl 
+Gn=Total[(G@@(#[[1]]))*(#[[2]])&/@crn];
+to
+Gn=Total[(G@@(#[[1]]))*(Factor[#[[2]]])&/@crn];
 
+-------------------------------
+2022.11.29
+
+In SyzygyRed.wl - SectorAnalyze
+1.put after the position of "IntegralRealization"
+originally it is between "independent IBP" and "used IBP"
+now it is put after "used IBP"
+this will save some time
+
+2.Removed a line in oerlikon algorithm:
+SectorIntegrals=IntegralList[nIBPs]
+sincxe SectorIntegrals is never used in the rest part of the function
+
+3. modified 
+rawIBPs=CoefficientArrays[rawIBPs,integrals][[2]].integrals;
+to
+rawIBPs=Factor[CoefficientArrays[rawIBPs,integrals][[2]]].integrals;
+
+4.recovered the 2 modifications yesterday. I do not think it is a good idea to factor with m[i]s 
 

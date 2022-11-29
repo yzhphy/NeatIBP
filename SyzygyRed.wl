@@ -276,8 +276,7 @@ MatrixOutput[sector_]:=Module[{Modules},
 ]
 
 
-PrintAndLog["SyzygyRed: A Mathematica Interface for Generating simple IBPs with the module interesection method."];
-PrintAndLog["Janko Boehm, Xiaodi Li, Rourou Ma, Zihao Wu, Yang Zhang\n"];
+
 (*Print["If you see an error message saying cannot open LinearSyzForLinearModule_FF_v2.wl, you can ignore it for the current version:"]
 Get["/home/zihao/projects/SyzygyRed/LinearSyz/LinearSyzForLinearModule_FF_v2.wl"]*)
 
@@ -566,7 +565,7 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 (*IBP generator*)
 
 
-Std[f_,ref_]:=Total[(G@@(ref-#[[1]]))*Factor[#[[2]]]&/@CoefficientRules[f,var,DegreeReverseLexicographic]];
+Std[f_,ref_]:=Total[(G@@(ref-#[[1]]))*(#[[2]])&/@CoefficientRules[f,var,DegreeReverseLexicographic]];
 
 
 Options[IBPGenerator]:={Cut->{}};
@@ -578,6 +577,7 @@ IBPGenerator[vector_,RestrictedPropIndex_,OptionsPattern[]]:=Module[{i,b,ref,ref
 	h=L+(n-1)+1;
 	ref=Table[m[i],{i,1,SDim}];
 	term1=Std[-((d-h)/2)b,ref];
+	
 	For[i=1,i<=SDim,i++,
 		If[MemberQ[RestrictedPropIndex,i],
 			bb=Cancel[vector[[i]]/z[i]];
@@ -588,6 +588,7 @@ IBPGenerator[vector_,RestrictedPropIndex_,OptionsPattern[]]:=Module[{i,b,ref,ref
 			f=-m[i] vector[[i]]+z[i]*D[vector[[i]],z[i]];
 			term2+=Std[f,reflocal];
 		];
+		
 	];
 	Return[term1+term2];
 	
@@ -1296,10 +1297,12 @@ FullForm]\);(*?*)
 	IBPIndex=IndepedentSet[nIBPs,SectorIntegrals];
 	rawIBPs=rawIBPs[[IBPIndex]];
 	
-	rawIBPs=rawIBPs/.FI[i_]:>FIBPs[[i]]/.IntegralR->IntegralRealization;   (* Only at this step, we obtain the analytic IBPs *)(*Why not /.sectorCut?*)
+	(*I put the following integral realization codes after oerlikon algorithm*)
+	(*rawIBPs=rawIBPs/.FI[i_]:>FIBPs[[i]]/.IntegralR->IntegralRealization;   (* Only at this step, we obtain the analytic IBPs *)(*Why not /.sectorCut?*)
 	If[Not[NeedSymmetry===False],
 		rawIBPs=rawIBPs/.ZM[i_]:>(zMaps[[i]])/.SelfSymmetryR->SelfSymmetryRealization;
-	];
+	];*)
+	
 	nIBPs=nIBPs[[IBPIndex]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Independent FIBPs selected. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs are selected with ",Length[IntegralList[rawIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
@@ -1310,7 +1313,7 @@ FullForm]\);(*?*)
 	timer=AbsoluteTime[];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing the unneeded IBPs..."]];
 	
-	SectorIntegrals=IntegralList[nIBPs];
+	(*SectorIntegrals=IntegralList[nIBPs];*)
 	ReducedIntegrals=Complement[LocalTargets,MIs];
 	
 	
@@ -1319,6 +1322,17 @@ FullForm]\);(*?*)
 	
 	
 	rawIBPs=rawIBPs[[UsedIndex]];
+	(*nIBPs=nIBPs[[IBPIndex]];*)(*not needed*)
+	timer=AbsoluteTime[];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Realizing raw IBPs..."]];
+	
+	rawIBPs=rawIBPs/.FI[i_]:>FIBPs[[i]]/.IntegralR->IntegralRealization;   (* Only at this step, we obtain the analytic IBPs *)
+	If[Not[NeedSymmetry===False],
+		rawIBPs=rawIBPs/.ZM[i_]:>(zMaps[[i]])/.SelfSymmetryR->SelfSymmetryRealization;
+	];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Raw IBP realized. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
+	
+	
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Uneeded IBPs removed. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs remaining with ",Length[IntegralList[rawIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
 	
@@ -1347,10 +1361,10 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing zero-sector integrals..."]];
 	
     integrals=Select[IntegralList[rawIBPs],!MemberQ[Global`ZeroSectors,Sector[#]]&];
-	rawIBPs=CoefficientArrays[rawIBPs,integrals][[2]].integrals; (*Do I need to factor these coefficients?*)
+	rawIBPs=Factor[CoefficientArrays[rawIBPs,integrals][[2]]].integrals; (*Do I need to factor these coefficients?...OH yes, very important*)
 	
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Zero-sector integrals removed. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[nIBPs]," IBPs remaining with ",Length[IntegralList[rawIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs remaining with ",Length[IntegralList[rawIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
 	timer=AbsoluteTime[];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Saving results in current sector..."]];
 	
