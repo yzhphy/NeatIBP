@@ -43,10 +43,16 @@ If[commandLineMode,
 
 
 LogFile="";
-PrintAndLog[x___]:=Module[{string},
+PrintAndLog[x___]:=Module[{string,originalString},
 	If[LogFile=!="",
 		string=StringRiffle[ToString/@{x},""];
-		Run["echo \""<>string<>"\" >> "<>LogFile]
+		(*Run["echo \""<>string<>"\" >> "<>LogFile]*)
+		If[FileExistsQ[LogFile],
+			originalString=Import[LogFile]<>"\n"
+		,
+			originalString=""
+		];
+		Export[LogFile,originalString<>string]
 	];
 	Print[x]
 ]

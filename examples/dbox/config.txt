@@ -11,7 +11,7 @@ targetIntegralsFile = workingPath<>"targetIntegrals.txt";
 SingularApp = "/usr/bin/Singular";
 
 (*-----------directory settings----------*)
-ReductionOutputName="dbox20221129";(*do not use special characters, including space*)
+ReductionOutputName="dbox";(*do not use special characters, including space*)
 outputPath=Automatic;(*recommended*)
 
 (*outputPath=workingPath<>"test/";*)(*alternative*)

@@ -102,10 +102,23 @@ RowReduceFunction=SRSparseRowReduce
 
 
 
-PrintAndLog[x___]:=Module[{string},
+ProbeIntermediateResult[name_,sec_,expr_]:=Module[{intermediateResultFolder},
+	intermediateResultFolder=outputPath<>"tmp/intermediate_results/"<>name<>"/";
+	If[!DirectoryQ[#],Run["mkdir -p "<>#]]&[intermediateResultFolder];
+	Export[intermediateResultFolder<>ToString[sec]<>".txt",expr//InputForm//ToString]
+]
+
+
+PrintAndLog[x___]:=Module[{string,originalString},
 	If[LogFile=!="",
 		string=StringRiffle[ToString/@{x},""];
-		Run["echo \""<>string<>"\" >> "<>LogFile]
+		(*Run["echo \""<>string<>"\" >> "<>LogFile]*)
+		If[FileExistsQ[LogFile],
+			originalString=Import[LogFile]<>"\n"
+		,
+			originalString=""
+		];
+		Export[LogFile,originalString<>string]
 	];
 	Print[x]
 ]
@@ -890,7 +903,7 @@ FindReducedIntegrals[rIBPs_,MIs_]:=Module[{result,tempInts,i},
 
 
 Options[SectorAnalyze]:={SeedingMethod->"Zurich",Verbosity->0,AdditionalDegree->3,DirectInitialSteps->2,TestOnly->False,
-ZurichInitialSteps->3,ModuleIntersectionMethod->"Singular",SectorMappingRules->{},Cut->{}
+ZurichInitialSteps->3,ModuleIntersectionMethod->"Singular",SectorMappingRules->{},Cut->{},KillCornerSubsecIBPs->False
 };
 SectorAnalyze[sector_,OptionsPattern[]]:=Module[{secheight,secindex,VectorList,timer,FIBPs,numshifts,r,s,LocalTargets,DenominatorTypes,
 i,sectorCut,FIBPs1,CornerIBP,baseIBP,propLocus,ISPLocus,BaikovCut,rawIBPs={},nIBPs={},MIs={},step,newIBPs,seeds,integrals,SectorIntegrals,redIndex,irredIndex,rIBPs,
@@ -955,7 +968,7 @@ zs,zMaps,newNIBPs
 	
 	
 	FIBPs=IBPGenerator[#,secindex,Cut->OptionValue[Cut]]&/@VectorList;
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Formal IBPs generated. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[FIBPs]," Formal IBPs generated. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
 	timer=AbsoluteTime[];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Driving DenominatorTypes..."]];
 	DenominatorTypes=Union[Append[IntegralPropagatorType/@LocalTargets,sector]];
@@ -963,26 +976,28 @@ zs,zMaps,newNIBPs
 	timer=AbsoluteTime[];
 	
 	(* Remove IBPs for lower sectors *)
+	(* But this will wrongly kill some IBPs that generates IBPs not for lower sectors at non-corner seed*)
+	(* I (zihao) suggest we turn off this step*)
+	If[OptionValue[KillCornerSubsecIBPs],
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing IBPs for lower sectors..."]];
+		FIBPs1={};
+		CornerIBP={};
 	
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing IBPs for lower sectors..."]];
-	FIBPs1={};
-	CornerIBP={};
-	
-	For[i=1,i<=Length[FIBPs],i++,
-		baseIBP=IntegralRealization[FIBPs[[i]],sector];
+		For[i=1,i<=Length[FIBPs],i++,
+			baseIBP=IntegralRealization[FIBPs[[i]],sector];
 		
-		If[(baseIBP/.sectorCut)===0&&(Union[VectorList[[i,propLocus]]/.BaikovCut]==={0}),
-			Continue[];  (* This IBP corresponds to a lower sector *)
-		]; 
-		AppendTo[FIBPs1,FIBPs[[i]]];
-		AppendTo[CornerIBP,baseIBP];
+			If[(baseIBP/.sectorCut)===0&&(Union[VectorList[[i,propLocus]]/.BaikovCut]==={0}),
+				Continue[];  (* This IBP corresponds to a lower sector *)
+			]; 
+			AppendTo[FIBPs1,FIBPs[[i]]];
+			AppendTo[CornerIBP,baseIBP];
+		];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[FIBPs]," Formal IBPs are generated; ",Length[FIBPs1]," Formal IBPs are used. "(*,AbsoluteTime[]-timer*)];];
+		FIBPs=FIBPs1;
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  IBPs for lower sectors removed. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
 	];
-	FIBPs=FIBPs1;
 	
 	
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  IBPs for lower sectors removed. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
-	
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[FIBPs]," Formal IBPs are generated; ",Length[FIBPs1]," Formal IBPs are used. "(*,AbsoluteTime[]-timer*)];];
 	
 	timer=AbsoluteTime[];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Generating numerical FIBPs..."]];
@@ -1249,7 +1264,7 @@ FullForm]\);(*?*)
 	];
 	
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ",Length[MIs]," MI(s) : ",MIs];];
-	
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Current IBP number: ",Length[nIBPs]];];
 	
 	
 	If[SubsetQ[MIs,LocalTargets],
@@ -1259,13 +1274,18 @@ FullForm]\);(*?*)
 	];
 	
 	timer=AbsoluteTime[];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing subsector IBPs..."]];
+	IBPIndex=Select[Range[Length[nIBPs]],CollectG[nIBPs[[#]]/.sectorCut]=!=0&];(*CollectG may be slow... and seems to be unnecessary*)
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[nIBPs]-Length[IBPIndex]," IBPs removed, ",Length[IBPIndex]," IBPs remained."]];
+	rawIBPs=rawIBPs[[IBPIndex]];
+	nIBPs=nIBPs[[IBPIndex]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Subsector IBPs removed. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s)."]];
+	
+	timer=AbsoluteTime[];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Sorting nFIBPs..."]];
 	(* Sort the IBPs and find the independent Ones*)
 	(* degRep=Dispatch[#->rr^Total[IntegralAbsDegree[#]]&/@IntegralList[nIBPs]];
 	IBPDegreeList=Exponent[#,rr]&/@(nIBPs/.degRep); *)
-	
-	
-	
 	
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Calculating IBPDegreeList..."]];
 	timer2=AbsoluteTime[];
@@ -1294,6 +1314,8 @@ FullForm]\);(*?*)
 	timer=AbsoluteTime[];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Selecting independent FIBPs..."]];
 	
+	(*ProbeIntermediateResult["nIBPs1",secNo,nIBPs];*)
+	
 	IBPIndex=IndepedentSet[nIBPs,SectorIntegrals];
 	rawIBPs=rawIBPs[[IBPIndex]];
 	
@@ -1307,6 +1329,7 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Independent FIBPs selected. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs are selected with ",Length[IntegralList[rawIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
 	
+	(*ProbeIntermediateResult["nIBPs2",secNo,nIBPs];*)
 	
 	(* Remove the unneeded IBP , Oerlikon algorithm *)
 	
@@ -1323,9 +1346,11 @@ FullForm]\);(*?*)
 	
 	rawIBPs=rawIBPs[[UsedIndex]];
 	(*nIBPs=nIBPs[[IBPIndex]];*)(*not needed*)
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Uneeded IBPs removed. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs remaining with ",Length[IntegralList[rawIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
+	
 	timer=AbsoluteTime[];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Realizing raw IBPs..."]];
-	
 	rawIBPs=rawIBPs/.FI[i_]:>FIBPs[[i]]/.IntegralR->IntegralRealization;   (* Only at this step, we obtain the analytic IBPs *)
 	If[Not[NeedSymmetry===False],
 		rawIBPs=rawIBPs/.ZM[i_]:>(zMaps[[i]])/.SelfSymmetryR->SelfSymmetryRealization;
@@ -1333,8 +1358,6 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Raw IBP realized. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
 	
 	
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Uneeded IBPs removed. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs remaining with ",Length[IntegralList[rawIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
 	
 	(*	 Mapping integrals *)
 	(*

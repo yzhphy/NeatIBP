@@ -414,3 +414,15 @@ rawIBPs=Factor[CoefficientArrays[rawIBPs,integrals][[2]]].integrals;
 
 4.recovered the 2 modifications yesterday. I do not think it is a good idea to factor with m[i]s 
 
+--------------------
+2022.11.30
+
+1.refined PrintAndLog Function in SyzygyRed.wl and Analyze_Sector.wl
+
+2.add an option KillCornerSubsecIBPs in SyzygyRed.wl, to turn off a step in it
+
+--------------------
+2022.12.1
+
+1.add a step removing subsector IBPs before sorting nFIBPs
+
