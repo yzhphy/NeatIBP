@@ -9,7 +9,7 @@ Link:
 https://www.singular.uni-kl.de/
 ### SpaSM
 SpaSM is a C library developed to perform sparse gaussian elimination modulo a small prime p. <br/>
-Be advised that this package can only be installed on **Debian/Ubuntu OS(DO NOT INSTALL ON 22.04)** currently. 
+Be advised that this package can only be installed on **Debian/Ubuntu OS(DO NOT INSTALL ON 22.04 BECAUSE OF SOME UNKNOWN ISSUES, WHICH MAY CAUSE DESKTOP GUI ERROR)** currently. 
 Download link:
 https://github.com/cbouilla/spasm <br/>
 
