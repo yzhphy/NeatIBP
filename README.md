@@ -7,7 +7,33 @@ NeatIBP is a mathematica package to generate small-sized integration-by-parts (I
 Singular is a computer algebra system for polynomial computations. 
 Link:
 https://www.singular.uni-kl.de/
+### SpaSM
+SpaSM is a C library developed to perform sparse gaussian elimination modulo a small prime p. <br/>
+Be advised that this package can only be installed on **Debian/Ubuntu OS** currently. 
+Download link:
+https://github.com/cbouilla/spasm <br/>
 
+**Installation manual:**
+1. Download the SpaSM package, you may use  
+```
+git clone https://github.com/cbouilla/spasm.git
+```
+2. The installation procedure requires sudo permission. Check if you have noweb installed, if not, you may use
+```
+sudo apt-get install noweb
+```
+3. Install the package using the following commands
+```
+sudo autoreconf -i
+sudo automake --add-missing
+sudo automake
+sudo ./configure
+sudo make
+sudo make check (if needed)
+sudo make install
+```
+4. Make sure that you have libspasm.so at **/usr/local/lib**.
+5. It is ready to go.
 
 ## Installation
 1. Install dependencies
