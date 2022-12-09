@@ -18,9 +18,10 @@ https://github.com/cbouilla/spasm <br/>
 ```
 git clone https://github.com/cbouilla/spasm.git
 ```
-2. The installation procedure requires sudo permission. Check if you have noweb installed, if not, you may use
+2. The installation procedure requires sudo permission. Check if you have noweb & libtool installed, if not, you may use
 ```
 sudo apt-get install noweb
+sudo apt-get install libtool
 ```
 3. Install the package using the following commands
 ```
