@@ -1,4 +1,5 @@
 (*
+This is the default settings of NeatIBP
 This config file will be included into several mathematica scripts using Get.
 Please make sure the paths are absolute paths.
 *)
@@ -11,11 +12,8 @@ targetIntegralsFile = workingPath<>"targetIntegrals.txt";
 SingularApp = "/usr/bin/Singular";
 
 (*-----------directory settings----------*)
-ReductionOutputName="dbox";(*do not use special characters, including space*)
-outputPath=Automatic;(*recommended*)
-
-(*outputPath=workingPath<>"test/";*)(*alternative*)
-
+ReductionOutputName="Untitled";
+outputPath=Automatic;
 
 (*-----------math settings---------------*)
 IntegralOrder = "Global"
@@ -25,8 +23,8 @@ CutIndices={};
 
 
 (*-----------usage settings--------------*)
-MemoryUsedLimit=100000;(*MB*)
-ThreadUsedLimit=16;
+MemoryUsedLimit=Infinity;(*MB*)
+ThreadUsedLimit=Infinity;
 
 
 

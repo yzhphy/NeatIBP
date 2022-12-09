@@ -1,2 +1,0 @@
-bash analyze_sector.sh inputs_and_config.txt 100 &
-wait

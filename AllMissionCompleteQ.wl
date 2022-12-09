@@ -49,6 +49,14 @@ If[Intersection[StringSplit[outputPath,""],{" ","\t","\n","?","@","#","$","*","&
 If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
 
+tmpPath=outputPath<>"tmp/"
+If[!FileExistsQ[tmpPath<>"initialized.txt"],
+	Export[tmpPath<>"initialization_failed.txt",""];
+	Print["echo \"Initialization failed, cannot start missions.\""];
+	Exit[0];
+]
+
+
 StringSplit["asjias",""][[-1]]=="s"
 
 

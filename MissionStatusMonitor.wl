@@ -42,8 +42,11 @@ If[Intersection[StringSplit[outputPath,""],{" ","\t","\n","?","@","#","$","*","&
 If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
 
+tmpPath=outputPath<>"tmp/"
+
+
 TemporaryDirectory = outputPath<>"tmp/"
-If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectory]
+(*If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectory]*)
 Get[packagePath<>"SyzygyRed.wl"]
 
 
@@ -57,7 +60,17 @@ SectorNumberToSectorIndex//ClearAll
 SectorNumberToSectorIndex[num_]:=IntegerDigits[num,2,Length[Propagators]]//Reverse
 
 
-TimeString[]:=StringRiffle[#[[1;;3]],"."]<>" "<>StringRiffle[#[[4;;6]],":"]&[(ToString[Round[#]]&/@FromAbsoluteTime[AbsoluteTime[]][[1,1;;6]])]
+InitializationStatus[]:=If[FileExistsQ[tmpPath<>"initialization_failed.txt"],
+	"failed",
+	If[FileExistsQ[tmpPath<>"initialized.txt"],
+		"finished"
+	,
+		"in progress"
+	]
+]
+
+
+TimeString[]:=StringRiffle[#[[1;;3]],"."]<>" "<>StringRiffle[#[[4;;6]],":"]&[(ToString[Floor[#]]&/@FromAbsoluteTime[AbsoluteTime[]][[1,1;;6]])]
 ReprotString[list_,maxNum_]:=If[list==={},"",": "]<>If[Length[list]>maxNum,StringRiffle[ToString/@(list[[1;;maxNum]]),","]<>"...",StringRiffle[ToString/@(list),","]<>"."]
 PrintStatus[]:=Module[{maxNum=6,missionWaitingSupersectors,missionComputationFinished,missionComputing,missionReadyToCompute},
 	Print["----------------------------------------------"];
@@ -80,19 +93,28 @@ PrintStatus[]:=Module[{maxNum=6,missionWaitingSupersectors,missionComputationFin
 	Print[Length[missionComputing]," sector(s) computing",ReprotString[SectorNumber/@missionComputing,maxNum]];
 	Print[Length[missionComputationFinished]," sector(s) finished",ReprotString[SectorNumber/@missionComputationFinished,maxNum]];
 ]
+PrintWaitInitialization[]:=Module[{},
+	Print["----------------------------------------------"];
+	Print[TimeString[]];
+	Print["Waiting initialization..."]
+]
 
 
 ActuallyRunningMissions[]:=Module[{ps},
 	ps=Select[StringSplit[RunProcess[StringSplit["ps -ef"]]["StandardOutput"],"\n"],StringContainsQ[#,"Analyze_Sector.wl"]&];
 	ToExpression[StringSplit[#," "][[-1]]]&/@ps
-	(*But what if the user runs 2 different diagrams at a time?*)
+	(*Maybe the user runs 2 different diagrams at a time... so this is not a sufficient-necessary condition*)
 ]
 
 
 While[True,
+	If[!DirectoryQ[outputPath//ToString],Print["outputPath "<>ToString[outputPath]<>" does not exist."];Break[]];
 	missionStatus={ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex,Get[#]}&/@FileNames[All,missionStatusFolder];
-	PrintStatus[];
-	If[DeleteCases[missionStatus[[All,2]],"ComputationFinished"]==={}&&missionStatus=!={},Print["==============================================\nAll sectors finished."];Break[]];
+	initializationStatus=InitializationStatus[];
+	If[initializationStatus==="finished",PrintStatus[]];
+	If[initializationStatus==="in progress",PrintWaitInitialization[]];
+	If[initializationStatus==="failed",Print["==============================================\nInitialization Failed."];Break[]];
+	If[DeleteCases[missionStatus[[All,2]],"ComputationFinished"]==={}&&missionStatus=!={}&&initializationStatus==="finished",Print["==============================================\nAll sectors finished."];Break[]];
 	Pause[1]
 ]
 

@@ -42,13 +42,24 @@ If[commandLineMode,
 Print["Initializing."]
 
 
-If[MemberQ[StringSplit[workingPath,""]," "],
+(*If[MemberQ[StringSplit[workingPath,""]," "],
 	Print["Character \"space\" in working path, aborting."];
 	Exit[0]
 ]
 If[MemberQ[StringSplit[packagePath,""]," "],
 	Print["Character \"space\" in package path, aborting."];
 	Exit[0]
+]*)
+
+If[Intersection[StringSplit[packagePath,""],{" ","\t","\n","?","@","#","$","*","&","(",")","\"","\'","|"}]=!={},
+	Print["****  packagePath "<>packagePath<>" is illegal. Exiting."];
+	Exit[0];
+
+]
+If[Intersection[StringSplit[workingPath,""],{" ","\t","\n","?","@","#","$","*","&","(",")","\"","\'","|"}]=!={},
+	Print["****  workingPath "<>workingPath<>" is illegal. Exiting."];
+	Exit[0];
+
 ]
 
 
@@ -366,4 +377,7 @@ SimpleIBP[Verbosity->1,SeedingMethod->"Direct"]//AbsoluteTiming*)
 
 
 
-Print["Finished."]
+tmpPath=outputPath<>"tmp/";
+If[!DirectoryQ[#],Run["mkdir -p "<>#]]&[tmpPath];
+Export[tmpPath<>"initialized.txt",""]
+Print["Initialization Finished."]

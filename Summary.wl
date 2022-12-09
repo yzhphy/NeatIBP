@@ -53,6 +53,13 @@ If[Intersection[StringSplit[outputPath,""],{" ","\t","\n","?","@","#","$","*","&
 If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
 
+tmpPath=outputPath<>"tmp/"
+If[!FileExistsQ[tmpPath<>"initialized.txt"],
+	Print["Initialization failed, cannot summarize."];
+	Exit[0];
+]
+
+
 TemporaryDirectory=outputPath<>"tmp"
 Get[packagePath<>"SyzygyRed.wl"]
 

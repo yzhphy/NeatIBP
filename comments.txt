@@ -11,6 +11,8 @@ test cutting double propagators, the program should refuse to compute.
 ==========Important=================
 test continue.sh!
 
+setup default values for settings!
+
 Check if replacement replaces the variables to numerics, if not, send a warning
 
 [SyzygyRed.wl]
