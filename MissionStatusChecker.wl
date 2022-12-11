@@ -174,7 +174,7 @@ While[True,
 		newComputingSectorNumbers=SectorNumber/@newComputingSectors;
 		Export[missionStatusFolder<>ToString[#]<>".txt","Computing"//InputForm//ToString]&/@newComputingSectorNumbers;
 		script=""<>
-			StringRiffle["math -script "<>packagePath<>"Analyze_Sector.wl "<>missionInput<>" "<>ToString[#]<>" &\n"&/@newComputingSectorNumbers,""]<>
+			StringRiffle["math -script "<>packagePath<>"Analyze_Sector.wl "<>missionInput<>" "<>ToString[#]<>" "<>outputPath<>" &\n"&/@newComputingSectorNumbers,""]<>
 			"math -script "<>packagePath<>"AllMissionCompleteQ.wl "<>missionInput<>" | sh &\n"<>
 			"wait\n";
 			(*script=StringRiffle["math -script Analyze_Sector.wl "<>missionInput<>" "<>ToString[#]<>"\n"&/@newReadySectorNumbers,""];*)

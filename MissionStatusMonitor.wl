@@ -72,7 +72,9 @@ InitializationStatus[]:=If[FileExistsQ[tmpPath<>"initialization_failed.txt"],
 
 TimeString[]:=StringRiffle[#[[1;;3]],"."]<>" "<>StringRiffle[#[[4;;6]],":"]&[(ToString[Floor[#]]&/@FromAbsoluteTime[AbsoluteTime[]][[1,1;;6]])]
 ReprotString[list_,maxNum_]:=If[list==={},"",": "]<>If[Length[list]>maxNum,StringRiffle[ToString/@(list[[1;;maxNum]]),","]<>"...",StringRiffle[ToString/@(list),","]<>"."]
-PrintStatus[]:=Module[{maxNum=6,missionWaitingSupersectors,missionComputationFinished,missionComputing,missionReadyToCompute},
+PrintStatus[]:=Module[
+{maxNum=6,missionWaitingSupersectors,missionComputationFinished,missionComputing,missionReadyToCompute,
+missionLost,runningMissionUnregistered,actuallyRunningMissions},
 	Print["----------------------------------------------"];
 	Print[TimeString[]];
 	missionWaitingSupersectors=(
@@ -92,6 +94,17 @@ PrintStatus[]:=Module[{maxNum=6,missionWaitingSupersectors,missionComputationFin
 	Print[Length[missionReadyToCompute]," sector(s) ready to compute",ReprotString[SectorNumber/@missionReadyToCompute,maxNum]];
 	Print[Length[missionComputing]," sector(s) computing",ReprotString[SectorNumber/@missionComputing,maxNum]];
 	Print[Length[missionComputationFinished]," sector(s) finished",ReprotString[SectorNumber/@missionComputationFinished,maxNum]];
+	actuallyRunningMissions=ActuallyRunningMissions[];
+	missionLost=Complement[SectorNumber/@missionComputing,actuallyRunningMissions];
+	runningMissionUnregistered=Complement[actuallyRunningMissions,SectorNumber/@missionComputing];
+	If[Length[missionLost]>0,
+		Print["******** \nWarning:\n",Length[missionLost],"sector(s) lost"<>ReprotString[missionLost,maxNum]];
+		Print["The corresponding process(es) lost. Maybe they terminated unexpectedly."]
+	];
+	If[Length[runningMissionUnregistered]>0,
+		Print["******** \nError:\n",Length[runningMissionUnregistered],"computing sector(s) unregistered"<>ReprotString[runningMissionUnregistered,maxNum]];
+		Print["This error is unexpected. Please make sure you are not running 2 NeatIBP with the same outputPath."]
+	]
 ]
 PrintWaitInitialization[]:=Module[{},
 	Print["----------------------------------------------"];
@@ -100,11 +113,16 @@ PrintWaitInitialization[]:=Module[{},
 ]
 
 
-ActuallyRunningMissions[]:=Module[{ps},
+ActuallyRunningMissions[]:=Module[{ps,ASps,currentMissions},
 	ps=Select[StringSplit[RunProcess[StringSplit["ps -ef"]]["StandardOutput"],"\n"],StringContainsQ[#,"Analyze_Sector.wl"]&];
-	ToExpression[StringSplit[#," "][[-1]]]&/@ps
-	(*Maybe the user runs 2 different diagrams at a time... so this is not a sufficient-necessary condition*)
+	ASps=StringSplit[#," "][[-2;;-1]]&/@ps;
+	currentMissions=Select[ASps,#[[2]]===outputPath&];
+	ToExpression/@(currentMissions[[All,1]])
+	(*Maybe the user runs 2 different diagrams at a time... *)
 ]
+
+
+ActuallyRunningMissions[]
 
 
 While[True,

@@ -118,7 +118,17 @@ If[And[DirectoryQ[outputPath],automaticOutputPath],
 	continueQ=InputString["Output directory \""<>outputPath<>"\" already exists. Do you want to delete it? Type Y or y to continue. Type others to abort.\n"];
 	
 	If[Or[continueQ=="y",continueQ=="Y"],
-		
+		If[!FileExistsQ[outputPath<>"results/IBP_all.txt"],
+			Print["Output directory "<>outputPath<>" is not a complete directory.\nIt could be the output directory of a running NeatIBP mission, or could be a failed NeatIBP mission in the past."];
+			Print["It is highly recommended that you check to make sure that it is not the former case. Otherwise, there will be conflict and unknown errors will occur."];
+			Print["Do you still wish to delete "<>outputPath<>" ?"];
+			continueQ2=InputString["If so, type Y or y to continue. Type others to abort.\n"];
+			If[!Or[continueQ2=="y",continueQ2=="Y"],
+				If[FileExistsQ[#],Run["rm -f "<>#]]&[outputPath<>"tmp/initialized.txt"];
+				Print["Aborted."];
+				Exit[0]
+			]
+		];
 		Print["Removing "<>outputPath];
 		Run["rm -rf "<>outputPath];
 		Print["done."]

@@ -10,8 +10,9 @@ If[commandLineMode,
 	
 	packagePath=DirectoryName[$InputFileName];
 	workingPath=Directory[]<>"/";
-	missionInput=$CommandLine[[-2]];
-	sectorID=$CommandLine[[-1]]//ToExpression;
+	missionInput=$CommandLine[[-3]];
+	sectorID=$CommandLine[[-2]]//ToExpression;
+	(*outputPath=$CommandLine[[-1]];*)(*This is for MissionStatusMonitor to read, not needed here*)
 	,
 	Print["WARNING: program is not running in command line mode!"];
 	workingPath=NotebookDirectory[];
@@ -23,7 +24,6 @@ If[commandLineMode,
 	TargetIntegrals={G[1,1,1,1,1,1,1,-5,0],G[1,1,1,1,1,1,1,-4,-1],G[1,1,1,1,1,1,1,-1,-4]};*)
 	sectorID=879;
 	missionInput="example.txt";
-	
 ]
 
 
@@ -99,6 +99,8 @@ TargetIntegrals//Clear;*)
 (*PrintAndLog[sectorID,missionInput,Propagators//InputForm//ToString]
 PrintAndLog[Head/@{sectorID,missionInput,Propagators//InputForm}]
 PrintAndLog[SDim]*)
+
+
 
 
 
