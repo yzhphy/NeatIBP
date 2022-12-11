@@ -24,6 +24,7 @@ If[commandLineMode,
 
 
 (*AppendTo[$Path,workingPath];*)
+If[Get[packagePath<>"default_settings.txt"]===$Failed,Exit[0]]
 If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting.";Exit[]]]
 If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting.";Exit[]]]
 (*TargetIntegrals=Get[targetIntegralsFile]
@@ -75,6 +76,7 @@ ReprotString[list_,maxNum_]:=If[list==={},"",": "]<>If[Length[list]>maxNum,Strin
 PrintStatus[]:=Module[
 {maxNum=6,missionWaitingSupersectors,missionComputationFinished,missionComputing,missionReadyToCompute,
 missionLost,runningMissionUnregistered,actuallyRunningMissions},
+	actuallyRunningMissions=ActuallyRunningMissions[];
 	Print["----------------------------------------------"];
 	Print[TimeString[]];
 	missionWaitingSupersectors=(
@@ -94,15 +96,15 @@ missionLost,runningMissionUnregistered,actuallyRunningMissions},
 	Print[Length[missionReadyToCompute]," sector(s) ready to compute",ReprotString[SectorNumber/@missionReadyToCompute,maxNum]];
 	Print[Length[missionComputing]," sector(s) computing",ReprotString[SectorNumber/@missionComputing,maxNum]];
 	Print[Length[missionComputationFinished]," sector(s) finished",ReprotString[SectorNumber/@missionComputationFinished,maxNum]];
-	actuallyRunningMissions=ActuallyRunningMissions[];
+	
 	missionLost=Complement[SectorNumber/@missionComputing,actuallyRunningMissions];
 	runningMissionUnregistered=Complement[actuallyRunningMissions,SectorNumber/@missionComputing];
 	If[Length[missionLost]>0,
-		Print["******** \nWarning:\n",Length[missionLost],"sector(s) lost"<>ReprotString[missionLost,maxNum]];
-		Print["The corresponding process(es) lost. Maybe they terminated unexpectedly."]
+		Print["******** \nWarning:\n",Length[missionLost]," sector(s) lost"<>ReprotString[missionLost,maxNum]];
+		Print["The corresponding process(es) cannot be detected. Maybe they terminated unexpectedly."]
 	];
 	If[Length[runningMissionUnregistered]>0,
-		Print["******** \nError:\n",Length[runningMissionUnregistered],"computing sector(s) unregistered"<>ReprotString[runningMissionUnregistered,maxNum]];
+		Print["******** \nError:\n",Length[runningMissionUnregistered]," computing sector(s) unregistered"<>ReprotString[runningMissionUnregistered,maxNum]];
 		Print["This error is unexpected. Please make sure you are not running 2 NeatIBP with the same outputPath."]
 	]
 ]

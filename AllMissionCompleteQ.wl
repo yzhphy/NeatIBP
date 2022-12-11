@@ -24,6 +24,9 @@ If[commandLineMode,
 
 
 (*AppendTo[$Path,workingPath];*)
+If[Get[packagePath<>"default_settings.txt"]===$Failed,Exit[0]]
+
+
 If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting.";Exit[]]]
 If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting.";Exit[]]]
 TargetIntegrals=Get[targetIntegralsFile]

@@ -85,6 +85,7 @@ SectorNumberToSectorIndex[num_]:=IntegerDigits[num,2,Length[Propagators]]//Rever
 
 
 (*AppendTo[$Path,workingPath];*)
+If[Get[packagePath<>"default_settings.txt"]===$Failed,Exit[0]]
 If[Get[workingPath<>missionInput]===$Failed,
 	PrintAndLog["Unable to open "<>workingPath<>missionInput<>". Exiting."];
 	(*Run["echo "<>ToString[sectorID]<>":\tExit[Unable to open "<>missionInput<>"]\t"<>ToString[InputForm[FromUnixTime[UnixTime[]]]]<>" >> tmp/log2.txt"];*)
