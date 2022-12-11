@@ -431,5 +431,18 @@ rawIBPs=Factor[CoefficientArrays[rawIBPs,integrals][[2]]].integrals;
 
 1.built a backup 
 
+2.start to fix an important problem:
 
+What if a Analyze_Sector (AS) worker failed?
+Solution:
+Plan A: detect process name. If no such process, send a warning.
+Plan B: detect running time, if it is abnormally large, send a warning
 
+I chose plan A
+
+But we need to face with a problem: The process command name must be distinguished in case the user runs 2 NeatIBP at a time:
+we need to modify the command line of AS, to put the outputPath as the third argument of the command.
+
+we used outputPath to distinguish different NeatIBP missions, in usual this is ok, but assuming the user could make a mistake, I put in a relevant warning in Initialzation.wl while deleting outputPath dir.s
+
+3.added reading default settings 
