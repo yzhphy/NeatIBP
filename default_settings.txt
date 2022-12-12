@@ -20,6 +20,7 @@ IntegralOrder = "Global"
 OptionSimplification = 12;
 NeedSymmetry=True;
 CutIndices={};
+GenericD = d -> 137/3;
 
 
 (*-----------usage settings--------------*)

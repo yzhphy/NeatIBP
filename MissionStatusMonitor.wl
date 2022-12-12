@@ -73,9 +73,11 @@ InitializationStatus[]:=If[FileExistsQ[tmpPath<>"initialization_failed.txt"],
 
 TimeString[]:=StringRiffle[#[[1;;3]],"."]<>" "<>StringRiffle[#[[4;;6]],":"]&[(ToString[Floor[#]]&/@FromAbsoluteTime[AbsoluteTime[]][[1,1;;6]])]
 ReprotString[list_,maxNum_]:=If[list==={},"",": "]<>If[Length[list]>maxNum,StringRiffle[ToString/@(list[[1;;maxNum]]),","]<>"...",StringRiffle[ToString/@(list),","]<>"."]
+StringJoinLined[a_,b_]:=If[a==="",b,a<>"\n"<>b]
+oldRunningMissionMismatchMessage="";
 PrintStatus[]:=Module[
 {maxNum=6,missionWaitingSupersectors,missionComputationFinished,missionComputing,missionReadyToCompute,
-missionLost,runningMissionUnregistered,actuallyRunningMissions},
+missionLost,runningMissionUnregistered,actuallyRunningMissions,runningMissionMismatchMessage},
 	actuallyRunningMissions=ActuallyRunningMissions[];
 	Print["----------------------------------------------"];
 	Print[TimeString[]];
@@ -99,14 +101,29 @@ missionLost,runningMissionUnregistered,actuallyRunningMissions},
 	
 	missionLost=Complement[SectorNumber/@missionComputing,actuallyRunningMissions];
 	runningMissionUnregistered=Complement[actuallyRunningMissions,SectorNumber/@missionComputing];
+	runningMissionMismatchMessage="";
 	If[Length[missionLost]>0,
-		Print["******** \nWarning:\n",Length[missionLost]," sector(s) lost"<>ReprotString[missionLost,maxNum]];
-		Print["The corresponding process(es) cannot be detected. Maybe they terminated unexpectedly."]
+		runningMissionMismatchMessage=StringJoinLined[
+			runningMissionMismatchMessage,
+			"******** \nWarning:\n"<>ToString[Length[missionLost]]<>" sector(s) lost"<>ReprotString[missionLost,maxNum]
+		];
+		runningMissionMismatchMessage=StringJoinLined[
+			runningMissionMismatchMessage,
+			"The corresponding process(es) cannot be detected. Maybe they terminated unexpectedly."
+		];
 	];
 	If[Length[runningMissionUnregistered]>0,
-		Print["******** \nError:\n",Length[runningMissionUnregistered]," computing sector(s) unregistered"<>ReprotString[runningMissionUnregistered,maxNum]];
-		Print["This error is unexpected. Please make sure you are not running 2 NeatIBP with the same outputPath."]
-	]
+		runningMissionMismatchMessage=StringJoinLined[
+			runningMissionMismatchMessage,
+			"******** \nError:\n"<>ToString[Length[runningMissionUnregistered]]<>" computing sector(s) unregistered"<>ReprotString[runningMissionUnregistered,maxNum]
+		];
+		runningMissionMismatchMessage=StringJoinLined[
+			runningMissionMismatchMessage,
+			"This error is unexpected. Please make sure you are not running 2 NeatIBP with the same outputPath."
+		];
+	];
+	If[And[runningMissionMismatchMessage===oldRunningMissionMismatchMessage,runningMissionMismatchMessage=!=""],Print[runningMissionMismatchMessage]];
+	oldRunningMissionMismatchMessage=runningMissionMismatchMessage;
 ]
 PrintWaitInitialization[]:=Module[{},
 	Print["----------------------------------------------"];

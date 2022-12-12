@@ -75,7 +75,7 @@ reductionTasksFolder=TemporaryDirectory<>"reduction_tasks/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[reductionTasksFolder]
 
 
-SectorNumberToSectorIndex[1002]
+
 
 
 missionStatus=((ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex)->Get[#])&/@FileNames[All,missionStatusFolder];
