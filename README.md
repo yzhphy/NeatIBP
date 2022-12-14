@@ -52,9 +52,9 @@ To run NeatIBP, you need to create 3 input file files in your working folder.
 
 3. A txt file named "config.txt" containing the necessary settings. Some settings you need to pay attention:
 
-> 3a. SingularApp is the command to run the dependency Singular. For example, if your Singular is installed in /usr/bin/ (which is the usual case), this means you can run Singular using /usr/bin/Singular in terminal. Then you should set SingularApp="/usr/bin/Singular"
+> 3a. **SingularApp** is the command to run the dependency Singular. For example, if your Singular is installed in /usr/bin/ (which is the usual case), this means you can run Singular using /usr/bin/Singular in terminal. Then you should set **SingularApp="/usr/bin/Singular"**
 
-> 3b. It is recommended that you set outputPath=Automatic. Then, NeatIBP will set the output path as a sub sub directory of your working directory with a path related to the variable ReductionOutputName you set in the same config file.
+> 3b. It is recommended that you set **outputPath=Automatic**. Then, NeatIBP will set the output path as a sub sub directory of your working directory with a path related to the variable **ReductionOutputName** you set in the same config file.
 
 You can copy the 3 files from the examples provided in the example directory and modify them.
 
