@@ -43,7 +43,7 @@ git clone https://github.com/yzhphy/NeatIBP.git
 ```
 
 ## Manual
-###Preparing inputs
+### Preparing inputs
 To run NeatIBP, you need to create 3 input file files in your working folder.
 
 1. A txt file named "kinematics.txt", containing the kinematic infomation of the Feynman diagram.
@@ -51,12 +51,14 @@ To run NeatIBP, you need to create 3 input file files in your working folder.
 2. A txt file named "targetIntegrals.txt", containing the target integrals you are reducing.
 
 3. A txt file named "config.txt" containing the necessary settings. Some settings you need to pay attention:
->3a. SingularApp is the command to run the dependency Singular. For example, if your Singular is installed in /usr/bin/ (which is the usual case), this means you can run Singular using /usr/bin/Singular in terminal. Then you should set SingularApp="/usr/bin/Singular"
->3b. It is recommended that you set outputPath=Automatic. Then, NeatIBP will set the output path as a sub sub directory of your working directory with a path related to the variable ReductionOutputName you set in the same config file.
+
+> 3a. SingularApp is the command to run the dependency Singular. For example, if your Singular is installed in /usr/bin/ (which is the usual case), this means you can run Singular using /usr/bin/Singular in terminal. Then you should set SingularApp="/usr/bin/Singular"
+
+> 3b. It is recommended that you set outputPath=Automatic. Then, NeatIBP will set the output path as a sub sub directory of your working directory with a path related to the variable ReductionOutputName you set in the same config file.
 
 You can copy the 3 files from the examples provided in the example directory and modify them.
 
-###Running
+### Running
 After preparing the above 3 files, turn on a terminal in the current working directory. Assuming your NeatIBP is installed as /SomePath/NeatIBP/, then you can run NeatIBP in that terminal by 
 ```
 /SomePath/NeatIBP/run.sh
