@@ -446,3 +446,13 @@ we need to modify the command line of AS, to put the outputPath as the third arg
 we used outputPath to distinguish different NeatIBP missions, in usual this is ok, but assuming the user could make a mistake, I put in a relevant warning in Initialzation.wl while deleting outputPath dir.s
 
 3.added reading default settings 
+
+
+--------------------
+2023.1.12
+In SyzygyRed.wl, function SectorMaps:
+modified 
+undeterminedSectors=sectors
+to 
+undeterminedSectors=Reverse[sectors]
+so that the symmetry mapping preference is consistent with sector ordering (before that, they are reversed to each other.) 

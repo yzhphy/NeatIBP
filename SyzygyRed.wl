@@ -728,7 +728,7 @@ SectorMaps[sectors_]:=Module[
 	undeterminedSectors,uniqueSectors,mappedSectors,sectorMaps,newUniqueSector,mappedUndeterminedSectorIndices,
 	i,maps,selectedMap,newTestingSector
 },
-	undeterminedSectors=sectors;
+	undeterminedSectors=Reverse[sectors];(*without reversing, the function tends to choose sectors in the fronter of the list as unique sectors, this is the reversion of our convention*)
 	uniqueSectors={};
 	mappedSectors={};
 	sectorMaps={};

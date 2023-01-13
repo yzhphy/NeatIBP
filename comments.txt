@@ -1,20 +1,22 @@
 ==========Urgent===================
 
-
-Need to consider a situation: what if a AnalyzeSectors.wl process quits unexpectedly? The current system will not discover this and it would think the worker is still working.
-
 Copy right of SPASM
 
 issue in the dev_log.txt at 2022.0923 [II] needs to be improved.
 
 test cutting double propagators, the program should refuse to compute.
 ==========Important=================
+
+
+
 numeric point could be not general enough! For example, in doublepentagon, I once set {s12->1,s23->3,...,s45->7,...}
 then, accidently, one IBP coefficient is (s12+2s23-s45), it vanished! Then NeatIBP gave wrong results.
 There are 2 solutions:
 1. recently, we can tell the user to set up a generic enough point. And let them know it would giv wrong result if it is not generic enough
 2. midtermly, build a detector to see if above situation happens
 3. longtermly, rewrite the work flow to let the user putin more generic points.
+
+if we generates numeric points randomly, we should add the values of numeric points (and d) into output.
 
 setup default values for settings!
 
