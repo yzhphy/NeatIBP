@@ -777,12 +777,17 @@ MappedIntegral[zMap_,indices_]:=Module[{zs,sector,ispq,test,numeratorInds,denomi
 
 
 
-GMapped[sectorMaps_,indices_]:=Module[{sector,mappedSectors,map},
+GZeroSectorCut[x__]:=If[MemberQ[Global`ZeroSectors,Sector[G[x]]],0,G[x]]
+
+
+GMapped[sectorMaps_,indices_]:=Module[{sector,mappedSectors,map,preResult,result},
 	sector=Boole[#>0]&/@indices;
 	mappedSectors=sectorMaps[[All,1]];
 	If[MemberQ[mappedSectors,sector],
 		map=(sector/.sectorMaps)[[2]];
-		Return[MappedIntegral[map,indices]]
+		preResult=MappedIntegral[map,indices];
+		result=preResult/.G->GZeroSectorCut;
+		Return[result]
 	,
 		Return[G@@indices]
 	]

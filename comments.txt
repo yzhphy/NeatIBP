@@ -62,3 +62,14 @@ Zurich seeding step for high degree seeds is slow, which is due to Replacements 
 in MissionStatusChecker.wl, the first code block, ......=Infinity, I do not know why...
 
 what does "mapped sectors" mean? the naming in the codes are confusing. the concept "mapped and sub sectors" is not accurate. it should be "image or sub sectors."
+
+In Initialization.wl, there is a comment:
+(*
+Here, some targets from symmetry are collected and will be labeled to be from sector "-1" (which means from user input.)
+But they are not!
+Although they will not cause error but may cause confusion while debugging.
+No need to change, but better to change.
+*)
+Can be improved.
+
+

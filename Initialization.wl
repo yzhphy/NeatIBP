@@ -280,6 +280,12 @@ For[i=1,i<=Length[mappedSectors],i++,
 	newReductionTargets=Union[newReductionTargets,IntegralList[mapIBPs]]
 ];
 ReductionTargets=Select[newReductionTargets,MemberQ[uniqueSectors,Sector[#]]&]
+(*
+Here, some targets from symmetry are collected and will be labeled to be from sector "-1" (which means from user input.)
+But they are not!
+Although they will not cause error but may cause confusion while debugging.
+No need to change, but better to change.
+*)
 
 
 

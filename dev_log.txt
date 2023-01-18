@@ -455,4 +455,11 @@ modified
 undeterminedSectors=sectors
 to 
 undeterminedSectors=Reverse[sectors]
-so that the symmetry mapping preference is consistent with sector ordering (before that, they are reversed to each other.) 
+so that the symmetry mapping preference is consistent with sector ordering (before that, they are reversed to each other.)
+
+
+-----------------------
+2023.1.18
+In SyzygyRed.wl, function GMap:
+added an operation G->GZeroSectorCut (a newly defined function added today)
+to get rid of zero integrals after GMap
