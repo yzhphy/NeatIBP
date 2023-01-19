@@ -8,15 +8,20 @@ Singular is a computer algebra system for polynomial computations.
 Link:
 https://www.singular.uni-kl.de/
 ### SpaSM
-SpaSM is a C library developed to perform sparse gaussian elimination modulo a small prime p. <br/>
+SpaSM is a C library developed to perform sparse gaussian elimination modulo a small prime p.
 Link:
-https://github.com/cbouilla/spasm <br/>
+https://github.com/cbouilla/spasm
 
 ## Installation of NeatIBP
-After installing all the dependencies mentioned above, you can install NeatIBP by
+After installing Singular, you can install NeatIBP by
 ```
 git clone https://github.com/yzhphy/NeatIBP.git
 ```
+Then you may change to the SparseRREF folder in NeatIBP folder to compile and install SpaSM by
+```
+sudo bash spasm_mod_script.sh
+```
+After this, if you have libspasm.so at **/usr/local/lib**, it is ready to go.
 
 ## Manual
 ### Preparing inputs
