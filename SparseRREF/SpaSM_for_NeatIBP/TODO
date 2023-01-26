@@ -1,7 +1,0 @@
-There are several BFS in the code (in the DM/CC part, and to find pivots). Not DRY. Factorize.
-
-refactor spasm_save_scr spasm_save_triplet, spasm_free_LU;
-
-Markowitz pivoting to find many good pivots.
-
-spasm_PLUQ should return PLUQ == A (incorporate the row_permutation into P).
