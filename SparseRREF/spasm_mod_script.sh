@@ -1,5 +1,5 @@
 #!/bin/bash
-cd SpaSM_for_NeatIBP
+cd SpaSM_for_NeatIBP/SpaSM_for_NeatIBP
 autoreconf -i
 automake --add-missing
 automake
