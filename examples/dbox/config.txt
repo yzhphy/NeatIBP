@@ -9,6 +9,7 @@ targetIntegralsFile = workingPath<>"targetIntegrals.txt";
 
 (*-----------dependency settings---------*)
 SingularApp = "/usr/bin/Singular";
+SpaSMLibrary = "/usr/local/lib/libspasm.so";
 
 (*-----------directory settings----------*)
 ReductionOutputName="dbox";(*do not use special characters, including space*)
