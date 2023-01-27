@@ -40,7 +40,7 @@ sprreflib = $Failed;
 SRLoadLib[] := Module[
     {},
     srrreflib = FileNameJoin[{DirectoryName[$InputFileName],"SparseRREF.so"}];
-    sprreflib = SPRREFLib;
+    sprreflib = SpaSMLibrary;
 (*     sprreflib = "/usr/local/lib/libspasm.so";  *)
      
     If[TrueQ[srrreflib == $Failed],
