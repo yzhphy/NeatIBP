@@ -963,7 +963,7 @@ zs,zMaps,newNIBPs
 		{M1,M1ext,M2}=TangentModules[secindex,{}];
 		VectorList=SolveDegreedIntersection[M1ext,secindex,4]
 	];
-	(*|||||||||*)ProbeIntermediateResult["vectors",secNo,VectorList];
+	(*ProbeIntermediateResult["vectors",secNo,VectorList];*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Module intersections solved. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  VectorList Length: ", Length[VectorList]]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  VectorList ByteCount: ", ByteCount[VectorList]]];
@@ -1279,7 +1279,7 @@ FullForm]\);(*?*)
 		Return[];
 	];
 	
-	(*|||||||||*)ProbeIntermediateResult["nIBPs_original",secNo,nIBPs];
+	(*|||||||||*)(*ProbeIntermediateResult["nIBPs_original",secNo,nIBPs];*)
 	
 	timer=AbsoluteTime[];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing subsector IBPs..."]];
@@ -1288,7 +1288,7 @@ FullForm]\);(*?*)
 	rawIBPs=rawIBPs[[IBPIndex]];
 	nIBPs=nIBPs[[IBPIndex]];
 	
-	(*|||||||||*)ProbeIntermediateResult["nIBPs_subsecIBPsRemoved",secNo,nIBPs];
+	(*|||||||||*)(*ProbeIntermediateResult["nIBPs_subsecIBPsRemoved",secNo,nIBPs];*)
 	
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Subsector IBPs removed. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s)."]];
 	
@@ -1320,7 +1320,7 @@ FullForm]\);(*?*)
 	nIBPs=nIBPs[[IBPIndex]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s)."]];
 	
-	(*|||||||||*)ProbeIntermediateResult["nIBPs_sorted",secNo,nIBPs];
+	(*|||||||||*)(*ProbeIntermediateResult["nIBPs_sorted",secNo,nIBPs];*)
 	
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  nFIBPs sorted. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
 	
@@ -1340,7 +1340,7 @@ FullForm]\);(*?*)
 	
 	nIBPs=nIBPs[[IBPIndex]];
 	
-	(*|||||||||*)ProbeIntermediateResult["nIBPs_independent",secNo,nIBPs];
+	(*|||||||||*)(*ProbeIntermediateResult["nIBPs_independent",secNo,nIBPs];*)
 	
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Independent FIBPs selected. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs are selected with ",Length[IntegralList[rawIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
@@ -1363,7 +1363,7 @@ FullForm]\);(*?*)
 	rawIBPs=rawIBPs[[UsedIndex]];
 	nIBPs=nIBPs[[UsedIndex]];(*although not needed, we keep this to debug*)
 	
-	(*|||||||||*)ProbeIntermediateResult["nIBPs_used",secNo,nIBPs];
+	(*|||||||||*)(*ProbeIntermediateResult["nIBPs_used",secNo,nIBPs];*)
 	
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Uneeded IBPs removed. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs remaining with ",Length[IntegralList[rawIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
