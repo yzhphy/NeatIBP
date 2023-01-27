@@ -1,0 +1,5 @@
+Be advised that one can download and install SpaSM manually.
+But one can also try to install SpaSM with the script spasm_mod_script.sh in this directory. Just need to run this script.
+The script clones the SpaSM repo on GitHub, and makes a minor change, which takes a dependency noweb off the package and doesn't change the utility itself at all. The change is purely to fix a minor bug in the process of installation.
+If one wants to use this script, just run 'sudo bash spasm_mod_script.sh'.
+Be advised one should make sure 'libspasm.so' is at the exact location '/usr/local/lib' after installation.
