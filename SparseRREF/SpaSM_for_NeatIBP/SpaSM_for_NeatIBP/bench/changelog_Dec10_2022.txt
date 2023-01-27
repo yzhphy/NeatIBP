@@ -1,7 +1,0 @@
-Modifier:Hefeng Xu rwinters@mail.ustc.edu.cn
-made 2 major changes:
-1. changed the last 2 lines in Makefile.am into remarks, making the noweb not
-a dependency;
-2. created the modules.c file out of modules.nw ( copied all the codes in the
-modules.nw into modules.c )
-Date: 22:17 Dec 10, 2022
