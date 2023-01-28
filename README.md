@@ -17,11 +17,11 @@ After installing Singular, you can install NeatIBP by
 ```
 git clone https://github.com/yzhphy/NeatIBP.git
 ```
-Then you may change to the SparseRREF folder in NeatIBP folder to compile and install SpaSM_for_NeatIBP by
+Then you can download the SpaSM package and install it manually. Or one can also change to the **NeatIBP/SparseRREF** folder and run the script by the following command. This purely install SpaSM for you.
 ```
 sudo bash spasm_mod_script.sh
 ```
-After this, if you have libspasm.so at **/usr/local/lib**, it is ready to go.
+After this, make sure you have libspasm.so at **/usr/local/lib**, and it is ready to go.
 
 ## Manual
 ### Preparing inputs
