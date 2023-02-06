@@ -7,13 +7,14 @@ NeatIBP is a mathematica package to generate small-sized integration-by-parts (I
 
 ## Dependencies
 ### Singular
-Singular is a computer algebra system for polynomial computations. 
-Link:
+Singular is a computer algebra system for polynomial computations. You can install it from the following link:
+
 https://www.singular.uni-kl.de/
 ### SpaSM
-SpaSM is a C library developed to perform sparse gaussian elimination modulo a small prime p.
-Link:
+SpaSM is a C library developed to perform sparse gaussian elimination modulo a small prime p. You can install it from the following link:
+
 https://github.com/cbouilla/spasm
+
 
 ## Installation of NeatIBP
 After installing Singular, you can install NeatIBP by
