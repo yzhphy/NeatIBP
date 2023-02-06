@@ -52,7 +52,7 @@ To run NeatIBP, you need to create 3 input file files in your working folder.
 
 > 3a. **SingularApp** is the command to run the dependency Singular. For example, if your Singular is installed in /usr/bin/ (which is the usual case), this means you can run Singular using /usr/bin/Singular in terminal. Then you should set **SingularApp="/usr/bin/Singular"**
 
-> 3b. **SparseRREF`SpaSMLibrary** is the absolute path of SpaSM library. If you installed SpaSM using the script we provided, this library should be installed at /usr/local/lib. Thus, the default value of this setting should be **SparseRREF`SpaSMLibrary = "/usr/local/lib/libspasm.so"** . If you have moved the Spasm packge elsewhere (though we do not recommend to do so), please change the value of this setting accordingly.
+> 3b. **SparseRREF\`SpaSMLibrary** is the absolute path of SpaSM library. If you installed SpaSM using the script we provided, this library should be installed at /usr/local/lib. Thus, the default value of this setting should be **SparseRREF\`SpaSMLibrary = "/usr/local/lib/libspasm.so"** . If you have moved the Spasm packge elsewhere (though we do not recommend to do so), please change the value of this setting accordingly.
 
 > 3c. It is recommended that you set **outputPath=Automatic**. Then, NeatIBP will set the output path as a sub sub directory of your working directory with a path related to the variable **ReductionOutputName** you set in the same config file.
 
@@ -72,7 +72,7 @@ If your NeatIBP is ternimated by hand or unexpectedly, you can run the following
 ```
 /SomePath/NeatIBP/continue.sh
 ```
-In the examples, we have provided some convenient ways to comply the above operations. At first, modify the file **packagePath.txt** in the working folder containing the package path as **/SomePath/NeatIBP/**. Then, turn on a terminal in the current working directory and use
+In the examples, we have provided some convenient ways to comply the above operations. At first, modify the file "packagePath.txt" in the working folder containing the package path as "/SomePath/NeatIBP/". Then, turn on a terminal in the current working directory and use
 ```
 ./run.sh
 ```
@@ -90,10 +90,10 @@ to continue an unfinished mission.
 
 
 ## Checking completeness of the IBP system
-Please keep in mind that, NeatIBP selects the IBP relations using numeric methods. Sometimes, NeatIBP will give a WRONG result because the numeric point (which is the variable **GenericPoint** set by the user in **kinematics.txt**) happens to be some special bad points. Thus, it is highly recommended that you check the IBP system after the NeatIBP finished. To do so, turn on a terminal at the **/SomePath/NeatIBP/**, and
+Please keep in mind that, NeatIBP selects the IBP relations using numeric methods. Sometimes, NeatIBP will give a WRONG result because the numeric point (which is the variable **GenericPoint** set by the user in "kinematics.txt") happens to be some special bad points. Thus, it is highly recommended that you check the IBP system after the NeatIBP finished. To do so, turn on a terminal at the "/SomePath/NeatIBP/", and
 ```
 math -script CheckIBP.wl [path]
 ```
-where [path] is the output folder of the NeatIBP results. A complete output folder should contain subfolders as: "inputs", "results", and "tmp". 
+where \[path\] is the output folder of the NeatIBP results. A complete output folder should contain subfolders as: "inputs", "results", and "tmp". 
 
 
