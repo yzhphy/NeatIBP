@@ -97,3 +97,5 @@ math -script CheckIBP.wl [path]
 where \[path\] is the output folder of the NeatIBP results. A complete output folder should contain subfolders as: "inputs", "results", and "tmp". 
 > Notice: if your output folder contains 2 subfolders "results", and "tmp", as well as 3 additional txt files, this means that your output folder is created using some older version of NeatIBP. Please create a subfolder "input" and move the 3 additional txt files inside it. Otherwise you cannot use "CheckIBP.wl".
 
+
+This step will automatically pick a random numeric check point and checks the IBP system at this point, to see if the target integrals are all reduced to master integrals. If not, most possibly, your **GenericPoint** is a bad point. But there is a little chance that the random check point is a bad point. We suggest you run the above command again to check at another random point.
