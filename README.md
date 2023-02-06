@@ -3,7 +3,7 @@
 NeatIBP is a mathematica package to generate small-sized integration-by-parts (IBP) relations for Feynman integral reduction.
 
 ## Version
-1.0.0.0
+1.0.0.1
 
 ## Dependencies
 **Singular**
@@ -95,5 +95,5 @@ Please keep in mind that, NeatIBP selects the IBP relations using numeric method
 math -script CheckIBP.wl [path]
 ```
 where \[path\] is the output folder of the NeatIBP results. A complete output folder should contain subfolders as: "inputs", "results", and "tmp". 
-
+> Notice: if your output folder contains 2 subfolders "results", and "tmp", as well as 3 additional txt files, this means that your output folder is created using some older version of NeatIBP. Please create a subfolder "input" and move the 3 additional txt files inside it. Otherwise you cannot use "CheckIBP.wl".
 
