@@ -2,6 +2,9 @@
 ## Usage
 NeatIBP is a mathematica package to generate small-sized integration-by-parts (IBP) relations for Feynman integral reduction.
 
+## Version
+1.0.0.0
+
 ## Dependencies
 ### Singular
 Singular is a computer algebra system for polynomial computations. 

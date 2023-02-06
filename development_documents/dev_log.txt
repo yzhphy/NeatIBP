@@ -463,3 +463,10 @@ so that the symmetry mapping preference is consistent with sector ordering (befo
 In SyzygyRed.wl, function GMap:
 added an operation G->GZeroSectorCut (a newly defined function added today)
 to get rid of zero integrals after GMap
+
+-----------------------
+2023.2.6
+1. fixed a bug at continue.sh (originally summary step missed)
+2. input back up files will be put in a single folder
+3. added usage: check ibp
+4. labeled version: 1.0.0.0

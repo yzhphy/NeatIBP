@@ -149,9 +149,11 @@ Type in anything to continue.
 	Exit[0];
 ]
 Run["mkdir -p "<>outputPath]
-Run["cp "<>workingPath<>missionInput<>" "outputPath<>missionInput]
-Run["cp "<>kinematicsFile<>" "outputPath]
-Run["cp "<>targetIntegralsFile<>" "outputPath]
+inputBackupPath=outputPath<>"inputs/"
+Run["mkdir -p "<>inputBackupPath]
+Run["cp "<>workingPath<>missionInput<>" "inputBackupPath<>missionInput]
+Run["cp "<>kinematicsFile<>" "inputBackupPath]
+Run["cp "<>targetIntegralsFile<>" "inputBackupPath]
 
 
 SectorNumberToSectorIndex//ClearAll
