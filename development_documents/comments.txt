@@ -51,6 +51,10 @@ Consider a question: Can user compute 2 or more different projects at the same t
 
 Clean up useless trashes!
 
+Common Us
+external momenta not represented by Kinematics, 
+generic point not cover all kinematic variables
+
 
 
 =============Not Important=================

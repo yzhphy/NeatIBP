@@ -1438,6 +1438,7 @@ IBPAnalyze[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,RM,redIndex,irredIndex,timer
 	M=CoefficientArrays[IBPs,Ints][[2]];
 	If[probeTheFunctions===True,Print["Matrix in IBPAnalyze probed"];probe["IBPAnalyze",secNum]=M];
 	timer=AbsoluteTime[];
+	(*ProbeIntermediateResult["M_IBPAnalyze",secNum,M];*)
 	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t  RowReduce in IBPAnalyze started. Matrix dimension: ",Dimensions[M]]];
 	RM=RowReduceFunction[M,Modulus->OptionValue[Modulus]];
 	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t\t  RowReduce in IBPAnalyze finished. Matrix dimension: ",Dimensions[M],". Time used: ",Round[AbsoluteTime[]-timer]," s."]];
