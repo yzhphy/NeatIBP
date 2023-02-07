@@ -7,7 +7,7 @@ issue in the dev_log.txt at 2022.0923 [II] needs to be improved.
 test cutting double propagators, the program should refuse to compute.
 ==========Important=================
 
-
+clear Singular tmp folder after finished running, it takes 10s MBs disk, wasting.
 
 numeric point could be not general enough! For example, in doublepentagon, I once set {s12->1,s23->3,s34->73,s45->7,s15->213,...}
 then, accidently, one IBP coefficient is (s12+2s23-s45), it vanished! Then NeatIBP gave wrong results.
