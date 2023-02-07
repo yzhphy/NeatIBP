@@ -15,7 +15,7 @@ If[commandLineMode,
 	Print["WARNING: program is not running in command line mode!"];
 	workingPath=NotebookDirectory[];
 	packagePath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/";
-	checkPath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb"
+	checkPath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples_private/double_pentagon/outputs/double_pentagon/"
 	
 ]
 
@@ -128,13 +128,16 @@ Print["check point: "<>ToString[numerics//InputForm]];
 If[strangeIntegrals==={},
 	Print["All targets are reduced to MIs."]
 ,
-	Print["Targets are NOT reduced to MIs. ADDITIONAL integrals appearead in the results. They are:"];
+	Print["Targets are NOT reduced to MIs. "<>ToString[Length[strangeIntegrals]]<>" ADDITIONAL integrals appearead in the results. They are:"];
 	If[Length[strangeIntegrals]<=10,
 		Print[strangeIntegrals//InputForm//ToString]
 	,
-		Print[StringReplace[strangeIntegrals[[1,10]]//InputForm//ToString,"}"->",..."]]
+		Print[StringReplace[strangeIntegrals[[1;;10]]//InputForm//ToString,"}"->",...}"]]
 	]
 ]
+
+
+
 
 
 

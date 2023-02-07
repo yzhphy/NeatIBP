@@ -9,7 +9,7 @@ test cutting double propagators, the program should refuse to compute.
 
 
 
-numeric point could be not general enough! For example, in doublepentagon, I once set {s12->1,s23->3,...,s45->7,...}
+numeric point could be not general enough! For example, in doublepentagon, I once set {s12->1,s23->3,s34->73,s45->7,s15->213,...}
 then, accidently, one IBP coefficient is (s12+2s23-s45), it vanished! Then NeatIBP gave wrong results.
 There are 2 solutions:
 1. recently, we can tell the user to set up a generic enough point. And let them know it would giv wrong result if it is not generic enough
@@ -51,7 +51,7 @@ Consider a question: Can user compute 2 or more different projects at the same t
 
 Clean up useless trashes!
 
-Common Us
+Common input errors:
 external momenta not represented by Kinematics, 
 generic point not cover all kinematic variables
 
