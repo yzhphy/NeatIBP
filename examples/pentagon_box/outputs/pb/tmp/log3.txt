@@ -1,0 +1,298 @@
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 255 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 254 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 253 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 251 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 247 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 239 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 223 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 191 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 127 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 254 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 253 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 251 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 247 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 239 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 223 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 191 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 254 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 253 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 251 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 247 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 239 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 223 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 191 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 123 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 187 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 235 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 175 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 219 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 207 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 159 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 95 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 250 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 238 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 222 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 190 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 126 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 91 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 252 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 249 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 237 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 221 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 189 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 125 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 155 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 246 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 245 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 243 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 231 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 215 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 183 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 119 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 203 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 93 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 217 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 121 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 179 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 89 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 188 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 185 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 157 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 236 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 233 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 205 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 248 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 234 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 186 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 122 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 174 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 173 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 171 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 227 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 167 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 242 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 230 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 182 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 220 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 218 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 206 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 158 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 94 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 214 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 211 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 199 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 151 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 87 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 202 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 90 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 184 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 163 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 170 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 166 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 172 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 169 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 198 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 195 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 156 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 154 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 150 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 244 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 241 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 229 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 213 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 181 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 117 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 226 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 210 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 178 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 194 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 162 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 153 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 149 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 85 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 225 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 197 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 165 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 228 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 212 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 180 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 152 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 164 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/Analyze_Sector.wl config.txt 148 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/pentagon_box/outputs/pb/ &
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/AllMissionCompleteQ.wl config.txt | sh &
+wait
+
+math -script /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/MissionStatusChecker.wl config.txt | sh
+echo finished!
+

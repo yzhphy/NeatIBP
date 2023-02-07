@@ -1,0 +1,2 @@
+bash analyze_sector.sh config.txt 91 &
+wait
