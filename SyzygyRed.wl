@@ -451,7 +451,7 @@ IBPWeight[IBP_]:=Max[Total[IntegralAbsDegree[#]]&/@IntegralList[IBP,SortTheInteg
 CollectG[exp_]:=Coefficient[exp,Select[Variables[exp],Head[#]==G&]].Select[Variables[exp],Head[#]==G&];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Singular Interface*)
 
 
@@ -908,7 +908,7 @@ FindReducedIntegrals[rIBPs_,MIs_]:=Module[{result,tempInts,i},
 
 
 Options[SectorAnalyze]:={SeedingMethod->"Zurich",Verbosity->0,AdditionalDegree->3,DirectInitialSteps->2,TestOnly->False,
-ZurichInitialSteps->3,ModuleIntersectionMethod->"Singular",SectorMappingRules->{},Cut->{},KillCornerSubsecIBPs->False
+ZurichInitialSteps->3,ModuleIntersectionMethod->"Singular",SectorMappingRules->{},Cut->{},KillCornerSubsecFIBPs->False
 };
 SectorAnalyze[sector_,OptionsPattern[]]:=Module[{secheight,secindex,VectorList,timer,FIBPs,numshifts,r,s,LocalTargets,DenominatorTypes,
 i,sectorCut,FIBPs1,CornerIBP,baseIBP,propLocus,ISPLocus,BaikovCut,rawIBPs={},nIBPs={},MIs={},step,newIBPs,seeds,integrals,SectorIntegrals,redIndex,irredIndex,rIBPs,
@@ -983,8 +983,8 @@ zs,zMaps,newNIBPs
 	
 	(* Remove IBPs for lower sectors *)
 	(* But this will wrongly kill some IBPs that generates IBPs not for lower sectors at non-corner seed*)
-	(* I (zihao) suggest we turn off this step*)
-	If[OptionValue[KillCornerSubsecIBPs],
+	(* I (zihao) suggest we turn off this step, the subsec IBPs will be automatically removed in the next steps so it is not needed here to do so*)
+	If[OptionValue[KillCornerSubsecFIBPs],
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing IBPs for lower sectors..."]];
 		FIBPs1={};
 		CornerIBP={};
@@ -1071,7 +1071,7 @@ zs,zMaps,newNIBPs
 		MIs=SectorIntegrals[[irredIndex]];    (* This is not the final MI *)
 		MIs=Select[MIs,IntegralISPDegree[#]<=OptionValue[DirectInitialSteps]&];  (* Assume the high degree master integrals are not MIs *)
 		
-		If[OptionValue[Verbosity]==1,PrintAndLog["\t\t MIs created in step0. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s)."]];
+		If[OptionValue[Verbosity]==1,PrintAndLog["\t\t MIs created in step 0. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s)."]];
 		
 		
 		If[OptionValue[Verbosity]==1,PrintAndLog["\tFinished. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
@@ -1155,6 +1155,7 @@ zs,zMaps,newNIBPs
 			]
 			,sector
 		]&/@(CornerIBP);*)
+		(*do not use corner IBP to estimate FIBP degree, it may cause error by accident.*)
 		IBPISPdegrees=FIBPSectorISPDegree[#,sector]&/@FIBPs;
 		IBPISPdegrees=\!\(\*
 TagBox["IBPISPdegrees",
