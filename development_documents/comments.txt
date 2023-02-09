@@ -5,6 +5,8 @@ Copy right of SPASM
 issue in the dev_log.txt at 2022.0923 [II] needs to be improved.
 
 test cutting double propagators, the program should refuse to compute.
+
+seeding denominators by denominator types is very very risky, what if FIBP decends all denominator indices? The seeding will never end because it dose not cover enough denominator degree!
 ==========Important=================
 
 clear Singular tmp folder after finished running, it takes 10s MBs disk, wasting.
@@ -58,6 +60,7 @@ generic point not cover all kinematic variables
 why do we need to seed starting from initial step +1 in the for loop? What if the initial step IBPs are already enough for the targets?
 
 figure out why there is a label (* this is not the final MI *)
+
 
 
 
