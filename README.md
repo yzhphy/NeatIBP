@@ -90,7 +90,7 @@ to continue an unfinished mission.
 
 
 ### Checking completeness of the IBP system
-Please keep in mind that, NeatIBP selects the IBP relations using numeric methods. Sometimes, NeatIBP will give a WRONG result because the numeric point (which is the variable **GenericPoint** set by the user in "kinematics.txt") happens to be some special bad points. Thus, it is highly recommended that you check the IBP system after the NeatIBP finished. To do so, turn on a terminal at the "/SomePath/NeatIBP/", and
+Please keep in mind that, NeatIBP selects the IBP relations using numeric methods. Sometimes, NeatIBP will give a WRONG result because the numeric point (which is the variable **GenericPoint** set by the user in "kinematics.txt") happens to be a special bad point. Thus, it is highly recommended that you check the IBP system after the NeatIBP finished. To do so, turn on a terminal at the "/SomePath/NeatIBP/", and
 ```
 math -script CheckIBP.wl [path]
 ```
