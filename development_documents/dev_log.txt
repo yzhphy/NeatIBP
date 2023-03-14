@@ -471,3 +471,20 @@ to get rid of zero integrals after GMap
 3. added usage: check ibp
 4. labeled version: 1.0.0.0
 5. modified version label: 1.0.0.1
+
+---------------------------------
+2023.3.14
+
+Concerning user report of errors, added :
+debugModification20230314=True
+and
+If[debugModification20230314,DenominatorTypes=DenominatorTypeCompleting[DenominatorTypes]];
+and added functions:
+DenominatorTypesFromMaxDenominatorDegrees
+and
+DenominatorTypeCompleting
+
+
+
+
+

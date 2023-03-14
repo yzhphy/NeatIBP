@@ -99,6 +99,7 @@ TimingReportOfRowReduce=True;
 LogFile="";
 probeTheFunctions=False;
 RowReduceFunction=SRSparseRowReduce
+debugModification20230314=True;
 
 
 
@@ -874,6 +875,27 @@ SimpleIBP[OptionsPattern[]]:=Module[{RelavantSectors,i,Sectors,timeUsed},
 ];
 
 
+DenominatorTypesFromMaxDenominatorDegrees[maxes_]:=Module[{helperHeadForDenominatorTypesFromMaxDenominatorDegrees,h,poly,i,cr},
+	h=Table[helperHeadForDenominatorTypesFromMaxDenominatorDegrees[i],{i,Length[maxes]}];
+	poly=1;
+	For[i=1,i<=Length[maxes],i++,
+		If[maxes[[i]]=!=0,
+			poly=poly*(1+h[[i]])^(maxes[[i]]-1)*h[[i]]
+		];
+	];
+	poly=Expand[poly];
+	cr=CoefficientRules[poly,h];
+	cr[[All,1]]
+]
+
+
+DenominatorTypeCompleting[DenominatorTypes_]:=Module[{maxes},
+	maxes=Max/@Transpose[DenominatorTypes];
+	maxes//DenominatorTypesFromMaxDenominatorDegrees
+
+]
+
+
 ZurichSeeding[sector_,nFIBPs_,IBPISPdegreeList_,CurrentDeg_,DenominatorTypes_,OptionsPattern[]]:=Module[{nn,i,j,seeds,RawIBPs={},nIBPs={}},
 	nn=Length[nFIBPs];
 	For[i=1,i<=nn,i++,
@@ -978,6 +1000,7 @@ zs,zMaps,newNIBPs
 	timer=AbsoluteTime[];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Driving DenominatorTypes..."]];
 	DenominatorTypes=Union[Append[IntegralPropagatorType/@LocalTargets,sector]];
+	If[debugModification20230314,DenominatorTypes=DenominatorTypeCompleting[DenominatorTypes]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  DenominatorTypes derived. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
 	timer=AbsoluteTime[];
 	

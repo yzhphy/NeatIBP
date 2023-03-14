@@ -7,6 +7,8 @@ issue in the dev_log.txt at 2022.0923 [II] needs to be improved.
 test cutting double propagators, the program should refuse to compute.
 
 seeding denominators by denominator types is very very risky, what if FIBP decends all denominator indices? The seeding will never end because it dose not cover enough denominator degree!
+Oh there is another problem discovered by user, the seeding of denominator indeed need to be rebuilt! debugModification20230314 is a temp rescuring!
+
 ==========Important=================
 
 clear Singular tmp folder after finished running, it takes 10s MBs disk, wasting.
@@ -62,7 +64,7 @@ why do we need to seed starting from initial step +1 in the for loop? What if th
 figure out why there is a label (* this is not the final MI *)
 
 
-
+add diagram name into monitor
 
 =============Not Important=================
 why do we need to set TemporaryDirectory everywhere?
