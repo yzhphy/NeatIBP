@@ -72,6 +72,8 @@ integrals=Get[outputPath<>"results/OrderedIntegrals.txt"];
 targets=Get[outputPath<>"inputs/"<>targetFileName];
 Get[outputPath<>"inputs/"<>kinematicsFileName];
 
+targets=Complement[targets,MIs];
+
 SDim=Length[Cases[Variables[IBPs],_G][[1]]/.G->List];
 Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
 

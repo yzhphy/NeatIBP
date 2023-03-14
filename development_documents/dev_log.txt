@@ -484,7 +484,8 @@ DenominatorTypesFromMaxDenominatorDegrees
 and
 DenominatorTypeCompleting
 
-
-
+added
+targets=Complement[targets,MIs]
+in CheckIBP.wl
 
 
