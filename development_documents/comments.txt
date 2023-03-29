@@ -1,4 +1,5 @@
 ==========Urgent===================
+continue: refuse to continue a job terminated at initialization!
 
 Copy right of SPASM
 
@@ -10,6 +11,12 @@ seeding denominators by denominator types is very very risky, what if FIBP decen
 Oh there is another problem discovered by user, the seeding of denominator indeed need to be rebuilt! debugModification20230314 is a temp rescuring!
 
 ==========Important=================
+
+finding symmetry in initialization can be parallelized
+
+remove subsec IBPs before throwing it into Spasm
+
+find some ways to remove some FIBPs if it is ZETAINI subsector FIBP
 
 clear Singular tmp folder after finished running, it takes 10s MBs disk, wasting.
 

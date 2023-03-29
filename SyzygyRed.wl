@@ -735,6 +735,7 @@ SectorMaps[sectors_]:=Module[
 	sectorMaps={};
 	While[True,
 		If[undeterminedSectors==={},Break[]];
+		Print["\t\t",Length[undeterminedSectors]," undetermined sector(s) left."];
 		newUniqueSector=undeterminedSectors[[1]];
 		uniqueSectors=Join[uniqueSectors,{newUniqueSector}];
 		undeterminedSectors=undeterminedSectors[[2;;-1]];
