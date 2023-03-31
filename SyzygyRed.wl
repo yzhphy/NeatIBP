@@ -1350,7 +1350,7 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  nFIBPs sorted. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
 	
 	timer=AbsoluteTime[];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Selecting independent FIBPs..."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Selecting independent IBPs..."]];
 	
 
 	
@@ -1367,7 +1367,7 @@ FullForm]\);(*?*)
 	
 	(*|||||||||*)(*ProbeIntermediateResult["nIBPs_independent",secNo,nIBPs];*)
 	
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Independent FIBPs selected. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Independent IBPs selected. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs are selected with ",Length[IntegralList[rawIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
 	
 	(*ProbeIntermediateResult["nIBPs2",secNo,nIBPs];*)
