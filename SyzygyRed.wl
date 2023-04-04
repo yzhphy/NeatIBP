@@ -1368,7 +1368,7 @@ FullForm]\);(*?*)
 	(*|||||||||*)(*ProbeIntermediateResult["nIBPs_independent",secNo,nIBPs];*)
 	
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Independent IBPs selected. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs are selected with ",Length[IntegralList[rawIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs are selected with ",Length[IntegralList[nIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
 	
 	(*ProbeIntermediateResult["nIBPs2",secNo,nIBPs];*)
 	
@@ -1391,7 +1391,7 @@ FullForm]\);(*?*)
 	(*|||||||||*)(*ProbeIntermediateResult["nIBPs_used",secNo,nIBPs];*)
 	
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Uneeded IBPs removed. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs remaining with ",Length[IntegralList[rawIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs remaining with ",Length[IntegralList[nIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
 	
 	timer=AbsoluteTime[];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Realizing raw IBPs..."]];
