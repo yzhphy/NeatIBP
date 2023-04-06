@@ -256,6 +256,7 @@ Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 Print["Finding symmetry mappings between sectors..."];
 timer=AbsoluteTime[];
 If[NeedSymmetry===False,
+	Print["\tSymmetry is off, skip."];
 	{uniqueSectors,mappedSectors,sectorMaps}={NonZeroSectors,{},{}}
 ,
 	{uniqueSectors,mappedSectors,sectorMaps}=SectorMaps[NonZeroSectors];
@@ -269,7 +270,7 @@ Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 Print["Exporting mapped targets..."];
 timer=AbsoluteTime[];
-
+If[NeedSymmetry===False,Print["\tSymmetry is off, skip."]]
 newReductionTargets=ReductionTargets;
 
 For[i=1,i<=Length[mappedSectors],i++,
@@ -288,10 +289,10 @@ But they are not!
 Although they will not cause error but may cause confusion while debugging.
 No need to change, but better to change.
 *)
-
-
-
 Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+
+
+
 
 
 
