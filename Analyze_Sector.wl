@@ -191,7 +191,10 @@ If[sectorID=!=-1,
 	sectorMaps=Get[outputPath<>"tmp/sectorMaps.txt"];
 	
 	PrintAndLog["Analyzing sector "<>ToString[InputForm[SectorNumberToSectorIndex[sectorID]]]<>"."];
-	Sectors=SortBy[Union[Sector/@TargetIntegrals],SectorOrdering]//Reverse;
+	(*Sectors=SortBy[Union[Sector/@TargetIntegrals],SectorOrdering]//Reverse;*)(*This is a hourse-butt-effect bug*)
+	Sectors={SectorNumberToSectorIndex[sectorID]};
+	
+	
 	(*RelavantSectors=SubsectorAllFinder[Sectors];*)
 	
 	If[NeedSymmetry===False,

@@ -420,6 +420,9 @@ rawIBPs=Factor[CoefficientArrays[rawIBPs,integrals][[2]]].integrals;
 1.refined PrintAndLog Function in SyzygyRed.wl and Analyze_Sector.wl
 
 2.add an option KillCornerSubsecIBPs in SyzygyRed.wl, to turn off a step in it
+	(* Remove IBPs for lower sectors *)
+	(* But this will wrongly kill some IBPs that generates IBPs not for lower sectors at non-corner seed*)
+	(* I (zihao) suggest we turn off this step, the subsec IBPs will be automatically removed in the next steps so it is not needed here to do so*)
 
 --------------------
 2022.12.1
@@ -487,5 +490,50 @@ DenominatorTypeCompleting
 added
 targets=Complement[targets,MIs]
 in CheckIBP.wl
+
+--------------------------------
+2023.3.20+
+fixed a bug in SpaSM interface
+modified a variable in the C codes from type int to type long
+
+--------------------------------
+2023.4.6
+[I]
+fixed a bug in Analyze_Sectors.wl:
+Changed
+Sectors=SortBy[Union[Sector/@TargetIntegrals],SectorOrdering]//Reverse;
+to
+Sectors={SectorNumberToSectorIndex[sectorID]};
+This is a hourse-butt-effect bug.
+
+[II]
+In SyzygyRed.wl
+Modified 
+If[OptionValue[KillCornerSubsecFIBPs],
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing IBPs for lower sectors..."]];
+		FIBPs1={};
+		CornerIBP={};
+	
+		For[i=1,i<=Length[FIBPs],i++,
+			baseIBP=IntegralRealization[FIBPs[[i]],sector];
+		
+			If[(baseIBP/.sectorCut)===0&&(Union[VectorList[[i,propLocus]]/.BaikovCut]==={0}),
+				Continue[];  (* This IBP corresponds to a lower sector *)
+			]; 
+			AppendTo[FIBPs1,FIBPs[[i]]];
+			AppendTo[CornerIBP,baseIBP];
+		];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[FIBPs]," Formal IBPs are generated; ",Length[FIBPs1]," Formal IBPs are used. "(*,AbsoluteTime[]-timer*)];];
+		FIBPs=FIBPs1;
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  IBPs for lower sectors removed. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
+	];
+	
+to
+
+of course, modified default that KillCornerSubsecFIBPs->True
+
+
+
+
 
 

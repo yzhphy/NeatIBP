@@ -1,4 +1,0 @@
-bash analyze_sector.sh config.txt 156 &
-bash analyze_sector.sh config.txt 154 &
-bash analyze_sector.sh config.txt 150 &
-wait

@@ -931,12 +931,12 @@ FindReducedIntegrals[rIBPs_,MIs_]:=Module[{result,tempInts,i},
 
 
 Options[SectorAnalyze]:={SeedingMethod->"Zurich",Verbosity->0,AdditionalDegree->3,DirectInitialSteps->2,TestOnly->False,
-ZurichInitialSteps->3,ModuleIntersectionMethod->"Singular",SectorMappingRules->{},Cut->{},KillCornerSubsecFIBPs->False
+ZurichInitialSteps->3,ModuleIntersectionMethod->"Singular",SectorMappingRules->{},Cut->{},KillCornerSubsecFIBPs->True
 };
 SectorAnalyze[sector_,OptionsPattern[]]:=Module[{secheight,secindex,VectorList,timer,FIBPs,numshifts,r,s,LocalTargets,DenominatorTypes,
 i,sectorCut,FIBPs1,CornerIBP,baseIBP,propLocus,ISPLocus,BaikovCut,rawIBPs={},nIBPs={},MIs={},step,newIBPs,seeds,integrals,SectorIntegrals,redIndex,irredIndex,rIBPs,
 nFIBPs,WellAddressedIntegrals,secNo,degRep,rr,IBPDegreeList,IBPIndex,ReducedIntegrals,UsedIndex,subsector,SubsectorInts,tempInts,
-IBPISPdegrees,NewrawIBPs,NewnIBPs,timer2,M1,M1ext,M2,sectorMaps,mappedSectors,tailSectors,leafCounts,byteCounts,
+IBPISPdegrees,NewrawIBPs,NewnIBPs,timer2,M1,M1ext,M2,sectorMaps,mappedSectors,tailSectors,leafCounts,byteCounts,maxeDenominatorIndices,formalIntegrals,
 zs,zMaps,newNIBPs
 },
 	timer=AbsoluteTime[];
@@ -1009,20 +1009,34 @@ zs,zMaps,newNIBPs
 	(* But this will wrongly kill some IBPs that generates IBPs not for lower sectors at non-corner seed*)
 	(* I (zihao) suggest we turn off this step, the subsec IBPs will be automatically removed in the next steps so it is not needed here to do so*)
 	If[OptionValue[KillCornerSubsecFIBPs],
-		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing IBPs for lower sectors..."]];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing FIBPs for lower sectors seeding with DenominatorTypes..."]];
 		FIBPs1={};
 		CornerIBP={};
-	
-		For[i=1,i<=Length[FIBPs],i++,
-			baseIBP=IntegralRealization[FIBPs[[i]],sector];
 		
-			If[(baseIBP/.sectorCut)===0&&(Union[VectorList[[i,propLocus]]/.BaikovCut]==={0}),
+		For[i=1,i<=Length[FIBPs],i++,
+			(*baseIBP=IntegralRealization[FIBPs[[i]],sector];*)
+			
+			(*If[(baseIBP/.sectorCut)===0&&(Union[VectorList[[i,propLocus]]/.BaikovCut]==={0}),
 				Continue[];  (* This IBP corresponds to a lower sector *)
+			]; *)
+			
+			maxeDenominatorIndices=Max/@Transpose[DenominatorTypes];
+			formalIntegrals=Cases[Variables[FIBPs[[i]]],_G];
+			
+			
+			If[
+				Union[
+					Expand[
+						(IntegralRealization[#,maxeDenominatorIndices]/.sectorCut)&/@formalIntegrals
+					]
+				]==={0},
+				Continue[];  (* This FIBP seeds to a lower sector in DenominatorTypes*)
 			]; 
+			
 			AppendTo[FIBPs1,FIBPs[[i]]];
 			AppendTo[CornerIBP,baseIBP];
 		];
-		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[FIBPs]," Formal IBPs are generated; ",Length[FIBPs1]," Formal IBPs are used. "(*,AbsoluteTime[]-timer*)];];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[FIBPs]," Formal IBPs are generated; ",Length[FIBPs1]," Formal IBPs are used. ",Length[FIBPs]-Length[FIBPs1]," Formal IBPs are removed. "(*,AbsoluteTime[]-timer*)];];
 		FIBPs=FIBPs1;
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  IBPs for lower sectors removed. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
 	];
