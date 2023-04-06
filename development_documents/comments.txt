@@ -12,7 +12,10 @@ Oh there is another problem discovered by user, the seeding of denominator indee
 
 If bottom sector terminate unexpectedly, the process will NOT stuck and summarize. We should prevent this! Add a status checker to ensure all sectors finished before summarizing! Or maybe we can solve this from MissionStatusChecker, to modify one of its deciesion process. It terminates iff all mission finished.
 
+do not use 42013 as default p inside codes, let user input it!
+
 ==========Important=================
+
 
 log the ini and summaries
 
