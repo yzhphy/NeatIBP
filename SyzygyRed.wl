@@ -1,100 +1,6 @@
 (* ::Package:: *)
 
-(*
---------------
-log
---------------
-I have changed "!=" somewhere to "=!="  (zihao 2022.04.06)
-I have changed the name of variable "FF" to "FF1" in function SingularIdeal, to avoid possible contradiction with FiniteFlow. (zihao 2022.04.08)
-I have added some timing reports in the codes. For this, a new variable is declared named TimingReportOfRowReduce. (zihao 2022.04.08)
-I have added many time reports (zihao someday)
-I have added "exit;" in SingularIntersectionText and SingularSyzText in order to use them in command line (zihao 2022.04.25)
-I added PrintAndLog function. I replaced all Print[ to PrintAndLog[ (zihao 2022.04.29)
-I added an option to probe (zihao 2022.05.03)
 
-zihao 2022.05.06:
-Function pivots[matrix] is defined twice. I removed the first one. 
-I have make the RowReduceFunction optional. By default using Hefeng`s SRSparseRowReduce.
-I have changed the default prime modulus from 32452843 to 42013
-I have modified "Mext=Join[Transpose[M],IdentityMatrix[M//Length]]//Transpose" to "Mext=Join[Transpose[M],SparseIdentityMatrix[M//Length]]//Transpose" 
-	in function UsedRelations. Where SparseIdentityMatrix[n_]:=SparseArray[Table[{k,k}\[Rule]1,{k,n}]]
-	
-zihao 2022.05.07
-I have deleted the step "CollectG" in function SectorAnalyze
-
-zihao 2022.05.09
-In function SectorAnalyze, 
-		IBPISPdegrees=IBPISPSectorDegree[#,sector]&/@(CornerIBP/.GenericD//Expand)
-has been modified to 
-		IBPISPdegrees=IBPISPSectorDegree[
-			Collect[
-				#/.GenericD/.GenericPoint,
-				Cases[Variables[#],_G]
-			]
-			,sector
-		]&/@(CornerIBP);
-		
-zihao 2022.05.12  
-when cauculating sector #938 of the triplebox example, the SingularIntersection returned a VectorList, such that VectorList[[212]]=0, but it is supposed to be a vector, not 0.
-The phenomenon comes from the Singular running step, after simplify(m12,12) command, the 212th element of the result matrix is 0, but it is supposed to be linear combinations of gen(...)
-The Singular website is failed, so I cannot study why this is happening (maybe because the simplification mode 12)
-The problem singular script is in  /home/zihao/projects/SyzygyRed/Parallelization/test_triplebox/intersection_test_bug_938.sing, we should study what maybe wrong as soon as the Singular website recovered.
-Now, we have no choice but to add a command 
-If[Count[vectors,0]>0,PrinAndLog["#",secNum,"  ZEROs in VectorList Encountored!!They are deleted."];vectors=DeleteCases[vectors,0]]; 
-in function IntersectionRead.
-BUT REMEMBER!! This is a YAN-ER-DAO-LING behaviour, because it is possible that there DO EXIST some BUGs in the Singular step, and we just temply turn off the warning... so... The result may be WRONG!
-MAKE SURE you fix the possible bug once Singular website recover!/home/zihao/projects/SyzygyRed/Parallelization/test_double_pentagon/Analyze_Sector.wl
-
-zihao  2022.05.13
-Singular web site has recovered.
-After looking it up, we can delete the command 
-If[Count[vectors,0]>0,PrinAndLog["#",secNum,"  ZEROs in VectorList Encountored!!They are deleted."];vectors=DeleteCases[vectors,0]]; 
-in function IntersectionRead. 
-There seems to be no error. What we only need to do is just modify the OptionSimplification from 12 to 14.
-
-zihao 2022.05.16
-I added option in SectorAnalyze to choose module intersection method, Linear or Singular
-
-zihao 2022.05.18
-required the program to report ByteCount of VectorList
-
-zihao 2022.05.24
-Added an option to shorten the module M1 and M2
-
-In function SingularIntersectionMaker 
-varpara=Variables[Join[M1,M2]];
-is modified to 
-varpara=Variables[Join[M1ext,M2]];
-
-in string SingularIntersectionText
-module m=m1+m2; is modified to module m=m1,m2;
-
-zihao 2022.09.09
-added functions:
-FIBPSectorISPDegree
-FIntegralSectorISPDegree
-In function SectorAnalyze, 
-	IBPISPdegrees=IBPISPSectorDegree[
-			Collect[
-				#/.GenericD/.GenericPoint,
-				Cases[Variables[#],_G]
-			]
-			,sector
-		]&/@(CornerIBP);
-has been modified to 
-IBPISPdegrees=FIBPSectorISPDegree[#,sector]&/@FIBPs;
-Before the modification, Zurich seeding gives more MIs than expected.
----------------
-comments
----------------
-There are some global variables named "m" or "z" etc. in the code. They`d better be changed to some longer names, to avoid possible contradiction with user`s code. (Like Litered`s "j").
-But considering we will use this in commandLine, this is not that important
-No, if user input some vars like m[1], will cause trouble!
-
-Some parameters need to be made optional, eg. degree bound
-
-SDim seems unecessary in the code, try get rid of it?
-*)
 TimingReportOfRowReduce=True;
 LogFile="";
 probeTheFunctions=False;
@@ -604,7 +510,11 @@ IBPGenerator[vector_,RestrictedPropIndex_,OptionsPattern[]]:=Module[{i,b,ref,ref
 		];
 		
 	];
-	Return[term1+term2];
+	If[seedingViaFIBPFunction,
+		Return[Evaluate[term1+term2/.Table[m[i]->Slot[i],{i,1,SDim}]]&];
+	,
+		Return[term1+term2];
+	]
 	
 ];
 
@@ -628,8 +538,11 @@ IBPCutGenerator[vector_,RestrictedPropIndex_,cutIndex_]:=Module[{i,b,ref,refloca
 			term2+=Std[f,reflocal];
 		];
 	];
-	Return[term1+term2];
-
+	If[seedingViaFIBPFunction,
+		Return[Evaluate[term1+term2/.Table[m[i]->Slot[i],{i,1,SDim}]]&];
+	,
+		Return[term1+term2];
+	]
 ];
 
 
@@ -674,6 +587,11 @@ SeedMerge[numshifts_,denshifts_]:=Flatten[Table[numshifts[[i]]+denshifts[[j]],{i
 
 
 IntegralRealization[FundamentalIBP_,degree_]:=FundamentalIBP/.Dispatch[Table[m[i]->degree[[i]],{i,1,SDim}]];
+If[seedingViaFIBPFunction,
+	ClearAll[IntegralRealization];
+	PrintAndLog["seedingViaFIBPFunction is on, redefining IntegralRealization."];
+	IntegralRealization[FundamentalIBP_,degree_]:=FundamentalIBP@@degree;
+]
 
 
 pivots[matrix_]:=Module[{ARLonglist},
@@ -998,6 +916,9 @@ zs,zMaps,newNIBPs
 	
 	FIBPs=IBPGenerator[#,secindex,Cut->OptionValue[Cut]]&/@VectorList;
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[FIBPs]," Formal IBPs generated. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
+	
+	ProbeIntermediateResult["FIBPs",secNo,FIBPs];
+	
 	timer=AbsoluteTime[];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Driving DenominatorTypes..."]];
 	DenominatorTypes=Union[Append[IntegralPropagatorType/@LocalTargets,sector]];
@@ -1248,7 +1169,7 @@ FullForm]\);(*?*)
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","SectorIntegrals Derived. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s)."]];
 		
 		timer2=AbsoluteTime[];
-		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Complying IBPAnalyze..."];];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Performing IBPAnalyze..."];];
 		{redIndex,irredIndex,rIBPs}=IBPAnalyze[nIBPs,SectorIntegrals];
 		SectorIntegrals=Select[IntegralList[nIBPs],Sector[#]==sector&];
 		MIs=SectorIntegrals[[irredIndex]];    (* This is not the final MI *)
@@ -1289,7 +1210,7 @@ FullForm]\);(*?*)
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","Joining finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s)."]];
 			
 			timer2=AbsoluteTime[];
-			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Complying IBPAnalyze..."];];
+			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Performing IBPAnalyze..."];];
 			{redIndex,irredIndex,rIBPs}=IBPAnalyze[nIBPs,SectorIntegrals];
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","IBPAnalyze finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s)."]];
 			
@@ -1430,7 +1351,7 @@ FullForm]\);(*?*)
 		sectorMaps=OptionValue[SectorMappingRules];
 		mappedSectors=sectorMaps[[All,1]];
 		(*PrintAndLog["#",secNo,"\t",Length[mappedSectors]];*)
-		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Complying sector maps..."]];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Performing sector maps..."]];
 		If[mappedSectors=!={},
 			(*rawIBPs=rawIBPs/.G[x__]:>GMapped[sectorMaps,{x}];*)
 			rawIBPs=SymmetryMap[sectorMaps,#]&/@rawIBPs

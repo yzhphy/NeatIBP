@@ -2,7 +2,16 @@
 This is the earliest release version.
 
 [NeatIBP 1.0.0.1]
-Date: 2023.4.6
+Date: 2023.2.6
 Modifications:
-	1.Fixed known bugs.
-	2.Added a step to remove all FIBPs that concernes no integrals in the current sector seeded by the highest denominator type.
+	1. Fixed known bugs.
+	2. Added CheckIBP.wl
+
+[NeatIBP 1.0.0.2]
+Date: to be given
+Modifications:
+	1. Fixed known bugs.
+	2. Some usage improvements.
+	3. Added a step to remove all FIBPs that concernes no integrals in the current sector seeded by the highest denominator type.
+	4. Supporting seeding via FIBP Functions. This will make the seeding faster than seeding via replacement.
+	

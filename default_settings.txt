@@ -23,10 +23,22 @@ NeedSymmetry=True;
 CutIndices={};
 GenericD = d -> 137/3;
 
+(*-----------method settings--------------*)
+seedingViaFIBPFunction=True;
+
+
 
 (*-----------usage settings--------------*)
 MemoryUsedLimit=Infinity;(*MB*)
 ThreadUsedLimit=Infinity;
+ClearTempFolders={
+	"intermediate_results"->False,
+	"log_files"->False,
+	"running_scripts"->True,
+	"mission_status"->True,
+	"reduction_tasks"->False
+	
+}(*the auto-cleaning is not supported yet in the current version...*)
 
 
 

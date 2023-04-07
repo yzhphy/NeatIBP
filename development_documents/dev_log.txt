@@ -532,6 +532,63 @@ to
 
 of course, modified default that KillCornerSubsecFIBPs->True
 
+--------------------------------
+2023.4.7
+[I]
+commented out useless codes in Analyze_Sector.wl concerning runningScriptFolder or "running_scripts" tmp folder.
+
+[II]
+deleted the old logs in the source code in SyzygyRed.wl
+
+[III]
+some linguistic corrections, Comply->Perform
+
+[IV]
+Supporting seeding via FIBP Functions. This will make the seeding faster than seeding via replacement.
+Detailed modifications:
+1.added
+If[seedingViaFIBPFunction,
+	ClearAll[IntegralRealization];
+	PrintAndLog["seedingViaFIBPFunction is on, redefining IntegralRealization."];
+	IntegralRealization[FundamentalIBP_,degree_]:=FundamentalIBP@@degree;
+]
+under 
+IntegralRealization[FundamentalIBP_,degree_]:=FundamentalIBP/.Dispatch[Table[m[i]->degree[[i]],{i,1,SDim}]];
+2. modified
+		Return[term1+term2];
+to
+If[seedingViaFIBPFunction,
+		Return[Evaluate[term1+term2/.Table[m[i]->Slot[i],{i,1,SDim}]]&];
+	,
+		Return[term1+term2];
+	]
+
+in function
+IBPGenerator and IBPCutGenerator
+
+[V]
+label to a new version: 1.0.0.2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

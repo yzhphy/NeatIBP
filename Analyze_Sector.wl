@@ -298,7 +298,7 @@ For[i=1,i\[LessEqual]Length[newReadySectors],i++,
 missionReadyToCompute=SortBy[Select[missionStatus,#[[2]]==="ReadyToCompute"&],SectorOrdering[#[[1]]]&]//Reverse
 
 
-runningScriptFolder=outputPath<>"tmp/running_scripts/"
+(*runningScriptFolder=outputPath<>"tmp/running_scripts/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[runningScriptFolder]
 Export[
 	runningScriptFolder<>""<>ToString[sectorID]<>".txt",
@@ -306,7 +306,7 @@ Export[
 ]
 	
 
-
+*)
 
 
 

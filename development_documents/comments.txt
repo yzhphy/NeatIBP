@@ -1,7 +1,6 @@
 ==========Urgent===================
 continue: refuse to continue a job terminated at initialization!
 
-Copy right of SPASM
 
 issue in the dev_log.txt at 2022.0923 [II] needs to be improved.
 
@@ -15,7 +14,7 @@ If bottom sector terminate unexpectedly, the process will NOT stuck and summariz
 do not use 42013 as default p inside codes, let user input it!
 
 ==========Important=================
-
+modify seeding implementations to C
 
 log the ini and summaries
 
@@ -23,25 +22,23 @@ finding symmetry in initialization can be parallelized
 
 remove subsec IBPs before throwing it into Spasm
 
-find some ways to remove some FIBPs if it is ZETAINI subsector FIBP
-
 clear Singular tmp folder after finished running, it takes 10s MBs disk, wasting.
+and, is it necessary to export relavant_integrals in Analyze_Sector.wl?
 
 numeric point could be not general enough! For example, in doublepentagon, I once set {s12->1,s23->3,s34->73,s45->7,s15->213,...}
 then, accidently, one IBP coefficient is (s12+2s23-s45), it vanished! Then NeatIBP gave wrong results.
 There are 2 solutions:
-1. recently, we can tell the user to set up a generic enough point. And let them know it would giv wrong result if it is not generic enough
+1. recently, we can tell the user to set up a generic enough point. And let them know it would give wrong result if it is not generic enough
 2. midtermly, build a detector to see if above situation happens
 3. longtermly, rewrite the work flow to let the user putin more generic points.
 
 if we generates numeric points randomly, we should add the values of numeric points (and d) into output.
 
-setup default values for settings!
 
 Check if replacement replaces the variables to numerics, if not, send a warning
 
 [SyzygyRed.wl]
-There are some global variables named "m" or "z" etc. in the code. 
+There are some global variables named "m" or "z" "x" "y" etc. in the code. 
   They`d better be changed to some longer names, to avoid possible \
 contradiction with user`s code. (Like Litered`s "j").
   But considering we will use this in commandLine, this is not that \
