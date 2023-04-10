@@ -609,6 +609,9 @@ But we temply donot support seeding via functions in Direct seeding Mode, I have
 [V]
 created a backup branch
 
+[VI]
+added memory report
+
 
 
 
