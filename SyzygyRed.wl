@@ -1,6 +1,5 @@
 (* ::Package:: *)
 
-
 TimingReportOfRowReduce=True;
 LogFile="";
 probeTheFunctions=False;
@@ -340,11 +339,13 @@ IntegralDegree[int_]:=(int/.G->List)-Sector[int];
 IntegralAbsDegree[int_]:=Abs/@((int/.G->List)-Sector[int]);
 IntegralSectorHeight[int_]:=Count[int/.G->List,u_/;u>0];
 IntegralSectorOrder[int_]:=SectorWeightMatrix1[Sector[int]].IntegralAbsDegree[int];
-IntegralReal[indices_]:=Dispatch[Table[m[i]->indices[[i]],{i,1,SDim}]];
+(*IntegralReal[indices_]:=Dispatch[Table[m[i]->indices[[i]],{i,1,SDim}]];*)
 IntegralPropagatorDegree[int_]:=Sum[If[int[[j]]>1,int[[j]]-1,0],{j,1,Length[int]}]; 
 IntegralISPDegree[int_]:=-Total[Select[int/.G->List,#<0&]];
 IntegralPropagatorType[int_]:=Table[If[int[[j]]>=1,int[[j]],0],{j,1,Length[int]}]; 
-FIntegralSectorISPDegree[fInt_,sector_]:=((fInt/.m[_]->0)/.G->List).(sector-1)
+(*FIntegralSectorISPDegree[fInt_,sector_]:=((fInt/.m[_]->0)/.G->List).(sector-1)*)
+FIntegralSectorISPDegree[fInt_,sector_]:=(IntegralRealization[fInt,Table[0,SDim]]/.G->List).(sector-1)
+
 
 
 IntegralOrdering[int_]:=Join[{IntegralSectorHeight[int],SectorNumber[int//Sector]},IntegralWeight[int]];   (* Key function *)
@@ -486,6 +487,13 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 
 
 Std[f_,ref_]:=Total[(G@@(ref-#[[1]]))*(#[[2]])&/@CoefficientRules[f,var,DegreeReverseLexicographic]];
+(*If[seedingViaFIBPFunction,
+	ClearAll[Std];
+	PrintAndLog["seedingViaFIBPFunction is on, redefining Std."];
+	Std[f_,ref_]:=Module[{cr=CoefficientRules[f,var,DegreeReverseLexicographic]},
+		Sum[(G@@(ref-cr[[i,1]]))*cr[[i,2]],{i,Length[cr]}]
+	]
+]*)
 
 
 Options[IBPGenerator]:={Cut->{}};
@@ -510,13 +518,41 @@ IBPGenerator[vector_,RestrictedPropIndex_,OptionsPattern[]]:=Module[{i,b,ref,ref
 		];
 		
 	];
-	If[seedingViaFIBPFunction,
-		Return[Evaluate[term1+term2/.Table[m[i]->Slot[i],{i,1,SDim}]]&];
-	,
-		Return[term1+term2];
-	]
+	Return[term1+term2];
 	
 ];
+
+(*If[seedingViaFIBPFunction,
+ClearAll[IBPGenerator];
+PrintAndLog["seedingViaFIBPFunction is on, redefining IBPGenerator."];
+Options[IBPGenerator]:={Cut->{}};
+IBPGenerator[vector_,RestrictedPropIndex_,OptionsPattern[]]:=Module[{i,b,ref,reflocal,term1,term2=0,h,f,bb,cutIndex},
+	cutIndex=OptionValue[Cut];
+	If[!SubsetQ[RestrictedPropIndex,cutIndex],PrintAndLog["Sorry... This version does not support the case with a cut propagator index UNrestricted ..."]; Return[];];
+	If[cutIndex=!={},Return[IBPCutGenerator[vector,RestrictedPropIndex,cutIndex]];];
+	b=vector[[-1]];
+	h=L+(n-1)+1;
+	ref=Table[Slot[i],{i,1,SDim}];
+	term1=Std[-((d-h)/2)b,ref];
+	
+	For[i=1,i<=SDim,i++,
+		If[MemberQ[RestrictedPropIndex,i],
+			bb=Cancel[vector[[i]]/z[i]];
+			f=(-Slot[i]+1)bb+z[i]*D[bb,z[i]];
+			term2+=Std[f,ref];
+			,
+			reflocal=ref/.Slot[i]->Slot[i]+1;
+			f=-Slot[i] vector[[i]]+z[i]*D[vector[[i]],z[i]];
+			term2+=Std[f,reflocal];
+		];
+		
+	];
+	Return[Evaluate[term1+term2]&]
+	
+	
+];
+
+]*)
 
 
 IBPCutGenerator[vector_,RestrictedPropIndex_,cutIndex_]:=Module[{i,b,ref,reflocal,term1,term2=0,h,f,bb,cutNormalization},
@@ -538,12 +574,36 @@ IBPCutGenerator[vector_,RestrictedPropIndex_,cutIndex_]:=Module[{i,b,ref,refloca
 			term2+=Std[f,reflocal];
 		];
 	];
-	If[seedingViaFIBPFunction,
-		Return[Evaluate[term1+term2/.Table[m[i]->Slot[i],{i,1,SDim}]]&];
-	,
-		Return[term1+term2];
-	]
+	Return[term1+term2];
 ];
+
+(*If[seedingViaFIBPFunction,
+ClearAll[IBPCutGenerator];
+PrintAndLog["seedingViaFIBPFunction is on, redefining IBPCutGenerator."];
+IBPCutGenerator[vector_,RestrictedPropIndex_,cutIndex_]:=Module[{i,b,ref,reflocal,term1,term2=0,h,f,bb,cutNormalization},
+	b=vector[[-1]];
+	h=L+(n-1)+1;
+	cutNormalization=Slot[#]->1&/@cutIndex;
+	(* PrintAndLog[cutNormalization]; *)
+	ref=Table[Slot[i],{i,1,SDim}]/.cutNormalization;
+	term1=Std[-((d-h)/2)b,ref];
+	For[i=1,i<=SDim,i++,
+		If[MemberQ[cutIndex,i],Continue[];];
+		If[MemberQ[RestrictedPropIndex,i],
+			bb=Cancel[vector[[i]]/z[i]];
+			f=(-Slot[i]+1)bb+z[i]*D[bb,z[i]];
+			term2+=Std[f,ref];
+			,
+			reflocal=ref/.Slot[i]->Slot[i]+1;
+			f=-Slot[i] vector[[i]]+z[i]*D[vector[[i]],z[i]];
+			term2+=Std[f,reflocal];
+		];
+	];
+	Return[Evaluate[term1+term2]&];
+	
+];
+
+]*)
 
 
 (* ::Section:: *)
@@ -587,11 +647,11 @@ SeedMerge[numshifts_,denshifts_]:=Flatten[Table[numshifts[[i]]+denshifts[[j]],{i
 
 
 IntegralRealization[FundamentalIBP_,degree_]:=FundamentalIBP/.Dispatch[Table[m[i]->degree[[i]],{i,1,SDim}]];
-If[seedingViaFIBPFunction,
+(*If[seedingViaFIBPFunction,
 	ClearAll[IntegralRealization];
 	PrintAndLog["seedingViaFIBPFunction is on, redefining IntegralRealization."];
 	IntegralRealization[FundamentalIBP_,degree_]:=FundamentalIBP@@degree;
-]
+]*)
 
 
 pivots[matrix_]:=Module[{ARLonglist},
@@ -828,6 +888,19 @@ ZurichSeeding[sector_,nFIBPs_,IBPISPdegreeList_,CurrentDeg_,DenominatorTypes_,Op
 	
 	Return[{RawIBPs,nIBPs}];
 ];
+ZurichSeedingVianFIBPFunctions[sector_,nFIBPFunctions_,IBPISPdegreeList_,CurrentDeg_,DenominatorTypes_,OptionsPattern[]]:=Module[
+{nn,i,j,seeds,RawIBPs={},nIBPs={}},
+	nn=Length[nFIBPFunctions];
+	For[i=1,i<=nn,i++,
+		If[CurrentDeg<IBPISPdegreeList[[i]],Continue[]];
+		seeds=SeedMerge[NumeratorShifts[sector,CurrentDeg-IBPISPdegreeList[[i]]],DenominatorTypes];
+		
+		RawIBPs=Join[RawIBPs,IntegralR[FI[i],#]&/@seeds];  (* Abstract notation FI[i] for FIBPs[[i]] *) 
+		nIBPs=Join[nIBPs,(nFIBPFunctions[[i]]@@#)&/@seeds];
+
+	];
+	Return[{RawIBPs,nIBPs}];
+];
 
 
 FindReducedIntegrals[rIBPs_,MIs_]:=Module[{result,tempInts,i},
@@ -854,8 +927,8 @@ ZurichInitialSteps->3,ModuleIntersectionMethod->"Singular",SectorMappingRules->{
 SectorAnalyze[sector_,OptionsPattern[]]:=Module[{secheight,secindex,VectorList,timer,FIBPs,numshifts,r,s,LocalTargets,DenominatorTypes,
 i,sectorCut,FIBPs1,CornerIBP,baseIBP,propLocus,ISPLocus,BaikovCut,rawIBPs={},nIBPs={},MIs={},step,newIBPs,seeds,integrals,SectorIntegrals,redIndex,irredIndex,rIBPs,
 nFIBPs,WellAddressedIntegrals,secNo,degRep,rr,IBPDegreeList,IBPIndex,ReducedIntegrals,UsedIndex,subsector,SubsectorInts,tempInts,
-IBPISPdegrees,NewrawIBPs,NewnIBPs,timer2,M1,M1ext,M2,sectorMaps,mappedSectors,tailSectors,leafCounts,byteCounts,maxeDenominatorIndices,formalIntegrals,
-zs,zMaps,newNIBPs
+IBPISPdegrees,NewrawIBPs,NewnIBPs,timer2,M1,M1ext,M2,sectorMaps,mappedSectors,tailSectors,leafCounts,byteCounts,maxDenominatorIndices,formalIntegrals,
+zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctions
 },
 	timer=AbsoluteTime[];
 	If[OptionValue[Verbosity]==1,PrintAndLog["--------------------------------------------------------------------\nInitializing new sector ",sector," ..."]];
@@ -917,7 +990,7 @@ zs,zMaps,newNIBPs
 	FIBPs=IBPGenerator[#,secindex,Cut->OptionValue[Cut]]&/@VectorList;
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[FIBPs]," Formal IBPs generated. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
 	
-	ProbeIntermediateResult["FIBPs",secNo,FIBPs];
+	(*ProbeIntermediateResult["FIBPs",secNo,FIBPs];*)
 	
 	timer=AbsoluteTime[];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Driving DenominatorTypes..."]];
@@ -941,16 +1014,16 @@ zs,zMaps,newNIBPs
 				Continue[];  (* This IBP corresponds to a lower sector *)
 			]; *)
 			
-			maxeDenominatorIndices=Max/@Transpose[DenominatorTypes];
+			maxDenominatorIndices=Max/@Transpose[DenominatorTypes];
 			formalIntegrals=Cases[Variables[FIBPs[[i]]],_G];
 			
+			FIBPCurrentSectorIntegrals=Union[
+				Expand[
+					(IntegralRealization[#,maxDenominatorIndices]/.sectorCut)&/@formalIntegrals
+				]
+			];
 			
-			If[
-				Union[
-					Expand[
-						(IntegralRealization[#,maxeDenominatorIndices]/.sectorCut)&/@formalIntegrals
-					]
-				]==={0},
+			If[FIBPCurrentSectorIntegrals==={0},
 				Continue[];  (* This FIBP seeds to a lower sector in DenominatorTypes*)
 			]; 
 			
@@ -970,6 +1043,12 @@ zs,zMaps,newNIBPs
 	(*nFIBPs=CollectG/@(FIBPs/.GenericPoint/.GenericD);*)
 	nFIBPs=(FIBPs/.GenericPoint/.GenericD);
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  nFIBPs generated. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
+	If[seedingViaFIBPFunction,
+		timer=AbsoluteTime[];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Generating nFIBPFunctions..."]];
+		nFIBPFunctions=Table[Evaluate[nFIBPs[[k]]/.Table[m[i]->Slot[i],{i,1,SDim}]]&,{k,Length[nFIBPs]}];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  nFIBPFunctions generated. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
+	];
 	
 	timer=AbsoluteTime[];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Finding sector self-symmetries..."]];
@@ -990,6 +1069,9 @@ zs,zMaps,newNIBPs
 	timer=AbsoluteTime[];
 	Switch[OptionValue[SeedingMethod],
 		"Direct",
+		If[seedingViaFIBPFunction,
+			PrintAndLog["WARNING: This version does not support seeding via FIBP Functions in Method \"Direct\". We are seeding via index replacement."];
+		];
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Seeding in step 0..."]];
 		timer2=AbsoluteTime[];
 		(* Step 0 *)
@@ -1115,6 +1197,7 @@ zs,zMaps,newNIBPs
 			,sector
 		]&/@(CornerIBP);*)
 		(*do not use corner IBP to estimate FIBP degree, it may cause error by accident.*)
+		
 		IBPISPdegrees=FIBPSectorISPDegree[#,sector]&/@FIBPs;
 		IBPISPdegrees=\!\(\*
 TagBox["IBPISPdegrees",
@@ -1129,14 +1212,20 @@ ShowSpecialCharacters->False,
 ShowStringCharacters->True,
 NumberMarks->True],
 FullForm]\);(*?*)
-		
+		(*ProbeIntermediateResult["IBPISPdegrees",secNo,IBPISPdegrees];*)
 		
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","IBPISPdegrees derived. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s)."]];
 		
 		
 		timer2=AbsoluteTime[];
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  \t","Zurich seeding..."];];
-		{rawIBPs,nIBPs}=Flatten/@(ZurichSeeding[sector,nFIBPs,IBPISPdegrees,#,DenominatorTypes]&/@Range[0,OptionValue[ZurichInitialSteps],1]//Transpose);
+		If[seedingViaFIBPFunction,
+			{rawIBPs,nIBPs}=Flatten/@(ZurichSeedingVianFIBPFunctions[sector,nFIBPFunctions,IBPISPdegrees,#,DenominatorTypes]&/@Range[0,OptionValue[ZurichInitialSteps],1]//Transpose);
+			
+		,
+			{rawIBPs,nIBPs}=Flatten/@(ZurichSeeding[sector,nFIBPs,IBPISPdegrees,#,DenominatorTypes]&/@Range[0,OptionValue[ZurichInitialSteps],1]//Transpose);
+			
+		];
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ","\t\tZurich seeding finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s)."]];
 		
 		
@@ -1167,7 +1256,7 @@ FullForm]\);(*?*)
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Deriving SectorIntegrals..."];];
 		SectorIntegrals=Select[IntegralList[nIBPs],Sector[#]==sector&];
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","SectorIntegrals Derived. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s)."]];
-		
+		(*ProbeIntermediateResult["nIBPs_and_SectorIntegrals",secNo,{nIBPs,SectorIntegrals}];*)
 		timer2=AbsoluteTime[];
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Performing IBPAnalyze..."];];
 		{redIndex,irredIndex,rIBPs}=IBPAnalyze[nIBPs,SectorIntegrals];
@@ -1185,8 +1274,12 @@ FullForm]\);(*?*)
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Zurich seeding..."];];
 			
 			
-			
-			{NewrawIBPs,NewnIBPs}=ZurichSeeding[sector,nFIBPs,IBPISPdegrees,step,DenominatorTypes];
+			If[seedingViaFIBPFunction,
+				{NewrawIBPs,NewnIBPs}=ZurichSeedingVianFIBPFunctions[sector,nFIBPFunctions,IBPISPdegrees,step,DenominatorTypes];
+				
+			,
+				{NewrawIBPs,NewnIBPs}=ZurichSeeding[sector,nFIBPs,IBPISPdegrees,step,DenominatorTypes];
+			];
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","Zurich seeding finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s)."]];
 			If[Not[NeedSymmetry===False],
 				timer2=AbsoluteTime[];

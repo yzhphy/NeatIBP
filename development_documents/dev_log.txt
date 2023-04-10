@@ -571,8 +571,43 @@ label to a new version: 1.0.0.2
 
 
 
+--------------------------------
+2023.4.10
+[I]
+recovered the modfification [IV] in 2023.4.7
+but added a redefinition after each of the 2 functions
 
+added a redefinition to Std[ 
 
+[II]
+ added 
+If[sectorID=!=-1,
+	LogFile=LogPath<>ToString[sectorID]<>".txt";
+]
+in the front of  Analyze_Sector.wl
+and commented out this in the latter codes
+
+[III]
+modified 
+FIntegralSectorISPDegree[fInt_,sector_]:=((fInt/.m[_]->0)/.G->List).(sector-1)
+to
+FIntegralSectorISPDegree[fInt_,sector_]:=(IntegralRealization[fInt,Table[0,SDim]]/.G->List).(sector-1)
+in SyzygyRed.wl 
+in order to meet the Functionalized seeding
+
+commented out
+IntegralReal[indices_]:=Dispatch[Table[m[i]->indices[[i]],{i,1,SDim}]];
+in SyzygyRed.wl 
+not used function.
+
+[IV]
+REIMPLEMENTING Functionalized seeding!:
+commented out all redifinition of functions in SyzygyRed.wl when seedingViaFIBPFunction=True
+Defined a new function ZurichSeedingVianFIBPFunctions to seed from nFIBPFunctions.
+But we temply donot support seeding via functions in Direct seeding Mode, I have left a warning message in the codes. If user uses Direct Mode, they will see it
+
+[V]
+created a backup branch
 
 
 

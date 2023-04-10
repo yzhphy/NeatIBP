@@ -15,15 +15,17 @@ If[commandLineMode,
 	(*outputPath=$CommandLine[[-1]];*)(*This is for MissionStatusMonitor to read, not needed here*)
 	,
 	Print["WARNING: program is not running in command line mode!"];
-	workingPath=NotebookDirectory[];
+	
+	packagePath=NotebookDirectory[];
 	(*LoopMomenta={l1,l2};
 	ExternalMomenta={k1,k2,k4};
 	Propagators={l1^2,(l1-k1)^2,(l1-k1-k2)^2,(l2+k1+k2)^2,(l2-k4)^2,l2^2,(l1+l2)^2,(l1+k4)^2,(l2+k1)^2};
 	Kinematics={k1^2->0,k2^2->0,k4^2->0,k1 k2->s/2,k1 k4->t/2,k2 k4->(-s/2-t/2)};
 	GenericPoint={s->-1,t->-3}; 
 	TargetIntegrals={G[1,1,1,1,1,1,1,-5,0],G[1,1,1,1,1,1,1,-4,-1],G[1,1,1,1,1,1,1,-1,-4]};*)
-	sectorID=879;
-	missionInput="example.txt";
+	sectorID=127;
+	missionInput="config.txt";
+	workingPath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples_private/dbox/";
 ]
 
 
@@ -56,6 +58,7 @@ PrintAndLog[x___]:=Module[{string,originalString},
 	];
 	Print[x]
 ]
+
 
 
 timer=AbsoluteTime[];
@@ -117,6 +120,15 @@ If[Intersection[StringSplit[outputPath,""],{" ","\t","\n","?","@","#","$","*","&
 If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
 
+
+LogPath=outputPath<>"tmp/log_files/"
+If[sectorID=!=-1,
+	LogFile=LogPath<>ToString[sectorID]<>".txt";
+]
+If[!DirectoryQ[#],Run["mkdir "<>#]]&[LogPath]
+PrintAndLog["===================================="]
+
+
 missionStatusFolder=outputPath<>"tmp/mission_status/"
 
 
@@ -139,16 +151,14 @@ TemporaryDirectory = outputPath<>"tmp/singular_temp/singular_temp_"<>ToString[se
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectory]
 
 
+
+
+
+
 Get[packagePath<>"Pak_Algorithm/Pak_Algorithm.wl"]
 Get[packagePath<>"SyzygyRed.wl"]
 
 reductionTasksFolder=outputPath<>"tmp/reduction_tasks/"
-
-LogPath=outputPath<>"tmp/log_files/"
-
-If[!DirectoryQ[#],Run["mkdir "<>#]]&[LogPath]
-
-
 
 
 
@@ -186,7 +196,7 @@ CuttedQ[integral_,cut_]:=MemberQ[Union[Sign/@((List@@integral[[cut]])-1)],-1](* 
 
 
 If[sectorID=!=-1,
-	LogFile=LogPath<>ToString[sectorID]<>".txt";
+	(*LogFile=LogPath<>ToString[sectorID]<>".txt";*)
 	
 	sectorMaps=Get[outputPath<>"tmp/sectorMaps.txt"];
 	
