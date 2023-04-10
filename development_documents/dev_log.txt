@@ -613,8 +613,13 @@ created a backup branch
 added memory report
 
 
-
-
+[VII]
+added 
+If[sectorID=!=-1,
+	LogFile=LogPath<>ToString[sectorID]<>".txt";
+]
+in Analyze_Sector.wl
+right after Getting SyzygyRed.wl
 
 
 

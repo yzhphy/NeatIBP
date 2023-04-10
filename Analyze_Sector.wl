@@ -157,7 +157,9 @@ If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectory]
 
 Get[packagePath<>"Pak_Algorithm/Pak_Algorithm.wl"]
 Get[packagePath<>"SyzygyRed.wl"]
-
+If[sectorID=!=-1,
+	LogFile=LogPath<>ToString[sectorID]<>".txt";
+]
 reductionTasksFolder=outputPath<>"tmp/reduction_tasks/"
 
 
