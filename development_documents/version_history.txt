@@ -15,3 +15,10 @@ Modifications:
 	3. Added a step to remove all FIBPs that concernes no integrals in the current sector seeded by the highest denominator type.
 	4. Supporting seeding via FIBP Functions. This will make the seeding faster than seeding via replacement.
 	
+[NeatIBP 1.0.0.3]
+Date: 2023.4.10
+Modifications:
+	1. Fixed known bugs.
+	2. Reimplemented seeding via FIBP Functions, modified to seeding via nFIBP Functions.
+	3. Added memory used report.
+	
