@@ -143,7 +143,7 @@ If[And[DirectoryQ[outputPath],!automaticOutputPath],
 	continueQ=InputString["Output directory \""<>outputPath<>"\" already exists.
 Since this is not an automatic output folder, I cannot delete it for you considering security.
 Please reset outputPath in "<>workingPath<>"config.txt, or delete "<>outputPath<>" manually. Then try again.
-Type in anything to continue.
+Type in anything to abort.
 "];
 	
 	Exit[0];
