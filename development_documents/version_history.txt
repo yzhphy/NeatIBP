@@ -22,3 +22,10 @@ Modifications:
 	2. Reimplemented seeding via FIBP Functions, modified to seeding via nFIBP Functions.
 	3. Added memory used report.
 	
+[NeatIBP 1.0.0.4]
+Date: 2023.4.11
+Modifications:
+	1. Allow the usage of Mathematica Sow-and-Reap method in Zurich seeding.
+	2. Allow the usage of ParallelTable when finding symmetry maps between sectors. 
+	
+	

@@ -621,6 +621,14 @@ If[sectorID=!=-1,
 in Analyze_Sector.wl
 right after Getting SyzygyRed.wl
 
+-----------------------------
+2023.4.11
+[I]
+added sow and reap in ZuirchSeeding functions
+
+[II]
+Added ParallelTable in SectorMaps function.
+
 
 
 

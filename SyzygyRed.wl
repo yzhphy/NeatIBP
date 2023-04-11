@@ -705,12 +705,17 @@ FindSymmetry[sec_]:=FindSymmetry[sec,sec]
 SectorMaps[sectors_]:=Module[
 {
 	undeterminedSectors,uniqueSectors,mappedSectors,sectorMaps,newUniqueSector,mappedUndeterminedSectorIndices,
-	i,maps,selectedMap,newTestingSector
+	i,maps,selectedMap,newTestingSector,listOfMaps
 },
 	undeterminedSectors=Reverse[sectors];(*without reversing, the function tends to choose sectors in the fronter of the list as unique sectors, this is the reversion of our convention*)
 	uniqueSectors={};
 	mappedSectors={};
 	sectorMaps={};
+	If[ParallelInFindingSectorMaps,
+		Print["\tLaunching kernels..."];
+		LaunchKernels[Min[$ProcessorCount,ThreadUsedLimit]];
+		Print["\tDone."]
+	];
 	While[True,
 		If[undeterminedSectors==={},Break[]];
 		Print["\t\t",Length[undeterminedSectors]," undetermined sector(s) left."];
@@ -718,18 +723,43 @@ SectorMaps[sectors_]:=Module[
 		uniqueSectors=Join[uniqueSectors,{newUniqueSector}];
 		undeterminedSectors=undeterminedSectors[[2;;-1]];
 		mappedUndeterminedSectorIndices={};
-		For[i=1,i<=Length[undeterminedSectors],i++,
-			newTestingSector=undeterminedSectors[[i]];
-			maps=FindSymmetry[newTestingSector,newUniqueSector];
-			If[Length[maps]>0,
-				selectedMap=SortBy[maps,{LeafCount[#],ByteCount[#]}&][[1]];
-				mappedSectors=Join[mappedSectors,{newTestingSector}];
-				mappedUndeterminedSectorIndices=Join[mappedUndeterminedSectorIndices,{{i}}];
-				sectorMaps=Join[sectorMaps,{newTestingSector->{newUniqueSector,selectedMap}}]
-			]
+		If[Not[ParallelInFindingSectorMaps],
+			For[i=1,i<=Length[undeterminedSectors],i++,
+				newTestingSector=undeterminedSectors[[i]];
+				maps=FindSymmetry[newTestingSector,newUniqueSector];
+				If[Length[maps]>0,
+					selectedMap=SortBy[maps,{LeafCount[#],ByteCount[#]}&][[1]];
+					mappedSectors=Join[mappedSectors,{newTestingSector}];
+					mappedUndeterminedSectorIndices=Join[mappedUndeterminedSectorIndices,{{i}}];
+					sectorMaps=Join[sectorMaps,{newTestingSector->{newUniqueSector,selectedMap}}]
+				]
+			];
+		,
+			
+			listOfMaps=ParallelTable[
+				FindSymmetry[undeterminedSectors[[i]],newUniqueSector],
+				{i,Length[undeterminedSectors]},
+				Method->"FinestGrained"
+			];
+			For[i=1,i<=Length[undeterminedSectors],i++,
+				newTestingSector=undeterminedSectors[[i]];
+				(*maps=FindSymmetry[newTestingSector,newUniqueSector];*)
+				maps=listOfMaps[[i]];
+				If[Length[maps]>0,
+					selectedMap=SortBy[maps,{LeafCount[#],ByteCount[#]}&][[1]];
+					mappedSectors=Join[mappedSectors,{newTestingSector}];
+					mappedUndeterminedSectorIndices=Join[mappedUndeterminedSectorIndices,{{i}}];
+					sectorMaps=Join[sectorMaps,{newTestingSector->{newUniqueSector,selectedMap}}]
+				]
+			];
 		];
 		undeterminedSectors=Delete[undeterminedSectors,mappedUndeterminedSectorIndices]
 		
+	];
+	If[ParallelInFindingSectorMaps,
+		Print["\tClosing kernels..."];
+		CloseKernels[];
+		Print["\tDone."];
 	];
 	{uniqueSectors,mappedSectors,sectorMaps}
 ]
@@ -877,27 +907,54 @@ DenominatorTypeCompleting[DenominatorTypes_]:=Module[{maxes},
 
 ZurichSeeding[sector_,nFIBPs_,IBPISPdegreeList_,CurrentDeg_,DenominatorTypes_,OptionsPattern[]]:=Module[{nn,i,j,seeds,RawIBPs={},nIBPs={}},
 	nn=Length[nFIBPs];
-	For[i=1,i<=nn,i++,
-		If[CurrentDeg<IBPISPdegreeList[[i]],Continue[]];
-		seeds=SeedMerge[NumeratorShifts[sector,CurrentDeg-IBPISPdegreeList[[i]]],DenominatorTypes];
-		
-		RawIBPs=Join[RawIBPs,IntegralR[FI[i],#]&/@seeds];  (* Abstract notation FI[i] for FIBPs[[i]] *) 
-		nIBPs=Join[nIBPs,IntegralRealization[nFIBPs[[i]],#]&/@seeds];
-	
+	If[Not[SowAndReap],
+		For[i=1,i<=nn,i++,
+			If[CurrentDeg<IBPISPdegreeList[[i]],Continue[]];
+			seeds=SeedMerge[NumeratorShifts[sector,CurrentDeg-IBPISPdegreeList[[i]]],DenominatorTypes];
+			RawIBPs=Join[RawIBPs,IntegralR[FI[i],#]&/@seeds];  (* Abstract notation FI[i] for FIBPs[[i]] *) 
+			nIBPs=Join[nIBPs,IntegralRealization[nFIBPs[[i]],#]&/@seeds];
+		];
+	,
+		nIBPs=Reap[
+			For[i=1,i<=nn,i++,
+				If[CurrentDeg<IBPISPdegreeList[[i]],Continue[]];
+				seeds=SeedMerge[NumeratorShifts[sector,CurrentDeg-IBPISPdegreeList[[i]]],DenominatorTypes];
+				RawIBPs=Join[RawIBPs,IntegralR[FI[i],#]&/@seeds];  (* Abstract notation FI[i] for FIBPs[[i]] *) 
+				(*nIBPs=Join[nIBPs,IntegralRealization[nFIBPs[[i]],#]&/@seeds];*)
+				For[j=1,j<=Length[seeds],j++,
+					Sow[IntegralRealization[nFIBPs[[i]],seeds[[j]]]]
+				]
+			];
+		][[2]];
+		If[Length[nIBPs]>0,nIBPs=nIBPs[[1]]];
 	];
-	
 	Return[{RawIBPs,nIBPs}];
 ];
 ZurichSeedingVianFIBPFunctions[sector_,nFIBPFunctions_,IBPISPdegreeList_,CurrentDeg_,DenominatorTypes_,OptionsPattern[]]:=Module[
 {nn,i,j,seeds,RawIBPs={},nIBPs={}},
 	nn=Length[nFIBPFunctions];
-	For[i=1,i<=nn,i++,
-		If[CurrentDeg<IBPISPdegreeList[[i]],Continue[]];
-		seeds=SeedMerge[NumeratorShifts[sector,CurrentDeg-IBPISPdegreeList[[i]]],DenominatorTypes];
-		
-		RawIBPs=Join[RawIBPs,IntegralR[FI[i],#]&/@seeds];  (* Abstract notation FI[i] for FIBPs[[i]] *) 
-		nIBPs=Join[nIBPs,(nFIBPFunctions[[i]]@@#)&/@seeds];
-
+	If[Not[SowAndReap],
+		For[i=1,i<=nn,i++,
+			If[CurrentDeg<IBPISPdegreeList[[i]],Continue[]];
+			seeds=SeedMerge[NumeratorShifts[sector,CurrentDeg-IBPISPdegreeList[[i]]],DenominatorTypes];
+			RawIBPs=Join[RawIBPs,IntegralR[FI[i],#]&/@seeds];  (* Abstract notation FI[i] for FIBPs[[i]] *) 
+			nIBPs=Join[nIBPs,(nFIBPFunctions[[i]]@@#)&/@seeds];
+		];
+	,
+		nIBPs=Reap[
+			
+			For[i=1,i<=nn,i++,
+				If[CurrentDeg<IBPISPdegreeList[[i]],Continue[]];
+				seeds=SeedMerge[NumeratorShifts[sector,CurrentDeg-IBPISPdegreeList[[i]]],DenominatorTypes];
+				RawIBPs=Join[RawIBPs,IntegralR[FI[i],#]&/@seeds];  (* Abstract notation FI[i] for FIBPs[[i]] *) 
+				(*nIBPs=Join[nIBPs,(nFIBPFunctions[[i]]@@#)&/@seeds];*)
+				For[j=1,j<=Length[seeds],j++,
+					Sow[(nFIBPFunctions[[i]])@@(seeds[[j]])]
+				];
+				
+			];
+		][[2]];
+		If[Length[nIBPs]>0,nIBPs=nIBPs[[1]]];
 	];
 	Return[{RawIBPs,nIBPs}];
 ];
@@ -1255,6 +1312,9 @@ FullForm]\);(*?*)
 			
 		];
 		(*end of MaxMemoryUsed*)];
+		
+		
+		
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ","\t\tZurich seeding finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 		
 		
@@ -1278,7 +1338,6 @@ FullForm]\);(*?*)
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ","\t\tAppending self-symmetries finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 			
 		];
-		
 		
 		
 		
@@ -1389,7 +1448,6 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[nIBPs]-Length[IBPIndex]," IBPs removed, ",Length[IBPIndex]," IBPs remained."]];
 	rawIBPs=rawIBPs[[IBPIndex]];
 	nIBPs=nIBPs[[IBPIndex]];
-	
 	(*|||||||||*)(*ProbeIntermediateResult["nIBPs_subsecIBPsRemoved",secNo,nIBPs];*)
 	(*end of MaxMemoryUsed*)];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Subsector IBPs removed. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];

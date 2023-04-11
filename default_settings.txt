@@ -25,7 +25,8 @@ GenericD = d -> 137/3;
 
 (*-----------method settings--------------*)
 seedingViaFIBPFunction=True;
-
+SowAndReap=True;
+ParallelInFindingSectorMaps=True;
 
 
 (*-----------usage settings--------------*)
