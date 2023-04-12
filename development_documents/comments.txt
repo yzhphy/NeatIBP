@@ -14,7 +14,12 @@ If bottom sector terminate unexpectedly, the process will NOT stuck and summariz
 
 do not use 42013 as default p inside codes, let user input it!
 
+
+
 ==========Important=================
+a comment in SyzygyRed.wl: (*FIBPFunction is a function with #, is it still safe to use # again here?*)
+
+
 modify seeding implementations to C
 
 log the ini and summaries
