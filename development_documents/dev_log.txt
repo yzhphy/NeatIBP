@@ -630,7 +630,16 @@ added sow and reap in ZuirchSeeding functions
 Added ParallelTable in SectorMaps function.
 
 
+-----------------------------
+2023.4.12
+[I]
+Plugin azuritino, many modifications
 
+[II]
+moved finding self-symmetries to the front of AnalyzeSector[...] in SyzygyRed.wl, and give it a If to turn it off if Symmetry is off
+
+[III]
+added self symmetry in Azuritino
 
 
 

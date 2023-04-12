@@ -234,13 +234,23 @@ If[sectorID=!=-1,
 	MIList=Association[Table[NonZeroSectors[[i]]->{},{i,1,Length[NonZeroSectors]}]];
 	RelavantIntegrals=Association[Table[NonZeroSectors[[i]]->{},{i,1,Length[NonZeroSectors]}]];
 	
-		
-	SectorAnalyze[SectorNumberToSectorIndex[sectorID],
-		SeedingMethod->"Zurich",
-		Verbosity->1,
-		ModuleIntersectionMethod->moduleIntersectionMethod,
-		SectorMappingRules->sectorMaps,
-		Cut->CutIndices
+	If[Not[MIFromAzuritino===True],
+		SectorAnalyze[SectorNumberToSectorIndex[sectorID],
+			SeedingMethod->"Zurich",
+			Verbosity->1,
+			ModuleIntersectionMethod->moduleIntersectionMethod,
+			SectorMappingRules->sectorMaps,
+			Cut->CutIndices
+		];
+	,
+		SectorAnalyze[SectorNumberToSectorIndex[sectorID],
+			SeedingMethod->"Zurich",
+			Verbosity->1,
+			ModuleIntersectionMethod->moduleIntersectionMethod,
+			SectorMappingRules->sectorMaps,
+			Cut->CutIndices,
+			ZurichInitialSteps->1
+		];
 	];
 	
 	

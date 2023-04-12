@@ -75,8 +75,18 @@ TargetIntegrals=Get[targetIntegralsFile]
 If[TargetIntegrals===$Failed,Print["****  Unable to open target intergals file "<>targetIntegralsFile<>". Exiting.";Exit[]]]
 
 
+(* ::Section:: *)
+(*Validating Inputs*)
+
+
 If[Union[(Length[Propagators]===Length[#])&/@TargetIntegrals]=!={True},
 	Print["****  Length of Propagators and indices of TargetIntegrals mismatch. Exiting..."];
+	Exit[0];
+]
+
+
+If[!SubsetQ[GenericPoint[[All,1]],Complement[Variables[{Propagators,Kinematics[[All,2]]}],LoopMomenta,ExternalMomenta]],
+	Print["****  GenericPoint dose not cover all scalar variables. Exiting..."];
 	Exit[0];
 ]
 
@@ -85,6 +95,19 @@ If[CutIndices=!={}&&NeedSymmetry,
 	Print["****  Please turn off symmetry if there is any cut indices. Exiting..."];
 	Exit[0]
 ]
+
+
+
+If[IntegralOrder =!= "MultiplePropagatorElimination"&&MIFromAzuritino,
+	Print["****  IntegralOrder must be set as \"MultiplePropagatorElimination\" if MIFromArzuritino is enabled. Exiting..."];
+	Exit[0]
+]
+
+
+(*If[NeedSymmetry&&MIFromAzuritino,
+	Print["****  Sorry, Azuritino dose not support symmetry in the current version.\n We are working on it and soon it will come.\n Exiting..."];
+	Exit[0]
+]*)
 
 
 CutableQ[integral_,cut_]:=!MemberQ[Union[Sign/@((List@@integral[[cut]])-1)],1](* index that are cut must \[LessEqual] 1*)
@@ -98,6 +121,10 @@ If[MemberQ[CutableQ[#,CutIndices]&/@TargetIntegrals,False],
 
 
 
+
+
+(* ::Section:: *)
+(*Setting outputPath*)
 
 
 If[outputPath===Automatic,
@@ -154,6 +181,10 @@ Run["mkdir -p "<>inputBackupPath]
 Run["cp "<>workingPath<>missionInput<>" "inputBackupPath<>missionInput]
 Run["cp "<>kinematicsFile<>" "inputBackupPath]
 Run["cp "<>targetIntegralsFile<>" "inputBackupPath]
+
+
+(* ::Section:: *)
+(*The Rest steps*)
 
 
 SectorNumberToSectorIndex//ClearAll

@@ -1,6 +1,7 @@
 ==========Urgent===================
 continue: refuse to continue a job terminated at initialization!
 
+some Global symbols in Critical point implementations, why global?
 
 issue in the dev_log.txt at 2022.0923 [II] needs to be improved.
 

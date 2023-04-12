@@ -17,7 +17,7 @@ ReductionOutputName="Untitled";
 outputPath=Automatic;
 
 (*-----------math settings---------------*)
-IntegralOrder = "Global"
+IntegralOrder = "MultiplePropagatorElimination"
 OptionSimplification = 12;
 NeedSymmetry=True;
 CutIndices={};
@@ -27,6 +27,8 @@ GenericD = d -> 137/3;
 seedingViaFIBPFunction=True;
 SowAndReap=True;
 ParallelInFindingSectorMaps=True;
+MIFromAzuritino=True;
+CriticalPointInAzuritino=True;
 
 
 (*-----------usage settings--------------*)

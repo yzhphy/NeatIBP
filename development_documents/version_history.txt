@@ -28,4 +28,22 @@ Modifications:
 	1. Allow the usage of Mathematica Sow-and-Reap method in Zurich seeding.
 	2. Allow the usage of ParallelTable when finding symmetry maps between sectors. 
 	
-	
+[NeatIBP 1.0.1.0]
+Date: 2023.4.12
+Modifications:
+	1. Added Azuritino in NeatIBP to find master integrals.
+	2. Some refinement modifications.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
