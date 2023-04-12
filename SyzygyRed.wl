@@ -329,7 +329,7 @@ SectorElimination[sector_]:=(G@@Table[If[sector[[i]]>0,PatternTest[Pattern[ToExp
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Integral Ordering*)
 
 
@@ -612,7 +612,7 @@ IBPCutGenerator[vector_,RestrictedPropIndex_,cutIndex_]:=Module[{i,b,ref,refloca
 ]*)
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*IBP sector Tools*)
 
 
@@ -666,7 +666,7 @@ pivots[matrix_]:=Module[{ARLonglist},
 ];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Symmetry *)
 
 
@@ -911,7 +911,7 @@ AzuritePoolToSeed[PoolMember_,ISPIndices_]:=Module[{i,result=Table[1,SDim]},
 ]
 
 
-Options[AzuritinoMIFind]={degBound->4,AzuritinoGenericD->GenericD,MaxISPDegree->4,MinISPDegreeForAnalysis->1,Modulus->42013,CriticalPointCounting->False,
+Options[AzuritinoMIFind]={degBound->0,AzuritinoGenericD->GenericD,MaxISPDegree->4,MinISPDegreeForAnalysis->1,Modulus->42013,CriticalPointCounting->False,
 selfSymmetryZMaps->{}
 };
 AzuritinoMIFind[sector_,OptionsPattern[]]:=Module[{P,secNo,Indices,ISPIndices,ISPlen,timer=AbsoluteTime[],tt=AbsoluteTime[],vectorList,FIBPs,FIBPISPdegree,IBPFunctions
@@ -955,17 +955,18 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries},
 			ScriptFile->TemporaryDirectory<>"azuritino_intersection.sing",
 			OutputFile->TemporaryDirectory<>"azuritino_intersection_result.txt"
 		];
+		
+		
+		
 		PrintAndLog["#",secNo,"\t\t","Azuritino: number of syzygy generators: ",Length[vectorList]];
 		tt=AbsoluteTime[];
 		FIBPs=(CollectG[IBPGenerator[#,Indices,Cut->Indices]]&/@vectorList)/.OptionValue[AzuritinoGenericD];  (* CollectG may be slow *)
 		(* Global`TestFIBPs=FIBPs; *) (* BackDoor *)
-		FIBPISPdegree=IBPISPSectorDegree[#,sector]&/@(FIBPs/.m[a_]->0);
+		FIBPISPdegree=FIBPSectorISPDegree[#,sector]&/@(FIBPs);
 		FIBPISPdegree=FIBPISPdegree/.(-\[Infinity]->0);  (* To be improved; YZ *)
-		
-		
-		
 		IBPFunctions=Table[Function@@{FIBPs[[i]]}/. Table[m[ISPIndices[[k]]]->Slot[k],{k,1,SDim-SectorHeight[sector]}],{i,1,Length[FIBPs]}];
 	
+		
 		PrintAndLog["#",secNo,"\t\t","Azuritino: formal max-cut IBPs generated... ",AbsoluteTime[]-tt];
 		(* Zurich-type Seeding *)
 		tt=AbsoluteTime[];
@@ -996,6 +997,7 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries},
 					{l,Length[Pool[i]]}
 				]//Flatten;
 				IBPs=Join[IBPs,newSelfSymmetries];
+				
 				PrintAndLog["#",secNo,"\t\t","Azuritino: Step "<>ToString[i]<>" : "<>ToString[Length[newSelfSymmetries]]<>" symmetry relations generated... ",AbsoluteTime[]-tt]
 			];
 			
@@ -1004,6 +1006,7 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries},
 				PrintAndLog["#",secNo,"\t\t","Azuritino: SpaSM timing ... ",AbsoluteTiming[M=SRSparseRowReduce[CoefficientArrays[IBPs,IntList][[2]],Modulus->OptionValue[Modulus]];][[1]]];
 				PrintAndLog["#",secNo,"\t\t","Azuritino: Pivot timing ... ",AbsoluteTiming[pivotList=pivots[M];][[1]]];
 				irreducibleInts=IntList[[Complement[Range[Length[IntList]],pivotList]]];
+				
 				If[i==MinISPD,
 					MI=irreducibleInts;
 					,
@@ -1831,6 +1834,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 

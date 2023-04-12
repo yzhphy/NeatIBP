@@ -641,6 +641,15 @@ moved finding self-symmetries to the front of AnalyzeSector[...] in SyzygyRed.wl
 [III]
 added self symmetry in Azuritino
 
+[IV]
+modified 
+FIBPISPdegree=IBPISPSectorISPDegree[#,sector]&/@(FIBPs/.m[a_]->0);
+to 
+FIBPISPdegree=FIBPSectorISPDegree[#,sector]&/@(FIBPs);
+in AzuritinoMIFind[...]
+to fix a bug
+
+and modified its default degBound->0
 
 
 
