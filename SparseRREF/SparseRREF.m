@@ -38,7 +38,7 @@ SRSparseRowReduce[e_SparseArray, Modulus->f_Integer] :=Module[{normalized},
 
 SRFindPivots[g_SparseArray, Modulus->h_Integer] :=Module[{normalized},
         normalized = Cancel[g,Modulus->h];
-        SRFP[SRSparsePos[g], SRSparseValues[g], SRSparseDims[g], SRNonZeroValues[g],h]];
+        SRFP[SRSparsePos[normalized], SRSparseValues[normalized], SRSparseDims[normalized], SRNonZeroValues[normalized],h]];
 
 srrreflib = $Failed;
 sprreflib = $Failed;
