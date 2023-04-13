@@ -612,7 +612,7 @@ IBPCutGenerator[vector_,RestrictedPropIndex_,cutIndex_]:=Module[{i,b,ref,refloca
 ]*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*IBP sector Tools*)
 
 
@@ -978,6 +978,7 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries},
 			NewIBPs=Reap[
 				For[j=1,j<=Length[FIBPs],j++,
 					If[FIBPISPdegree[[j]]<=i,Sow[Map[IBPFunctions[[j]][#/.List->Sequence]&,Pool[i-FIBPISPdegree[[j]]],1]];];
+					(*FIBPFunction is a function with #, is it still safe to use # again here?*)
 				];
 			][[2]]//Flatten;
 			PrintAndLog["#",secNo,"\t\t","Azuritino: Step "<>ToString[i]<>" : "<>ToString[Length[NewIBPs]]<>" test IBPs generated... ",AbsoluteTime[]-tt];
@@ -1003,8 +1004,9 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries},
 			
 			If[i>=MinISPD,
 				IntList=IntegralList[IBPs];
-				PrintAndLog["#",secNo,"\t\t","Azuritino: SpaSM timing ... ",AbsoluteTiming[M=SRSparseRowReduce[CoefficientArrays[IBPs,IntList][[2]],Modulus->OptionValue[Modulus]];][[1]]];
-				PrintAndLog["#",secNo,"\t\t","Azuritino: Pivot timing ... ",AbsoluteTiming[pivotList=pivots[M];][[1]]];
+				M=SRSparseRowReduce[CoefficientArrays[IBPs,IntList][[2]],Modulus->OptionValue[Modulus]];
+				pivotList=pivots[M];
+				
 				irreducibleInts=IntList[[Complement[Range[Length[IntList]],pivotList]]];
 				
 				If[i==MinISPD,
@@ -1017,8 +1019,8 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries},
 			];
 			tt=AbsoluteTime[];
 		];
-		Global`TestIBPs=IBPs;
-		Global`TestRedIBPs=M . IntList;
+		(*Global`TestIBPs=IBPs;
+		Global`TestRedIBPs=M . IntList;*)
 		PrintAndLog["#",secNo,"\t\t","Azuritino:  Sector "<>ToString[sector]<>":  master integrals found ... ",AbsoluteTime[]-tt];
 		Return[MI];
 	
@@ -1834,6 +1836,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 
