@@ -79,55 +79,7 @@ TargetIntegrals=Get[targetIntegralsFile]
 If[TargetIntegrals===$Failed,Print["****  Unable to open target intergals file "<>targetIntegralsFile<>". Exiting.";Exit[]]]
 
 
-(* ::Section:: *)
-(*Validating Inputs*)
-
-
-If[Union[(Length[Propagators]===Length[#])&/@TargetIntegrals]=!={True},
-	Print["****  Length of Propagators and indices of TargetIntegrals mismatch. Exiting..."];
-	Exit[0];
-]
-
-
-If[!SubsetQ[GenericPoint[[All,1]],Complement[Variables[{Propagators,Kinematics[[All,2]]}],LoopMomenta,ExternalMomenta]],
-	Print["****  GenericPoint dose not cover all scalar variables. Exiting..."];
-	Exit[0];
-]
-
-
-If[CutIndices=!={}&&NeedSymmetry,
-	Print["****  Please turn off symmetry if there is any cut indices. Exiting..."];
-	Exit[0]
-]
-
-
-
-If[IntegralOrder =!= "MultiplePropagatorElimination"&&MIFromAzuritino,
-	Print["****  IntegralOrder must be set as \"MultiplePropagatorElimination\" if MIFromArzuritino is enabled. Exiting..."];
-	Exit[0]
-]
-
-
-(*If[NeedSymmetry&&MIFromAzuritino,
-	Print["****  Sorry, Azuritino dose not support symmetry in the current version.\n We are working on it and soon it will come.\n Exiting..."];
-	Exit[0]
-]*)
-
-
-CutableQ[integral_,cut_]:=!MemberQ[Union[Sign/@((List@@integral[[cut]])-1)],1](* index that are cut must \[LessEqual] 1*)
-CuttedQ[integral_,cut_]:=MemberQ[Union[Sign/@((List@@integral[[cut]])-1)],-1](* index that are cut <1 then return True*)
-
-
-If[MemberQ[CutableQ[#,CutIndices]&/@TargetIntegrals,False],
-	Print["****  Sorry, this version dose not support cutting indices larger than 1. Please remove corresponding target integrals with such multiple propagators.\nExiting..."];
-	Exit[0];
-]
-
-
-
-
-
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Setting outputPath*)
 
 
@@ -147,11 +99,12 @@ If[Intersection[StringSplit[outputPath,""],{" ","\t","\n","?","@","#","$","*","&
 If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
 If[And[DirectoryQ[outputPath],automaticOutputPath],
+	If[FileExistsQ[#],Run["rm "<>#]]&[outputPath<>"tmp/"<>"initialized.txt"];
 	continueQ=InputString["Output directory \""<>outputPath<>"\" already exists. Do you want to delete it? Type Y or y to continue. Type others to abort.\n"];
 	
 	If[Or[continueQ=="y",continueQ=="Y"],
 		If[!FileExistsQ[outputPath<>"results/IBP_all.txt"],
-			Print["Output directory "<>outputPath<>" is not a complete directory.\nIt could be the output directory of a running NeatIBP mission, or could be a failed NeatIBP mission in the past."];
+			Print["Output directory "<>outputPath<>" is not a complete directory.\nIt could be the output directory of a running NeatIBP mission, or could be a unfinished NeatIBP mission in the past."];
 			Print["It is highly recommended that you check to make sure that it is not the former case. Otherwise, there will be conflict and unknown errors will occur."];
 			Print["Do you still wish to delete "<>outputPath<>" ?"];
 			continueQ2=InputString["If so, type Y or y to continue. Type others to abort.\n"];
@@ -185,6 +138,69 @@ Run["mkdir -p "<>inputBackupPath]
 Run["cp "<>workingPath<>missionInput<>" "inputBackupPath<>missionInput]
 Run["cp "<>kinematicsFile<>" "inputBackupPath]
 Run["cp "<>targetIntegralsFile<>" "inputBackupPath]
+
+
+(* ::Section::Closed:: *)
+(*Validating Inputs*)
+
+
+If[Union[(Length[Propagators]===Length[#])&/@TargetIntegrals]=!={True},
+	Print["****  Length of Propagators and indices of TargetIntegrals mismatch. Exiting..."];
+	Exit[0];
+]
+
+
+If[!SubsetQ[GenericPoint[[All,1]],Complement[Variables[{Propagators,Kinematics[[All,2]]}],LoopMomenta,ExternalMomenta]],
+	Print["****  GenericPoint dose not cover all scalar variables. Exiting..."];
+	Exit[0];
+]
+
+
+If[CutIndices=!={}&&NeedSymmetry,
+	Print["****  Please turn off symmetry if there is any cut indices. Exiting..."];
+	Exit[0]
+]
+
+
+
+If[IntegralOrder =!= "MultiplePropagatorElimination"&&MIFromAzuritino,
+	Print["****  IntegralOrder must be set as \"MultiplePropagatorElimination\" if MIFromArzuritino is enabled. Exiting..."];
+	Exit[0]
+]
+
+
+If[FiniteFieldModulus>46337,
+	Print["****  FiniteFieldModulus must not be larger than 46337. Exiting..."];
+	Exit[0]
+]
+
+
+If[!MemberQ[{"MultiplePropagatorElimination","ISPElimination","Global"},IntegralOrder],
+	Print["****  Invalid IntegralOrder \""<>ToString[IntegralOrder]<>"\". Exiting..."];
+	Exit[0]
+]
+
+
+
+
+
+(*If[NeedSymmetry&&MIFromAzuritino,
+	Print["****  Sorry, Azuritino dose not support symmetry in the current version.\n We are working on it and soon it will come.\n Exiting..."];
+	Exit[0]
+]*)
+
+
+CutableQ[integral_,cut_]:=!MemberQ[Union[Sign/@((List@@integral[[cut]])-1)],1](* index that are cut must \[LessEqual] 1*)
+CuttedQ[integral_,cut_]:=MemberQ[Union[Sign/@((List@@integral[[cut]])-1)],-1](* index that are cut <1 then return True*)
+
+
+If[MemberQ[CutableQ[#,CutIndices]&/@TargetIntegrals,False],
+	Print["****  Sorry, this version dose not support cutting indices larger than 1. Please remove corresponding target integrals with such multiple propagators.\nExiting..."];
+	Exit[0];
+]
+
+
+
 
 
 (* ::Section:: *)

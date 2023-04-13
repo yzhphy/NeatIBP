@@ -37,10 +37,10 @@ Modifications:
 [NeatIBP 1.0.1.1]
 Date: 2023.4.13
 Modifications:
-	1. Some fixings.
-	2. Let the user to input finite field modulus.
-	3. 
-
+	1. Some fixings and useful improvements.
+	2. Allow the user to input the finite field modulus.
+	3. Allow the user to input the degree bounds in azuritino and the main body of NeatIBP.
+	4. Allow user to determine whether singular temporary files should be deleted once they are used. Yes by default.
 
 
 

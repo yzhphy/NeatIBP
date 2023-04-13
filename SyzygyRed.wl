@@ -72,7 +72,7 @@ positivity[list_]:=If[Union[#>0&/@list]==Head[list][True],True,False];
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Baikov Representation*)
 
 
@@ -212,18 +212,8 @@ SingularIdeal[propIndex_,cutIndex_]:=Module[{cut,FF1,SingularIdeal},
 ];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (* Sector Tools*)
-
-
-BlockMatrix[m_,n_]:=Module[{matrix},
-	matrix=SparseArray[{},{m+n,m+n}]//Normal;
-	Do[matrix[[1,j]]=1,{j,1,m}];
-	Do[matrix[[j+1,j]]=1,{j,1,m-1}];
-	Do[matrix[[m+1,j+m]]=1,{j,1,n}];
-	Do[matrix[[j+m+1,j+m]]=1,{j,1,n-1}];
-	Return[matrix];
-];(*block degreed lexicographic*)
 
 
 Sector[int_]:=Table[If[int[[j]]>0,1,0],{j,1,Length[int]}]
@@ -240,43 +230,7 @@ SectorCut[sector_]:=G[x__]:>(If[Sector[G[x]]==sector,1,0])*G[x];
 SectorCutQ[sec_,cut_]:=And@@(#>=0&/@(sec-cut));
 
 SectorNumber[sec_]:=FromDigits[sec//Reverse,2];
-SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
-	propIndex=Position[sec,1]//Flatten//Reverse;
-	ISPIndex=Position[sec,0]//Flatten//Reverse; (* !!! *)
-	matrix=SparseArray[{},{SDim,SDim}]//Normal;
-	Switch[Global`IntegralOrder,
-			"MultiplePropagatorElimination",
-			blockM=BlockMatrix[propIndex//Length,ISPIndex//Length];
-			For[i=1,i<=Length[propIndex],i++,
-				matrix[[All,propIndex[[i]]]]=blockM[[All,i]];
-			];
-			For[i=1,i<=Length[ISPIndex],i++,
-				matrix[[All,ISPIndex[[i]]]]=blockM[[All,i+Length[propIndex]]];
-			];
-			,
-			"ISPElimination",
-			blockM=BlockMatrix[ISPIndex//Length,propIndex//Length];
-			For[i=1,i<=Length[ISPIndex],i++,
-				matrix[[All,ISPIndex[[i]]]]=blockM[[All,i]];
-			];
-			For[i=1,i<=Length[propIndex],i++,
-				matrix[[All,propIndex[[i]]]]=blockM[[All,i+Length[ISPIndex]]];
-			];
-			,
-			"Global",
-			blockM=BlockMatrix[SDim,0];
-			For[i=1,i<=Length[propIndex],i++,
-				matrix[[All,propIndex[[i]]]]=blockM[[All,i]];
-			];
-			For[i=1,i<=Length[ISPIndex],i++,
-				matrix[[All,ISPIndex[[i]]]]=blockM[[All,i+Length[propIndex]]];
-			];
-	
-	];
 
-	Return[matrix];
-
-];
 
 
 Gcut[sectorIndex_]:=Table[If[sectorIndex[[i]]<=0,z[i]->0,Nothing],{i,1,SDim}];
@@ -329,21 +283,63 @@ SectorElimination[sector_]:=(G@@Table[If[sector[[i]]>0,PatternTest[Pattern[ToExp
 
 
 
+
+
+
 (* ::Section:: *)
 (*Integral Ordering*)
 
 
-IntegralWeight[int_]:=SectorWeightMatrix[int//Sector].IntegralAbsDegree[int];
+Switch[IntegralOrder,
+"MultiplePropagatorElimination",
+	IntegralWeight[int_]:=Join[
+		{IntegralPropagatorDegree[int]},
+		IntegralPropagatorType[int][[
+			SectorIndex[Sector[int]]
+		]],
+		{IntegralISPDegree[int]},
+		IntegralISPType[int][[
+			Complement[
+				Range[Length[int/.G->List]],
+				SectorIndex[Sector[int]]
+			]
+		]]
+	],
+"ISPElimination",
+	IntegralWeight[int_]:=Join[
+		{IntegralISPDegree[int]},
+		IntegralISPType[int][[
+			Complement[
+				Range[Length[int/.G->List]],
+				SectorIndex[Sector[int]]
+			]
+		]],
+		{IntegralPropagatorDegree[int]},
+		IntegralPropagatorType[int][[
+			SectorIndex[Sector[int]]
+		]]
+	],
+"Global",
+	IntegralWeight[int_]:=Join[
+		{IntegralAbsDegree[int]},
+		int/.G->List
+	]
+]
+
+
+
+
+
 IntegralCut[cut_]:=G[x__]:>If[SectorCutQ[Sector[G[x]],cut],G[x],0];
 IntegralDegree[int_]:=(int/.G->List)-Sector[int];
 IntegralAbsDegree[int_]:=Abs/@((int/.G->List)-Sector[int]);
 IntegralSectorHeight[int_]:=Count[int/.G->List,u_/;u>0];
-IntegralSectorOrder[int_]:=SectorWeightMatrix1[Sector[int]].IntegralAbsDegree[int];
-(*IntegralReal[indices_]:=Dispatch[Table[m[i]->indices[[i]],{i,1,SDim}]];*)
+
 IntegralPropagatorDegree[int_]:=Sum[If[int[[j]]>1,int[[j]]-1,0],{j,1,Length[int]}]; 
 IntegralISPDegree[int_]:=-Total[Select[int/.G->List,#<0&]];
 IntegralPropagatorType[int_]:=Table[If[int[[j]]>=1,int[[j]],0],{j,1,Length[int]}]; 
-(*FIntegralSectorISPDegree[fInt_,sector_]:=((fInt/.m[_]->0)/.G->List).(sector-1)*)
+IntegralISPType[int_]:=Table[If[int[[j]]<=0,int[[j]],0],{j,1,Length[int]}]; 
+
 FIntegralSectorISPDegree[fInt_,sector_]:=(IntegralRealization[fInt,Table[0,SDim]]/.G->List).(sector-1)
 
 
@@ -351,12 +347,66 @@ FIntegralSectorISPDegree[fInt_,sector_]:=(IntegralRealization[fInt,Table[0,SDim]
 IntegralOrdering[int_]:=Join[{IntegralSectorHeight[int],SectorNumber[int//Sector]},IntegralWeight[int]];   (* Key function *)
 
 
-(*IntegralList[IBP_]:=Select[Variables[IBP],Head[#]==G&];*)
-
-IBPWeight[IBP_]:=Max[Total[IntegralAbsDegree[#]]&/@IntegralList[IBP,SortTheIntegrals->False]];
-
-
 CollectG[exp_]:=Coefficient[exp,Select[Variables[exp],Head[#]==G&]].Select[Variables[exp],Head[#]==G&];
+
+
+(* ::Subsection:: *)
+(*old or unneeded codes*)
+
+
+(*IntegralList[IBP_]:=Select[Variables[IBP],Head[#]==G&];*)
+(*FIntegralSectorISPDegree[fInt_,sector_]:=((fInt/.m[_]->0)/.G->List).(sector-1)*)
+(*IntegralSectorOrder[int_]:=SectorWeightMatrix1[Sector[int]].IntegralAbsDegree[int];*)
+(*IntegralReal[indices_]:=Dispatch[Table[m[i]->indices[[i]],{i,1,SDim}]];*)
+(*IBPWeight[IBP_]:=Max[Total[IntegralAbsDegree[#]]&/@IntegralList[IBP]];*)
+(*IBPWeight[IBP_]:=Max[Total[IntegralAbsDegree[#]]&/@IntegralList[IBP,SortTheIntegrals->False]];*)
+
+
+(*BlockMatrix[m_,n_]:=Module[{matrix},
+	matrix=SparseArray[{},{m+n,m+n}]//Normal;
+	Do[matrix[[1,j]]=1,{j,1,m}];
+	Do[matrix[[j+1,j]]=1,{j,1,m-1}];
+	Do[matrix[[m+1,j+m]]=1,{j,1,n}];
+	Do[matrix[[j+m+1,j+m]]=1,{j,1,n-1}];
+	Return[matrix];
+];(*block degreed lexicographic*)
+SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
+	propIndex=Position[sec,1]//Flatten//Reverse;
+	ISPIndex=Position[sec,0]//Flatten//Reverse; (* !!! *)
+	matrix=SparseArray[{},{SDim,SDim}]//Normal;
+	Switch[Global`IntegralOrder,
+			"MultiplePropagatorElimination",
+			blockM=BlockMatrix[propIndex//Length,ISPIndex//Length];
+			For[i=1,i<=Length[propIndex],i++,
+				matrix[[All,propIndex[[i]]]]=blockM[[All,i]];
+			];
+			For[i=1,i<=Length[ISPIndex],i++,
+				matrix[[All,ISPIndex[[i]]]]=blockM[[All,i+Length[propIndex]]];
+			];
+			,
+			"ISPElimination",
+			blockM=BlockMatrix[ISPIndex//Length,propIndex//Length];
+			For[i=1,i<=Length[ISPIndex],i++,
+				matrix[[All,ISPIndex[[i]]]]=blockM[[All,i]];
+			];
+			For[i=1,i<=Length[propIndex],i++,
+				matrix[[All,propIndex[[i]]]]=blockM[[All,i+Length[ISPIndex]]];
+			];
+			,
+			"Global",
+			blockM=BlockMatrix[SDim,0];
+			For[i=1,i<=Length[propIndex],i++,
+				matrix[[All,propIndex[[i]]]]=blockM[[All,i]];
+			];
+			For[i=1,i<=Length[ISPIndex],i++,
+				matrix[[All,ISPIndex[[i]]]]=blockM[[All,i+Length[propIndex]]];
+			];
+	
+	];
+
+	Return[matrix];
+
+];*)
 
 
 (* ::Section:: *)
@@ -461,7 +511,7 @@ ShortenedModule[M1ext_,restrictedIndices_]:=Module[{shortenedM1,shortenedM2},
 
 Options[SingularIntersection]={Modulus->0,SimplificationRules->Global`OptionSimplification,ScriptFile->TemporaryDirectory<>"intersection.sing",
 OutputFile->TemporaryDirectory<>"intersection_result.txt",TestOnly->False,ScriptOnly->False,degBound->0,VariableOrder->var,Cut->{},ShortenTheModules->False,
-NumericMode->False};
+NumericMode->False,PrintDegBound->False,DeleteTempFiles->DeleteSingularTempFiles};
 SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCommand,timer,vectors,cutIndex},
 	cutIndex=OptionValue[Cut];
 	If[!SubsetQ[resIndex,cutIndex],PrintAndLog["Sorry... This version does not support the case with a cut propagator index UNrestricted ..."]; Return[];];
@@ -483,12 +533,21 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 	timer=AbsoluteTime[];
 	Run[SingularCommand];
 	PrintAndLog["Singular running time ... ",AbsoluteTime[]-timer];
+	
 	vectors=IntersectionRead[OutputFile->OptionValue[OutputFile]];
+	
+	If[OptionValue[DeleteTempFiles],
+		Run["rm "<>OptionValue[ScriptFile]];
+		Print[OptionValue[ScriptFile]<>" deleted."];
+		Run["rm "<>OptionValue[OutputFile]];
+		Print[OptionValue[OutputFile]<>" deleted."];
+	];
+	If[OptionValue[PrintDegBound],PrintAndLog["Degree bound:",OptionValue[degBound]]];
 	Return[vectors];
 ];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*IBP generator*)
 
 
@@ -612,7 +671,7 @@ IBPCutGenerator[vector_,RestrictedPropIndex_,cutIndex_]:=Module[{i,b,ref,refloca
 ]*)
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*IBP sector Tools*)
 
 
@@ -631,7 +690,7 @@ LeadingIntegral[IBP_]:=Block[{list},
 
 (* Functions for the complexity of IBPs *)
 IBPSectorHeight[IBP_]:=Block[{LT},LT=LeadingIntegral[IBP]; If[LT==={},Return[-1],Return[SectorHeight[Int]]];];
-IBPWeight[IBP_]:=Max[Total[IntegralAbsDegree[#]]&/@IntegralList[IBP]];
+
 IBPSubSectorDegree[IBP_,sector_]:=Max[Total[IntegralAbsDegree[#]]&/@(Select[IntegralList[IBP,SortTheIntegrals->False],Sector[#]!=sector&])];
 IBPISPSectorDegree[IBP_,sector_]:=Max[(IntegralISPDegree/@Select[IntegralList[IBP,SortTheIntegrals->False],Sector[#]==sector&])]; (* "IntegralISPDegree" vs "IntegralAbsDegree" *)
 FIBPSectorISPDegree[FIBP_,sector_]:=Max[FIntegralSectorISPDegree[#,sector]&/@(Cases[Variables[FIBP],_G])]
@@ -865,7 +924,7 @@ SelfSymmetryRealization[zMap_,indices_]:=Expand[MappedIntegral[zMap,indices]-(G@
 (*Critical point*)
 
 
-QuotientRingSize[ideal1_,varList1_,OptionsPattern[]]:=Module[{ideal=ideal1,var=varList1,LTList,i,n,condition,ss,cclist},
+QuotientRingSize[ideal1_,varList1_,OptionsPattern[]]:=Module[{ideal=ideal1,var=varList1,LTList,i,n,condition,ss,cclist,cc},
     LTList=Exponent[LT[#,var,DegreeReverseLexicographic],var]&/@ideal;
 	n=Length[var];
 	cclist=cc/@Range[n];
@@ -884,7 +943,7 @@ QuotientRingSize[ideal1_,varList1_,OptionsPattern[]]:=Module[{ideal=ideal1,var=v
 ];
 
 Options[LeeCriticalPoints]={Modulus->FiniteFieldModulus};
-LeeCriticalPoints[sector_,OptionsPattern[]]:=Module[{P,Indices,vlist,ideal,GB},
+LeeCriticalPoints[sector_,OptionsPattern[]]:=Module[{P,Indices,vlist,ideal,GB,w},
 	Indices=SectorIndex[sector];
 	(* P=Together[BaikovKernel/.(z[#]->0&/@Indices)/.GenericPoint];
 	vlist=z/@Complement[Range[SDim],Indices]//Sort; *)
@@ -1032,7 +1091,7 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries},
 (*Main *)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*SimpleIBP*)
 
 
@@ -1065,7 +1124,7 @@ SimpleIBP[OptionsPattern[]]:=Module[{RelavantSectors,i,Sectors,timeUsed},
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*DenominatorTypeTools*)
 
 
@@ -1090,7 +1149,7 @@ DenominatorTypeCompleting[DenominatorTypes_]:=Module[{maxes},
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*ZurichSeeding*)
 
 
@@ -1240,7 +1299,11 @@ zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctio
 		timer=AbsoluteTime[];
 		memoryUsed=MaxMemoryUsed[
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Finding MIs using Azuritino..."]];
-		MIs=AzuritinoMIFind[sector,CriticalPointCounting->CriticalPointInAzuritino,selfSymmetryZMaps->zMaps];
+		MIs=AzuritinoMIFind[sector,
+			CriticalPointCounting->CriticalPointInAzuritino,
+			selfSymmetryZMaps->zMaps,
+			degBound->AzuritinoIntersectionDegreeBound
+		];
 		(*end of MaxMemoryUsed*)];
 	
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  MIs found. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
@@ -1261,7 +1324,12 @@ zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctio
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Solving module intersections..."]];
 	Switch[OptionValue[ModuleIntersectionMethod],
 		"Singular",
-		VectorList=SingularIntersection[secindex,degBound->5,VariableOrder->(var//Reverse),Cut->OptionValue[Cut]]
+		VectorList=SingularIntersection[secindex,
+			degBound->NeatIBPIntersectionDegreeBound,
+			VariableOrder->(var//Reverse),
+			Cut->OptionValue[Cut],
+			PrintDegBound->True
+		]
 		,
 		"Linear",
 		{M1,M1ext,M2}=TangentModules[secindex,{}];
@@ -1628,9 +1696,18 @@ FullForm]\);(*?*)
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Joining results of the steps..."];];
 			rawIBPs=Join[rawIBPs,NewrawIBPs];
 			nIBPs=Join[nIBPs,NewnIBPs];
-			SectorIntegrals=Select[IntegralList[nIBPs],Sector[#]==sector&];
 			(*end of MaxMemoryUsed*)];
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","Joining finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+			
+			timer2=AbsoluteTime[];
+			memoryUsed2=MaxMemoryUsed[
+			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Deriving SectorIntegrals..."];];
+			SectorIntegrals=Select[IntegralList[nIBPs,SortTheIntegrals->False],Sector[#]==sector&];
+			SectorIntegrals=SortBy[SectorIntegrals,IntegralOrdering]//Reverse;
+			(*end of MaxMemoryUsed*)];
+			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","SectorIntegrals derived. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+			
+			
 			
 			timer2=AbsoluteTime[];
 			memoryUsed2=MaxMemoryUsed[
@@ -1839,6 +1916,10 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
 ];
+
+
+
+
 
 
 

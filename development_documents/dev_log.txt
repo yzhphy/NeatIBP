@@ -665,11 +665,32 @@ seeds=Flatten[SeedMerge[NumeratorShifts[sector,#],DenominatorTypes]&/@{step},1]
 this is an apparant mistake... though not causing severe errors, but it will make the IBP relations a little more (lacking some self symmetry relations in high degree, who should be there.)
 
 [III]
-let the user to input finite field modulus
+let the user to input finite field modulus, AzuritinoIntersectionDegreeBound, and NeatIBPIntersectionDegreeBound
+
+[IV]
+commented out double defined or unneeded function in SyzygyRed.wl: 
+IBPWeight
+IntegralSectorOrder
+BlockMatrix
+SectorWeightMatrix
+
+redefined:
+IntegralWeight
+
+[V]
+some Global symbols in Critical point implementations, cc and w. modified them to local vars
+
+[VI]
+added codes in Initialization.wl:
+If[FileExistsQ[#],Run["rm "<>#]]&[outputPath<>"tmp/"<>"initialized.txt"];
+to fix: if a ini failed running with an existing outputPath, the program will summarize again... unconfortable.
 
 
+[VII]
+exchanged position of section Validating Inputs and section Setting outputPath in Initialization.wl
 
-
+[VIII]
+Allow user to determine whether singular temporary files should be deleted once they are used. Yes by default.
 
 
 

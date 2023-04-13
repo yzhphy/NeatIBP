@@ -17,9 +17,13 @@ ReductionOutputName="Untitled";
 outputPath=Automatic;
 
 (*-----------math settings---------------*)
-IntegralOrder = "MultiplePropagatorElimination"
 OptionSimplification = 12;
-FiniteFieldModulus=42013;(*do not use any prime number much larger than this*)
+FiniteFieldModulus=42013;(*do not use any prime number larger than 46337*)
+AzuritinoIntersectionDegreeBound=0
+NeatIBPIntersectionDegreeBound=5
+
+(*-----------physics settings-------------*)
+IntegralOrder = "MultiplePropagatorElimination"
 NeedSymmetry=True;
 CutIndices={};
 GenericD = d -> 137/3;
@@ -35,6 +39,7 @@ CriticalPointInAzuritino=True;
 (*-----------usage settings--------------*)
 MemoryUsedLimit=Infinity;(*MB*)
 ThreadUsedLimit=Infinity;
+DeleteSingularTempFiles=True;
 ClearTempFolders={
 	"intermediate_results"->False,
 	"log_files"->False,
