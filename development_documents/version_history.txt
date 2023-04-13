@@ -41,6 +41,7 @@ Modifications:
 	2. Allow the user to input the finite field modulus.
 	3. Allow the user to input the degree bounds in azuritino and the main body of NeatIBP.
 	4. Allow user to determine whether singular temporary files should be deleted once they are used. Yes by default.
+	5. Introducing more parallel evaluations in CheckIBP.wl.
 
 
 

@@ -105,7 +105,7 @@ Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 timer=AbsoluteTime[];
-Print["Analyzing reduction results (step 1)..."];
+Print["Analyzing reduction results (step 1/3)..."];
 
 (*targetPositions=Flatten[Position[integrals,#]&/@targets]*)
 entries=SortBy[Sort/@GatherBy[Select[ArrayRules[RM][[All,1]],#=!={_,_}&],#[[1]]&],#[[1]]&]
@@ -119,9 +119,15 @@ IntegralsReducedTowards[integral_]:=Module[{prePosition,position,row},
 Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 timer=AbsoluteTime[];
-Print["Analyzing reduction results (step 2)..."];
+Print["Analyzing reduction results (step 2/3)..."];
+LaunchKernels[]
+targetTowards=ParallelTable[IntegralsReducedTowards[targets[[i]]],{i,Length[targets]},Method->"FinestGrained"];
+CloseKernels[]
+Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+timer=AbsoluteTime[];
+Print["Analyzing reduction results (step 3/3)..."];
+strangeIntegrals=Complement[Union[Flatten[targetTowards]],MIs]
 
-strangeIntegrals=Complement[Union[Flatten[IntegralsReducedTowards/@targets]],MIs]
 Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 

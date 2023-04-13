@@ -692,7 +692,8 @@ exchanged position of section Validating Inputs and section Setting outputPath i
 [VIII]
 Allow user to determine whether singular temporary files should be deleted once they are used. Yes by default.
 
-
+[IX]
+Modified a sequential evaluation to parallelized in CheckIBP.wl.:Analyzing reduction results (step 2/3)
 
 
 
