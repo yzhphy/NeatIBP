@@ -1,6 +1,9 @@
 (* ::Package:: *)
 
-Print["Pak algorithm implemented by Yang Zhang. 03.18.2022"];
+(*Print["Pak algorithm implemented by Yang Zhang. 03.18.2022"];*)
+
+
+Print["Pak algorithm included."]
 
 
 MatrixRowSort[M1_,FirstColumnNumber_]:=Module[{AuxMatrix,M},

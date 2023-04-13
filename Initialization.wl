@@ -1,11 +1,5 @@
 (* ::Package:: *)
 
- 
-
-
-
-
-
 commandLineMode=True
 
 
@@ -23,7 +17,7 @@ If[commandLineMode,
 	missionInput=$CommandLine[[-1]];
 	,
 	Print["WARNING: program is not running in command line mode!"];
-	workingPath=NotebookDirectory[];
+	packagePath=NotebookDirectory[];
 	missionInput="example.txt"
 	(*
 	LoopMomenta={l1,l2};
@@ -39,6 +33,15 @@ If[commandLineMode,
 
 
 
+readmeTextLines=Import[packagePath<>"README.md"];
+versionNumber=DeleteCases[StringSplit[StringSplit[readmeTextLines,"## Version"][[2]],"\n"],""][[1]];
+Print["================================================================
+NeatIBP version "<>versionNumber<>"
+by: Janko Boehm, Rourou Ma, Hefeng Xu, Zihao Wu and Yang Zhang.
+================================================================"];
+
+
+
 Print["Initializing."]
 
 
@@ -51,11 +54,14 @@ If[MemberQ[StringSplit[packagePath,""]," "],
 	Exit[0]
 ]*)
 
+
 If[Intersection[StringSplit[packagePath,""],{" ","\t","\n","?","@","#","$","*","&","(",")","\"","\'","|"}]=!={},
 	Print["****  packagePath "<>packagePath<>" is illegal. Exiting."];
 	Exit[0];
 
 ]
+
+
 If[Intersection[StringSplit[workingPath,""],{" ","\t","\n","?","@","#","$","*","&","(",")","\"","\'","|"}]=!={},
 	Print["****  workingPath "<>workingPath<>" is illegal. Exiting."];
 	Exit[0];
@@ -65,8 +71,6 @@ If[Intersection[StringSplit[workingPath,""],{" ","\t","\n","?","@","#","$","*","
 
 (*If[FileExistsQ[workingPath<>#],Run["rm -f "<>workingPath<>#]]&/@
 {"log.txt","log1.txt","log2.txt","log3.txt","log4.txt"}*)
-
-
 (*AppendTo[$Path,workingPath];*)
 If[Get[packagePath<>"default_settings.txt"]===$Failed,Exit[0]]
 If[Get[workingPath<>missionInput]===$Failed,Print["****  Unable to open config file "<>workingPath<>missionInput<>". Exiting.";Exit[]]]

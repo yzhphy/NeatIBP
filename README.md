@@ -3,7 +3,7 @@
 NeatIBP is a mathematica package to generate small-sized integration-by-parts (IBP) relations for Feynman integral reduction.
 
 ## Version
-1.0.1.0
+1.0.1.1
 
 ## Dependencies
 **Singular**
@@ -99,3 +99,11 @@ where \[path\] is the output folder of the NeatIBP results. A complete output fo
 
 
 This step will automatically pick a random numeric check point and checks the IBP system at this point, to see if the target integrals are all reduced to master integrals. If not, most possibly, your **GenericPoint** is a bad point. But there is a little chance that the random check point is a bad point. We suggest you run the above command again to check at another random point.
+
+## Additional Statements
+NeatIBP uses Mathematica in command line using command like
+```
+math -script script_name.wl
+```
+Please make sure that this works on your computer in order to use NeatIBP. This version of NeatIBP dose not support running Mathematica in command lines using other commands yet.
+

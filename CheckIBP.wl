@@ -100,7 +100,7 @@ Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 timer=AbsoluteTime[];
 Print["RowReducing..."];
-RM=SRSparseRowReduce[M,Modulus->42013]
+RM=SRSparseRowReduce[M,Modulus->FiniteFieldModulus]
 Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 

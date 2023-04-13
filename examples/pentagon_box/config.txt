@@ -19,7 +19,6 @@ outputPath=Automatic;(*recommended*)
 
 
 (*-----------math settings---------------*)
-IntegralOrder = "Global"
 OptionSimplification = 12;
 NeedSymmetry=True;
 

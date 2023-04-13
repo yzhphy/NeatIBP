@@ -34,6 +34,13 @@ Modifications:
 	1. Added Azuritino in NeatIBP to find master integrals.
 	2. Some refinement modifications.
 
+[NeatIBP 1.0.1.1]
+Date: 2023.4.13
+Modifications:
+	1. Some fixings.
+	2. Let the user to input finite field modulus.
+	3. 
+
 
 
 

@@ -1,7 +1,7 @@
 (*
 This is the default settings of NeatIBP
 This config file will be included into several mathematica scripts using Get.
-Please make sure the paths are absolute paths.
+Please make sure the paths are absolute paths, and pay attention to special characters.
 *)
 
 (*------------input files----------------*)
@@ -19,6 +19,7 @@ outputPath=Automatic;
 (*-----------math settings---------------*)
 IntegralOrder = "MultiplePropagatorElimination"
 OptionSimplification = 12;
+FiniteFieldModulus=42013;(*do not use any prime number much larger than this*)
 NeedSymmetry=True;
 CutIndices={};
 GenericD = d -> 137/3;
@@ -41,7 +42,7 @@ ClearTempFolders={
 	"mission_status"->True,
 	"reduction_tasks"->False
 	
-}(*the auto-cleaning is not supported yet in the current version...*)
+};(*the auto-cleaning is not supported yet in the current version...*)
 
 
 

@@ -883,7 +883,7 @@ QuotientRingSize[ideal1_,varList1_,OptionsPattern[]]:=Module[{ideal=ideal1,var=v
 	Return[ss//Length];
 ];
 
-Options[LeeCriticalPoints]={Modulus->42013};
+Options[LeeCriticalPoints]={Modulus->FiniteFieldModulus};
 LeeCriticalPoints[sector_,OptionsPattern[]]:=Module[{P,Indices,vlist,ideal,GB},
 	Indices=SectorIndex[sector];
 	(* P=Together[BaikovKernel/.(z[#]->0&/@Indices)/.GenericPoint];
@@ -911,7 +911,7 @@ AzuritePoolToSeed[PoolMember_,ISPIndices_]:=Module[{i,result=Table[1,SDim]},
 ]
 
 
-Options[AzuritinoMIFind]={degBound->0,AzuritinoGenericD->GenericD,MaxISPDegree->4,MinISPDegreeForAnalysis->1,Modulus->42013,CriticalPointCounting->False,
+Options[AzuritinoMIFind]={degBound->0,AzuritinoGenericD->GenericD,MaxISPDegree->4,MinISPDegreeForAnalysis->1,Modulus->FiniteFieldModulus,CriticalPointCounting->False,
 selfSymmetryZMaps->{}
 };
 AzuritinoMIFind[sector_,OptionsPattern[]]:=Module[{P,secNo,Indices,ISPIndices,ISPlen,timer=AbsoluteTime[],tt=AbsoluteTime[],vectorList,FIBPs,FIBPISPdegree,IBPFunctions
@@ -1182,7 +1182,7 @@ SectorAnalyze[sector_,OptionsPattern[]]:=Module[{secheight,secindex,VectorList,t
 i,sectorCut,FIBPs1,CornerIBP,baseIBP,propLocus,ISPLocus,BaikovCut,rawIBPs={},nIBPs={},MIs={},step,newIBPs,seeds,integrals,SectorIntegrals,redIndex,irredIndex,rIBPs,
 nFIBPs,WellAddressedIntegrals,secNo,degRep,rr,IBPDegreeList,IBPIndex,ReducedIntegrals,UsedIndex,subsector,SubsectorInts,tempInts,
 IBPISPdegrees,NewrawIBPs,NewnIBPs,timer2,M1,M1ext,M2,sectorMaps,mappedSectors,tailSectors,leafCounts,byteCounts,maxDenominatorIndices,formalIntegrals,
-zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctions
+zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctions,newSymmetryRelations
 },
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
@@ -1386,7 +1386,7 @@ zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctio
 		rawIBPs=Table[IntegralR[FI[i],seeds[[j]]],{i,1,Length[FIBPs]},{j,1,Length[seeds]}]//Flatten;
 		
 		If[NeedSymmetry===False,
-		(*timing and memory report omitted here*)
+		(*timing and memory report omitted here, and, not updating*)
 			nIBPs=rawIBPs/.FI[i_]:>nFIBPs[[i]]/.IntegralR->IntegralRealization/.sectorCut
 		,
 			rawIBPs=Join[
@@ -1439,7 +1439,7 @@ zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctio
 			newIBPs=Table[IntegralR[FI[i],seeds[[j]]],{i,1,Length[FIBPs]},{j,1,Length[seeds]}]//Flatten;
 			
 			If[NeedSymmetry===False,
-			(*timing and memory report omitted here*)
+			(*timing and memory report omitted here, and, not updating*)
 				rawIBPs=Join[rawIBPs,newIBPs];
 				nIBPs=Join[nIBPs,newIBPs/.FI[i_]:>nFIBPs[[i]]/.IntegralR->IntegralRealization/.sectorCut];
 			,
@@ -1554,14 +1554,14 @@ FullForm]\);(*?*)
 				rawIBPs,
 				Table[SelfSymmetryR[ZM[i],seeds[[j]]],{i,1,Length[zMaps]},{j,1,Length[seeds]}]//Flatten
 			];
-			
+			newSymmetryRelations=Table[SelfSymmetryRealization[zMaps[[i]]/.GenericPoint,seeds[[j]]],{i,1,Length[zMaps]},{j,1,Length[seeds]}]//Flatten;
 			nIBPs=Join[
 				nIBPs,
-				Table[SelfSymmetryRealization[zMaps[[i]]/.GenericPoint,seeds[[j]]],{i,1,Length[zMaps]},{j,1,Length[seeds]}]//Flatten
+				newSymmetryRelations
 			];
 			(*end of MaxMemoryUsed*)];
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ","\t\tAppending self-symmetries finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
-			
+			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ","\t\tNumber of self-symmety relations appended: ",Length[newSymmetryRelations]," ."]];
 		];
 		
 		
@@ -1609,17 +1609,19 @@ FullForm]\);(*?*)
 				timer2=AbsoluteTime[];
 				memoryUsed2=MaxMemoryUsed[
 				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  \t","Appending self-symmetries at current step..."];];
-				seeds=Flatten[SeedMerge[NumeratorShifts[sector,#],DenominatorTypes]&/@Range[0,OptionValue[ZurichInitialSteps]],1];
+				seeds=Flatten[SeedMerge[NumeratorShifts[sector,#],DenominatorTypes]&/@{step},1];
 				NewrawIBPs=Join[
 					NewrawIBPs,
 					Table[SelfSymmetryR[ZM[i],seeds[[j]]],{i,1,Length[zMaps]},{j,1,Length[seeds]}]//Flatten
 				];
+				newSymmetryRelations=Table[SelfSymmetryRealization[zMaps[[i]]/.GenericPoint,seeds[[j]]],{i,1,Length[zMaps]},{j,1,Length[seeds]}]//Flatten;
 				NewnIBPs=Join[
 					NewnIBPs,
-					Table[SelfSymmetryRealization[zMaps[[i]]/.GenericPoint,seeds[[j]]],{i,1,Length[zMaps]},{j,1,Length[seeds]}]//Flatten
+					newSymmetryRelations
 				];
 				(*end of MaxMemoryUsed*)];
 				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ","\t\tAppending self-symmetries finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ","\t\tNumber of self-symmety relations appended: ",Length[newSymmetryRelations]," ."]];
 			];
 			timer2=AbsoluteTime[];
 			memoryUsed2=MaxMemoryUsed[
@@ -1660,6 +1662,7 @@ FullForm]\);(*?*)
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ",Length[MIs]," MI(s) : ",MIs];];
 	];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Current IBP number: ",Length[nIBPs]];];
+	
 	
 	
 	If[SubsetQ[MIs,LocalTargets],
@@ -1845,7 +1848,11 @@ FullForm]\);(*?*)
 
 
 
-(* ::Subsection::Closed:: *)
+
+
+
+
+(* ::Subsection:: *)
 (*Row Reduce Modules*)
 
 
@@ -1853,7 +1860,7 @@ FullForm]\);(*?*)
 
 
 
-Options[IBPAnalyze]:={Modulus->42013};
+Options[IBPAnalyze]:={Modulus->FiniteFieldModulus};
 IBPAnalyze[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,RM,redIndex,irredIndex,timer,memoryUsed},
 	M=CoefficientArrays[IBPs,Ints][[2]];
 	If[probeTheFunctions===True,Print["Matrix in IBPAnalyze probed"];probe["IBPAnalyze",secNum]=M];
@@ -1878,7 +1885,7 @@ IBPAnalyze[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,RM,redIndex,irredIndex,timer
 ];
 
 
-Options[IndepedentSet]:={Modulus->42013};
+Options[IndepedentSet]:={Modulus->FiniteFieldModulus};
 IndepedentSet[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,RM,redIndex,indepIndex,timer,memoryUsed},
 	M=CoefficientArrays[IBPs,Ints][[2]];
 	If[probeTheFunctions===True,Print["Matrix in IndepedentSet probed"];probe["IndepedentSet",secNum]=M//Transpose];
@@ -1906,7 +1913,7 @@ IndepedentSet[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,RM,redIndex,indepIndex,ti
 SparseIdentityMatrix[n_]:=SparseArray[Table[{k,k}->1,{k,n}]]
 
 
-Options[UsedRelations]:={Modulus->42013};
+Options[UsedRelations]:={Modulus->FiniteFieldModulus};
 UsedRelations[IBPs_,ReducedIntegrals_,MIs_,OptionsPattern[]]:=Module[{Ints,M,Mext,ReducedIntegralColumns,RM,i,j,columnIndex,rowIndex,MatrixL,tempList,result,timer,memoryUsed},
 	Ints=IntegralList[IBPs];
 	M=CoefficientArrays[IBPs,Ints][[2]];
@@ -1945,7 +1952,7 @@ UsedRelations[IBPs_,ReducedIntegrals_,MIs_,OptionsPattern[]]:=Module[{Ints,M,Mex
 ];
 
 
-Options[IBPtest]:={Modulus->42013};
+Options[IBPtest]:={Modulus->FiniteFieldModulus};
 IBPtest[IBPs_,sector_,OptionsPattern[]]:=Module[{M,RM,Ints,redIndex,irredIndex,timer,memoryUsed},
 	Ints=Select[IntegralList[IBPs],Sector[#]==sector&]//IntegralList;
 	M=CoefficientArrays[IBPs/.GenericPoint/.GenericD,Ints][[2]];
