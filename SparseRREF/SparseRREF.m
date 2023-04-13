@@ -10,6 +10,8 @@ SRSparsePos::usage = "Get explicit positions of a matrix."
 SRSparseDims::usage = "Get dimension of a matrix."
 SRNonZeroValues::usage = "Get the number of the explicit value positions."
 SRRREF::usage = "Actually perform Gauss Elimination over a sparse matrix."
+SRFindPivots::usage = "Find the pivots of a SparseArray and give the coordinate list."
+SRFP::usage = "Find pivots: library function"
 (*SRTest::usage = "test"*)
 
 
@@ -34,14 +36,18 @@ SRSparseRowReduce[e_SparseArray, Modulus->f_Integer] :=Module[{normalized},
         normalized = Cancel[e,Modulus->f];
         SRRREF[SRSparsePos[normalized], SRSparseValues[normalized], SRSparseDims[normalized], SRNonZeroValues[normalized], f]];
 
+SRFindPivots[g_SparseArray, Modulus->h_Integer] :=Module[{normalized},
+        normalized = Cancel[g,Modulus->h];
+        SRFP[SRSparsePos[g], SRSparseValues[g], SRSparseDims[g], SRNonZeroValues[g],h]];
+
 srrreflib = $Failed;
 sprreflib = $Failed;
 
 SRLoadLib[] := Module[
     {},
     srrreflib = FileNameJoin[{DirectoryName[$InputFileName],"SparseRREF.so"}];
-    sprreflib = SpaSMLibrary;
-(*     sprreflib = "/usr/local/lib/libspasm.so";  *)
+    (*sprreflib = SpaSMLibrary;*)
+     sprreflib = "/usr/local/lib/libspasm.so";  
      
     If[TrueQ[srrreflib == $Failed],
        Message[SR::nolib];,
@@ -61,7 +67,8 @@ SRLoadLibObjects[] := Module[
     SRSparseProps = LibraryFunctionLoad[srrreflib, 
    "sparse_properties", {"UTF8String", {LibraryDataType[SparseArray], "Constant"}}, {_,_}];
     SRRREF = LibraryFunctionLoad[srrreflib, "rowreduce", {{Integer, 2, "Shared"},{Integer, 1, "Shared"}, {Integer, 1, "Shared"}, Integer, Integer}, {LibraryDataType[SparseArray], "Shared"}];
-
+(*    SRRREF = LibraryFunctionLoad[srrreflib, "rowreduce", {{Integer, 2, "Shared"},{Integer, 1, "Shared"}, {Integer, 1, "Shared"}, Integer, Integer}, {_,_}];*)
+	SRFP = LibraryFunctionLoad[srrreflib, "findpivots", {{Integer, 2, "Shared"},{Integer, 1, "Shared"}, {Integer, 1, "Shared"}, Integer, Integer}, {_,_}];
 ]
 SRLoadLib[];
 
