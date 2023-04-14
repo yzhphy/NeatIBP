@@ -16,7 +16,7 @@ SRFP::usage = "Find pivots: library function"
 
 
 SR::rrefnolib = "Cannot find the SRRREF library."
-SR::spasmnolib = "Cannot find the spaSm library."
+SR::spasmnolib = "Cannot find the SpaSM library."
 
 Begin["`Private`"]
 
