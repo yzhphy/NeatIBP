@@ -518,8 +518,10 @@ DLLEXPORT int findpivots( WolframLibraryData libData, mint Argc, MArgument *Args
 
 		// dims[0] = nnzs;
 		dims[0] = n;
-		dims[1] = 2;
-		Err = libData->MTensor_new(MType_Integer, 2, dims, &positions);
+		// dims[1] = 2;
+		dims[1] = 1;
+		Err = libData->MTensor_new(MType_Integer, 1, dims, &positions);
+		// Err = libData->MTensor_new(MType_Integer, 2, dims, &positions);
 		// dims[1] = 1;
 		// Err = libData->MTensor_new(MType_Integer, 1, dims, &value);
 		// Err = libData->MTensor_new(MType_Integer, 1, dims, &dimensionsbelow);
@@ -541,9 +543,10 @@ DLLEXPORT int findpivots( WolframLibraryData libData, mint Argc, MArgument *Args
 		for(l = 0; l < n; l++){
 			long pl = Sp[l];
 			tmp[0] = l+1;
+			// tmp[1] = 1;
+			// Err = libData->MTensor_setInteger(positions, tmp, l+1);
+			// tmp[1] = 2;
 			tmp[1] = 1;
-			Err = libData->MTensor_setInteger(positions, tmp, l+1);
-			tmp[1] = 2;
 			Err = libData->MTensor_setInteger(positions, tmp, Sj[pl]+1);
 		}
 
