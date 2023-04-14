@@ -29,9 +29,6 @@ CutIndices={};
 GenericD = d -> 137/3;
 
 (*-----------method settings--------------*)
-seedingViaFIBPFunction=True;
-SowAndReap=True;
-ParallelInFindingSectorMaps=True;
 MIFromAzuritino=True;
 CriticalPointInAzuritino=True;
 
@@ -49,5 +46,11 @@ ClearTempFolders={
 	
 };(*the auto-cleaning is not supported yet in the current version...*)
 
+(*--------developer settings-------------*)
+debugMode=False;
+seedingViaFIBPFunction=True;
+SowAndReap=True;(*of the Zuirch seeding in the main body of NeatIBP*)
+ParallelInFindingSectorMaps=True;(*ParallelTable*)
+UseSRFindPivots=False;
 
 

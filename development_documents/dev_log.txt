@@ -701,6 +701,12 @@ Modified a sequential evaluation to parallelized in CheckIBP.wl.:Analyzing reduc
 [I]
 Hefeng updated SparseRREF to allow SRFindPivots
 
+[II]
+deleted some unneeded codes in SyzygyRed.wl related to probeTheFunctions
+commented out unused function IBPtest in SyzygyRed.wl
+
+
+
 
 
 

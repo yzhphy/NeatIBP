@@ -2,13 +2,14 @@
 
 TimingReportOfRowReduce=True;
 LogFile="";
-probeTheFunctions=False;
+
 RowReduceFunction=SRSparseRowReduce
 debugModification20230314=True;
 
 
 
 ProbeIntermediateResult[name_,sec_,expr_]:=Module[{intermediateResultFolder},
+	If[debugMode===False,Return[]];
 	intermediateResultFolder=outputPath<>"tmp/intermediate_results/"<>name<>"/";
 	If[!DirectoryQ[#],Run["mkdir -p "<>#]]&[intermediateResultFolder];
 	Export[intermediateResultFolder<>ToString[sec]<>".txt",expr//InputForm//ToString]
@@ -671,7 +672,7 @@ IBPCutGenerator[vector_,RestrictedPropIndex_,cutIndex_]:=Module[{i,b,ref,refloca
 ]*)
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*IBP sector Tools*)
 
 
@@ -1345,7 +1346,7 @@ zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctio
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Generating Formal IBPs..."]];
-	If[probeTheFunctions===True,Print["{secindex,VectorList} probed"];probe["{secindex,VectorList}",secNum]={secindex,VectorList}];
+	
 	
 	
 	FIBPs=IBPGenerator[#,secindex,Cut->OptionValue[Cut]]&/@VectorList;
@@ -1468,8 +1469,6 @@ zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctio
 		];
 		
 		
-		
-		If[probeTheFunctions===True,Print["{rawIBPs,nFIBPs,sectorCut} probed"];probe["{rawIBPs,nFIBPs,sectorCut}",secNum]={rawIBPs,nFIBPs,sectorCut}];
 		(*end of MaxMemoryUsed*)];
 		If[OptionValue[Verbosity]==1,PrintAndLog["\t\t nIBPs created. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 		timer2=AbsoluteTime[];
@@ -1527,7 +1526,7 @@ zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctio
 		
 			
 			
-			If[probeTheFunctions===True,Print["{nIBPs,newIBPs,nFIBPs,sectorCut} probed"];probe["{nIBPs,newIBPs,nFIBPs,sectorCut}",secNum]={nIBPs,newIBPs,nFIBPs,sectorCut}];
+			
 			(*end of MaxMemoryUsed*)];
 			If[OptionValue[Verbosity]==1,PrintAndLog["\t\t nIBPs created. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 			timer2=AbsoluteTime[];
@@ -1563,7 +1562,7 @@ zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctio
 		memoryUsed2=MaxMemoryUsed[
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Deriving IBPISPdegrees..."];];
 		
-		If[probeTheFunctions===True,Print["{sector,CornerIBP,VectorList,FIBPs} probed"];probe["{sector,CornerIBP,VectorList,FIBPs}",secNum]={sector,CornerIBP,VectorList,FIBPs}];
+		
 		(*IBPISPdegrees=IBPISPSectorDegree[#,sector]&/@(CornerIBP/.GenericD//Expand);*)
 		
 		(*IBPISPdegrees=IBPISPSectorDegree[
@@ -1935,6 +1934,10 @@ FullForm]\);(*?*)
 
 
 
+
+
+
+
 (* ::Subsection:: *)
 (*Row Reduce Modules*)
 
@@ -1946,7 +1949,7 @@ FullForm]\);(*?*)
 Options[IBPAnalyze]:={Modulus->FiniteFieldModulus};
 IBPAnalyze[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,RM,redIndex,irredIndex,timer,memoryUsed},
 	M=CoefficientArrays[IBPs,Ints][[2]];
-	If[probeTheFunctions===True,Print["Matrix in IBPAnalyze probed"];probe["IBPAnalyze",secNum]=M];
+	
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	(*ProbeIntermediateResult["M_IBPAnalyze",secNum,M];*)
@@ -1967,15 +1970,32 @@ IBPAnalyze[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,RM,redIndex,irredIndex,timer
 	Return[{redIndex,irredIndex,RM.Ints}];
 ];
 
+If[UseSRFindPivots===True,ClearAll[IBPAnalyze];
+Options[IBPAnalyze]:={Modulus->FiniteFieldModulus};
+IBPAnalyze[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,redIndex,irredIndex,timer,memoryUsed},
+	M=CoefficientArrays[IBPs,Ints][[2]];
+	
+	timer=AbsoluteTime[];
+	memoryUsed=MaxMemoryUsed[
+	(*ProbeIntermediateResult["M_IBPAnalyze",secNum,M];*)
+	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t  RREF-pivots finding in IBPAnalyze started. Matrix dimension: ",Dimensions[M]]];
+	redIndex=SRFindPivots[M,Modulus->OptionValue[Modulus]];
+	(*end of MaxMemoryUsed*)];
+	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t\t  RREF-pivots finding in IBPAnalyze finished. Matrix dimension: ",Dimensions[M],". Time used: ",Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+	irredIndex=Complement[Range[Length[Ints]],redIndex];
+	Return[{redIndex,irredIndex,RM.Ints}];
+];
+(*End of if*)]
+
 
 Options[IndepedentSet]:={Modulus->FiniteFieldModulus};
 IndepedentSet[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,RM,redIndex,indepIndex,timer,memoryUsed},
 	M=CoefficientArrays[IBPs,Ints][[2]];
-	If[probeTheFunctions===True,Print["Matrix in IndepedentSet probed"];probe["IndepedentSet",secNum]=M//Transpose];
+	
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t  RowReduce in IndepedentSet started. Matrix dimension: ",Dimensions[M//Transpose]]];
-	(*If[probeTheFunctions===True,Print["Special pause for 150 seconds!"];Pause[150]];*)
+	
 	RM=RowReduceFunction[M//Transpose,Modulus->OptionValue[Modulus]];
 	(*end of MaxMemoryUsed*)];
 	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t\t  RowReduce in IndepedentSet finished. Matrix dimension: ",Dimensions[M//Transpose],". Time used: ",Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
@@ -1991,6 +2011,20 @@ IndepedentSet[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,RM,redIndex,indepIndex,ti
 	
 	Return[indepIndex];
 ];
+If[UseSRFindPivots===True,ClearAll[IndepedentSet];
+Options[IndepedentSet]:={Modulus->FiniteFieldModulus};
+IndepedentSet[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,redIndex,indepIndex,timer,memoryUsed},
+	M=CoefficientArrays[IBPs,Ints][[2]];
+	
+	timer=AbsoluteTime[];
+	memoryUsed=MaxMemoryUsed[
+	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t  RREF-pivots finding in IndepedentSet started. Matrix dimension: ",Dimensions[M//Transpose]]];
+	indepIndex=SRFindPivots[M//Transpose,Modulus->OptionValue[Modulus]];
+	(*end of MaxMemoryUsed*)];
+	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t\t  RREF-pivots finding in IndepedentSet finished. Matrix dimension: ",Dimensions[M//Transpose],". Time used: ",Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+	Return[indepIndex];
+];
+(*End of if*)]
 
 
 SparseIdentityMatrix[n_]:=SparseArray[Table[{k,k}->1,{k,n}]]
@@ -2008,7 +2042,6 @@ UsedRelations[IBPs_,ReducedIntegrals_,MIs_,OptionsPattern[]]:=Module[{Ints,M,Mex
 	
 	(*Export[Global`workingPath<>"UR.txt",Mext//InputForm//ToString];*)
 	
-	If[probeTheFunctions===True,Print["Matrix in UsedRelations probed"];probe["UsedRelations",secNum]=Mext];
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t  RowReduce in UsedRelations started. Matrix dimension: ",Dimensions[Mext]]];
@@ -2035,11 +2068,14 @@ UsedRelations[IBPs_,ReducedIntegrals_,MIs_,OptionsPattern[]]:=Module[{Ints,M,Mex
 ];
 
 
-Options[IBPtest]:={Modulus->FiniteFieldModulus};
+(* ::Subsection::Closed:: *)
+(*not used functions*)
+
+
+(*Options[IBPtest]:={Modulus->FiniteFieldModulus};
 IBPtest[IBPs_,sector_,OptionsPattern[]]:=Module[{M,RM,Ints,redIndex,irredIndex,timer,memoryUsed},
 	Ints=Select[IntegralList[IBPs],Sector[#]==sector&]//IntegralList;
 	M=CoefficientArrays[IBPs/.GenericPoint/.GenericD,Ints][[2]];
-	If[probeTheFunctions===True,Print["Matrix in IBPtest probed"];probe["IBPtest",secNum]=M];
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t  RowReduce in IBPtest started. Matrix dimension: ",Dimensions[M]]];
@@ -2059,7 +2095,10 @@ IBPtest[IBPs_,sector_,OptionsPattern[]]:=Module[{M,RM,Ints,redIndex,irredIndex,t
 	
 	irredIndex=Complement[Range[Length[Ints]],redIndex];
 	PrintAndLog["Test: reduced integrals ",Ints[[redIndex]]];
-];
+];*)
+
+
+
 
 
 (* ::Section::Closed:: *)
