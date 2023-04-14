@@ -547,7 +547,7 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 ];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*IBP generator*)
 
 
@@ -671,7 +671,7 @@ IBPCutGenerator[vector_,RestrictedPropIndex_,cutIndex_]:=Module[{i,b,ref,refloca
 ]*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*IBP sector Tools*)
 
 
@@ -725,7 +725,7 @@ pivots[matrix_]:=Module[{ARLonglist},
 ];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Symmetry *)
 
 
@@ -1916,6 +1916,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 

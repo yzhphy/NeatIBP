@@ -696,6 +696,11 @@ Allow user to determine whether singular temporary files should be deleted once 
 Modified a sequential evaluation to parallelized in CheckIBP.wl.:Analyzing reduction results (step 2/3)
 
 
+-------------------------------------------
+2023.4.14
+[I]
+Hefeng updated SparseRREF to allow SRFindPivots
+
 
 
 
