@@ -24,6 +24,7 @@ NeatIBPIntersectionDegreeBound=5
 
 (*-----------physics settings-------------*)
 IntegralOrder = "MultiplePropagatorElimination"
+SubsectorIntegralPreference = "NumeratorDegree"
 NeedSymmetry=True;
 CutIndices={};
 GenericD = d -> 137/3;
@@ -51,6 +52,6 @@ debugMode=False;
 seedingViaFIBPFunction=True;
 SowAndReap=True;(*of the Zuirch seeding in the main body of NeatIBP*)
 ParallelInFindingSectorMaps=True;(*ParallelTable*)
-UseSRFindPivots=False;
+UseSRFindPivots=True;(*Currently, we only use this in IndepedentSet*)
 
 

@@ -705,6 +705,12 @@ Hefeng updated SparseRREF to allow SRFindPivots
 deleted some unneeded codes in SyzygyRed.wl related to probeTheFunctions
 commented out unused function IBPtest in SyzygyRed.wl
 
+[III]
+add an option to use SRFindPivots in IndepedentSet
+
+[IV]
+modified Sector[#]!=sector& to Sector[#]=!=sector& in function IBPSubSectorDegree in SyzygyRed.wl
+I do not fully thought about this and I think it is ok
 
 
 

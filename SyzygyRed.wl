@@ -689,10 +689,12 @@ LeadingIntegral[IBP_]:=Block[{list},
 ];
 
 
+
+
+
 (* Functions for the complexity of IBPs *)
 IBPSectorHeight[IBP_]:=Block[{LT},LT=LeadingIntegral[IBP]; If[LT==={},Return[-1],Return[SectorHeight[Int]]];];
-
-IBPSubSectorDegree[IBP_,sector_]:=Max[Total[IntegralAbsDegree[#]]&/@(Select[IntegralList[IBP,SortTheIntegrals->False],Sector[#]!=sector&])];
+IBPSubSectorDegree[IBP_,sector_]:=Max[Total[IntegralAbsDegree[#]]&/@(Select[IntegralList[IBP,SortTheIntegrals->False],Sector[#]=!=sector&])];
 IBPISPSectorDegree[IBP_,sector_]:=Max[(IntegralISPDegree/@Select[IntegralList[IBP,SortTheIntegrals->False],Sector[#]==sector&])]; (* "IntegralISPDegree" vs "IntegralAbsDegree" *)
 FIBPSectorISPDegree[FIBP_,sector_]:=Max[FIntegralSectorISPDegree[#,sector]&/@(Cases[Variables[FIBP],_G])]
 
@@ -1969,23 +1971,6 @@ IBPAnalyze[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,RM,redIndex,irredIndex,timer
 	irredIndex=Complement[Range[Length[Ints]],redIndex];
 	Return[{redIndex,irredIndex,RM.Ints}];
 ];
-
-If[UseSRFindPivots===True,ClearAll[IBPAnalyze];
-Options[IBPAnalyze]:={Modulus->FiniteFieldModulus};
-IBPAnalyze[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,redIndex,irredIndex,timer,memoryUsed},
-	M=CoefficientArrays[IBPs,Ints][[2]];
-	
-	timer=AbsoluteTime[];
-	memoryUsed=MaxMemoryUsed[
-	(*ProbeIntermediateResult["M_IBPAnalyze",secNum,M];*)
-	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t  RREF-pivots finding in IBPAnalyze started. Matrix dimension: ",Dimensions[M]]];
-	redIndex=SRFindPivots[M,Modulus->OptionValue[Modulus]];
-	(*end of MaxMemoryUsed*)];
-	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t\t  RREF-pivots finding in IBPAnalyze finished. Matrix dimension: ",Dimensions[M],". Time used: ",Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
-	irredIndex=Complement[Range[Length[Ints]],redIndex];
-	Return[{redIndex,irredIndex,RM.Ints}];
-];
-(*End of if*)]
 
 
 Options[IndepedentSet]:={Modulus->FiniteFieldModulus};

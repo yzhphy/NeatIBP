@@ -16,7 +16,7 @@ some OS does not use "math" to run mathematica in commandline
 ==========Important=================
 need to improve the sub sector integral degrees, now is abs degree, need more options
 
-
+we can also use SRFindPivots in IBPAnalyze
 
 a comment in SyzygyRed.wl: (*FIBPFunction is a function with #, is it still safe to use # again here?*)
 
