@@ -44,7 +44,11 @@ Modifications:
 	5. Introducing more parallel evaluations in CheckIBP.wl.
 
 
-
+[NeatIBP 1.0.1.2]
+Date: 2023.4.15
+Modifications:
+	1. Fixed the problem when the IBP system is totally sub-sector.
+	2. One improvement update in the task manager.
 
 
 

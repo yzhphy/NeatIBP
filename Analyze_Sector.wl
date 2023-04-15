@@ -234,6 +234,9 @@ If[sectorID=!=-1,
 	MIList=Association[Table[NonZeroSectors[[i]]->{},{i,1,Length[NonZeroSectors]}]];
 	RelavantIntegrals=Association[Table[NonZeroSectors[[i]]->{},{i,1,Length[NonZeroSectors]}]];
 	
+	timer=AbsoluteTime[];
+	memoryUsed=MaxMemoryUsed[
+	
 	If[Not[MIFromAzuritino===True],
 		SectorAnalyze[SectorNumberToSectorIndex[sectorID],
 			SeedingMethod->"Zurich",
@@ -252,7 +255,8 @@ If[sectorID=!=-1,
 			ZurichInitialSteps->1
 		];
 	];
-	
+	(*end of max memory used*)];
+	PrintAndLog["Analyze sector finished in sector ", sectorID,". Time used:", Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB." ];
 	
 	resultFolder=outputPath<>"results/";
 	If[!DirectoryQ[#],Run["mkdir "<>#]]&[resultFolder];

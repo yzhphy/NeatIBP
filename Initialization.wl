@@ -39,6 +39,7 @@ Print["================================================================
 NeatIBP version "<>versionNumber<>"
 by: Janko Boehm, Rourou Ma, Hefeng Xu, Zihao Wu and Yang Zhang.
 ================================================================"];
+If[debugMode===True,Print["*** debug mode is on ***"]]
 
 
 

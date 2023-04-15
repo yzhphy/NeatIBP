@@ -127,7 +127,7 @@ While[True,
 	Pause[0.5];
 	missionStatus=((ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex)->Get[#])&/@FileNames[All,missionStatusFolder];
 	NonZeroSectors=missionStatus[[All,1]];
-	If[Complement[Union[missionStatus[[All,2]]],{"ComputationFinished","Computing"}]==={},
+	If[Complement[Union[missionStatus[[All,2]]],{"ComputationFinished"(*,"Computing"*)}]==={},
 		script="echo \"finished!\"\n";
 		Break[];
 	];

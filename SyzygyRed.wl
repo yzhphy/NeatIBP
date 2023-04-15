@@ -410,7 +410,7 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 ];*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Singular Interface*)
 
 
@@ -672,7 +672,7 @@ IBPCutGenerator[vector_,RestrictedPropIndex_,cutIndex_]:=Module[{i,b,ref,refloca
 ]*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*IBP sector Tools*)
 
 
@@ -728,7 +728,7 @@ pivots[matrix_]:=Module[{ARLonglist},
 ];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Symmetry *)
 
 
@@ -919,7 +919,7 @@ MappedAndSubSectorsAllFinder[sectorMaps_,sectors_]:=Module[{mappingOfSectors,old
 SelfSymmetryRealization[zMap_,indices_]:=Expand[MappedIntegral[zMap,indices]-(G@@indices)]
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Azuritino*)
 
 
@@ -1437,7 +1437,7 @@ zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctio
 	
 	Switch[OptionValue[SeedingMethod],
 		
-		"Direct",
+		"Direct",(*stopped updating since 2023.4.12*)
 		timer=AbsoluteTime[];
 		memoryUsed=MaxMemoryUsed[
 		If[seedingViaFIBPFunction,
@@ -1639,19 +1639,32 @@ FullForm]\);(*?*)
 		timer2=AbsoluteTime[];
 		memoryUsed2=MaxMemoryUsed[
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Deriving SectorIntegrals..."];];
-		SectorIntegrals=Select[IntegralList[nIBPs],Sector[#]==sector&];
+		SectorIntegrals=Select[IntegralList[nIBPs,SortTheIntegrals->False],Sector[#]==sector&];
+		SectorIntegrals=SortBy[SectorIntegrals,IntegralOrdering]//Reverse;
 		(*end of MaxMemoryUsed*)];
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","SectorIntegrals Derived. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 		(*ProbeIntermediateResult["nIBPs_and_SectorIntegrals",secNo,{nIBPs,SectorIntegrals}];*)
-		timer2=AbsoluteTime[];
-		memoryUsed2=MaxMemoryUsed[
-		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Performing IBPAnalyze..."];];
-		{redIndex,irredIndex,rIBPs}=IBPAnalyze[nIBPs,SectorIntegrals];
-		SectorIntegrals=Select[IntegralList[nIBPs],Sector[#]==sector&];
-		If[Not[MIFromAzuritino===True],
-			MIs=SectorIntegrals[[irredIndex]];    (* This is not the final MI *)
+		If[SectorIntegrals=!={},
+			timer2=AbsoluteTime[];
+			memoryUsed2=MaxMemoryUsed[
+			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Performing IBPAnalyze..."];];
+			{redIndex,irredIndex,rIBPs}=IBPAnalyze[nIBPs,SectorIntegrals];
+			(*SectorIntegrals=Select[IntegralList[nIBPs],Sector[#]==sector&];*)(*commented out at 2023.4.15*)
+			If[Not[MIFromAzuritino===True],
+				MIs=SectorIntegrals[[irredIndex]];    (* This is not the final MI *)
+			];
+			(*end of MaxMemoryUsed*)];
+		,
+			If[MIFromAzuritino=!=True,
+				PrintAndLog["#",secNo,"\t\t  ","No sector integrals found in the initial step.\n Try larger the initial step degree (currently ",OptionValue[ZurichInitialSteps],") or turn on MIFromAzuritino.\n****** Sector ",secNo," Failed. ******"];
+				Quit[];
+			,
+				PrintAndLog["#",secNo,"\t\t  ","Note: there is no sector integrals found in the initial step. Discarding the IBPs generated in theses steps."];
+				rawIBPs={};
+				nIBPs={};
+			];
+			
 		];
-		(*end of MaxMemoryUsed*)];
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","IBPAnalyze finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 		
 		(*end of MaxMemoryUsed*)];
@@ -1708,26 +1721,38 @@ FullForm]\);(*?*)
 			(*end of MaxMemoryUsed*)];
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","SectorIntegrals derived. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 			
-			
-			
-			timer2=AbsoluteTime[];
-			memoryUsed2=MaxMemoryUsed[
-			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Performing IBPAnalyze..."];];
-			{redIndex,irredIndex,rIBPs}=IBPAnalyze[nIBPs,SectorIntegrals];
-			(*end of MaxMemoryUsed*)];
-			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","IBPAnalyze finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
-			
-			timer2=AbsoluteTime[];
-			memoryUsed2=MaxMemoryUsed[
-			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Ending this step..."];];
-			If[Not[MIFromAzuritino===True],
-				MIs=Intersection[MIs,SectorIntegrals[[irredIndex]]];
+			If[SectorIntegrals==={},
+				If[MIFromAzuritino=!=True,
+					PrintAndLog["#",secNo,"\t\t  ","No sector integrals found in step ",step,".\n This should be an unexpected error.\n****** Sector ",secNo," Failed. ******"];
+					Quit[];
+				,
+					PrintAndLog["#",secNo,"\t\t  ","Note: there is no sector integrals found in step ",step,". Discarding the IBPs generated and skipping the rest of this step."];
+					rawIBPs={};
+					nIBPs={};
+					WellAddressedIntegrals={};
+				];
+			,
+				timer2=AbsoluteTime[];
+				memoryUsed2=MaxMemoryUsed[
+				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Performing IBPAnalyze..."];];
+				{redIndex,irredIndex,rIBPs}=IBPAnalyze[nIBPs,SectorIntegrals];
+				(*end of MaxMemoryUsed*)];
+				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","IBPAnalyze finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+				
+				timer2=AbsoluteTime[];
+				memoryUsed2=MaxMemoryUsed[
+				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Ending this step..."];];
+				If[Not[MIFromAzuritino===True],
+					MIs=Intersection[MIs,SectorIntegrals[[irredIndex]]];
+				];
+				WellAddressedIntegrals=FindReducedIntegrals[rIBPs,MIs];
 			];
-			WellAddressedIntegrals=FindReducedIntegrals[rIBPs,MIs];
 			WellAddressedIntegrals=Join[WellAddressedIntegrals,MIs];
-			(*end of MaxMemoryUsed*)];
-			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","Step",step," finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","s=",step,", ",Length[NewnIBPs]," more IBPs are generated"];];
+			(*end of MaxMemoryUsed*)];
+			
+			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","Step",step," finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+			
 			(*end of MaxMemoryUsed*)];
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Seeding in step ",step," finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 			If[SubsetQ[WellAddressedIntegrals,LocalTargets],Break[]];
@@ -1736,6 +1761,8 @@ FullForm]\);(*?*)
 		
 		
 	];
+	
+	
 	If[Not[MIFromAzuritino===True],
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ",Length[MIs]," MI(s) : ",MIs];];
 	];
@@ -1940,6 +1967,10 @@ FullForm]\);(*?*)
 
 
 
+
+
+
+
 (* ::Subsection:: *)
 (*Row Reduce Modules*)
 
@@ -1951,7 +1982,6 @@ FullForm]\);(*?*)
 Options[IBPAnalyze]:={Modulus->FiniteFieldModulus};
 IBPAnalyze[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,RM,redIndex,irredIndex,timer,memoryUsed},
 	M=CoefficientArrays[IBPs,Ints][[2]];
-	
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	(*ProbeIntermediateResult["M_IBPAnalyze",secNum,M];*)

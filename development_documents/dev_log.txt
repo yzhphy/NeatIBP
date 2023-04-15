@@ -695,6 +695,13 @@ Allow user to determine whether singular temporary files should be deleted once 
 [IX]
 Modified a sequential evaluation to parallelized in CheckIBP.wl.:Analyzing reduction results (step 2/3)
 
+[X]
+modified
+SectorIntegrals=Select[IntegralList[nIBPs,SortTheIntegrals->False],Sector[#]==sector&];
+to
+SectorIntegrals=Select[IntegralList[nIBPs,SortTheIntegrals->False],Sector[#]==sector&];
+SectorIntegrals=SortBy[SectorIntegrals,IntegralOrdering]//Reverse;
+in SyzygyRed.wl (only in Zurich method, ommiting Direct)
 
 -------------------------------------------
 2023.4.14
@@ -713,9 +720,39 @@ modified Sector[#]!=sector& to Sector[#]=!=sector& in function IBPSubSectorDegre
 I do not fully thought about this and I think it is ok
 
 
+-------------------------------------------
+2023.4.15
+[I]
+added a judgement in Summary.wl to refuse summarizing if not all missions are finished.
 
+[II]
+commented out a line
+SectorIntegrals=Select[IntegralList[nIBPs],Sector[#]==sector&];
+in SyzygyRed.wl
+labeled by the date 2023.4.15
+this seems to be a repeated code and of course unecessary...
 
+[III]
+fixing the case that SectorIntegrals={}
+two major changes...
+one of them is adding:
+If[SectorIntegrals==={},
+...
+]
 
+[IV]
+in MissionStatusChecker.wl
+code
+If[Complement[Union[missionStatus[[All,2]]],{"ComputationFinished"(*,"Computing"*)}]==={},
+		script="echo \"finished!\"\n";
+		Break[];
+	];
+nonakano "Computing" is commented out.
+This and today`s [I] solves a comment:
+If bottom sector terminate unexpectedly, the process will NOT stuck and summarize. We should prevent this! Add a status checker to ensure all sectors finished before summarizing! Or maybe we can solve this from MissionStatusChecker, to modify one of its deciesion process. It terminates iff all mission finished.
+
+[V]
+labbeled new version 1.0.1.2
 
 
 

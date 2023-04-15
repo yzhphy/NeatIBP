@@ -31,6 +31,11 @@ If[commandLineMode,
 
 
 
+SectorNumberToSectorIndex//ClearAll
+SectorNumberToSectorIndex[num_]:=IntegerDigits[num,2,Length[Propagators]]//Reverse
+
+
+
 (*AppendTo[$Path,workingPath];*)
 If[Get[packagePath<>"default_settings.txt"]===$Failed,Exit[0]]
 If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting.";Exit[]]]
@@ -61,6 +66,14 @@ If[!FileExistsQ[tmpPath<>"initialized.txt"],
 ]
 
 
+missionStatusFolder=tmpPath<>"mission_status/"
+missionStatus={ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex,Get[#]}&/@FileNames[All,missionStatusFolder]
+If[!SubsetQ[{"ComputationFinished"},Union[missionStatus[[All,2]]]],
+	Print["Not all missions are finished, cannot summarize."];
+	Exit[0];
+]
+
+
 TemporaryDirectory=outputPath<>"tmp"
 Get[packagePath<>"SyzygyRed.wl"]
 
@@ -69,8 +82,6 @@ Get[packagePath<>"SyzygyRed.wl"]
 
 
 
-SectorNumberToSectorIndex//ClearAll
-SectorNumberToSectorIndex[num_]:=IntegerDigits[num,2,Length[Propagators]]//Reverse
 
 
 

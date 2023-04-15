@@ -7,11 +7,15 @@ issue in the dev_log.txt at 2022.0923 [II] needs to be improved.
 seeding denominators by denominator types is very very risky, what if FIBP decends all denominator indices? The seeding will never end because it dose not cover enough denominator degree!
 Oh there is another problem discovered by user, the seeding of denominator indeed need to be rebuilt! debugModification20230314 is a temp rescuring!
 
-If bottom sector terminate unexpectedly, the process will NOT stuck and summarize. We should prevent this! Add a status checker to ensure all sectors finished before summarizing! Or maybe we can solve this from MissionStatusChecker, to modify one of its deciesion process. It terminates iff all mission finished.
+
 
 EMs in symmetries...
 
 some OS does not use "math" to run mathematica in commandline
+
+if propagators are not linearly dependent and complete, let user know
+
+If at the first step IBPs are all sub sector IBPs...opps!
 
 ==========Important=================
 need to improve the sub sector integral degrees, now is abs degree, need more options
