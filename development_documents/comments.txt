@@ -6,6 +6,7 @@ issue in the dev_log.txt at 2022.0923 [II] needs to be improved.
 
 seeding denominators by denominator types is very very risky, what if FIBP decends all denominator indices? The seeding will never end because it dose not cover enough denominator degree!
 Oh there is another problem discovered by user, the seeding of denominator indeed need to be rebuilt! debugModification20230314 is a temp rescuring!
+and, what if FIBPs -> {} after removing subsec FIBPs? must consider (a1-1)G[a1, a2,...] when a1 only takes 1 in denominator types...
 
 
 

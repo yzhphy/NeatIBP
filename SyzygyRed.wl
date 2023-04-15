@@ -73,7 +73,7 @@ positivity[list_]:=If[Union[#>0&/@list]==Head[list][True],True,False];
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Baikov Representation*)
 
 
@@ -201,7 +201,7 @@ MatrixOutput[sector_]:=Module[{Modules},
 Get["/home/zihao/projects/SyzygyRed/LinearSyz/LinearSyzForLinearModule_FF_v2.wl"]*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Cut*)
 
 
@@ -213,7 +213,7 @@ SingularIdeal[propIndex_,cutIndex_]:=Module[{cut,FF1,SingularIdeal},
 ];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (* Sector Tools*)
 
 
@@ -287,7 +287,7 @@ SectorElimination[sector_]:=(G@@Table[If[sector[[i]]>0,PatternTest[Pattern[ToExp
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Integral Ordering*)
 
 
@@ -1094,7 +1094,7 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries},
 (*Main *)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*SimpleIBP*)
 
 
@@ -1127,7 +1127,7 @@ SimpleIBP[OptionsPattern[]]:=Module[{RelavantSectors,i,Sectors,timeUsed},
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*DenominatorTypeTools*)
 
 
@@ -1152,7 +1152,7 @@ DenominatorTypeCompleting[DenominatorTypes_]:=Module[{maxes},
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*ZurichSeeding*)
 
 
@@ -1551,6 +1551,7 @@ zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctio
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ","s=",step,", ",Length[newIBPs]," more IBPs are generated"];];
 			
 			If[SubsetQ[WellAddressedIntegrals,LocalTargets],Break[]];
+			
 		];
 		
 		
@@ -1756,6 +1757,10 @@ FullForm]\);(*?*)
 			(*end of MaxMemoryUsed*)];
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Seeding in step ",step," finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 			If[SubsetQ[WellAddressedIntegrals,LocalTargets],Break[]];
+			If[step==s+OptionValue[AdditionalDegree],
+				PrintAndLog["#",secNo,"\t","*** Targets are still not reduced to MIs in the maximum step ",step,". Failed.\n****** Sector ",secNo," Failed. ******"];
+				Quit[];
+			]
 		];
 		
 		
@@ -1944,6 +1949,10 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
 ];
+
+
+
+
 
 
 

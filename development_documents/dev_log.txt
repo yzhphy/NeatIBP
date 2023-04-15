@@ -754,6 +754,13 @@ If bottom sector terminate unexpectedly, the process will NOT stuck and summariz
 [V]
 labbeled new version 1.0.1.2
 
+[VI]
+added a fail report in SyzygyRed.wl 
+If[step==s+OptionValue[AdditionalDegree],
+	PrintAndLog["#",secNo,"\t\t  ","Targets are still not reduced to MIs in the maximum step ",step,". Failed.\n****** Sector ",secNo," Failed. ******"];
+	Quit[];
+]
+
 
 
 

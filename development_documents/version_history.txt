@@ -48,7 +48,8 @@ Modifications:
 Date: 2023.4.15
 Modifications:
 	1. Fixed the problem when the IBP system is totally sub-sector.
-	2. One improvement update in the task manager.
+	2. Added a fail report if target integrals on a sector cannot be reduced to MIs even at the max step.
+	3. One improvement update in the task manager.
 
 
 
