@@ -11,7 +11,7 @@ sed -i 's@$(dirname $( realpath ${BASH_SOURCE}))@'"$NEATIBP_INSTALL_DIR/NeatIBP"
 
 sed -i 's@$(dirname $( realpath ${BASH_SOURCE}))@'"$NEATIBP_INSTALL_DIR/NeatIBP"'@' $NEATIBP_INSTALL_DIR/NeatIBP/continue.sh
 
-
+#copy the files to work directory, notice that one can change the workspace
 mkdir $install_ROOT/NeatIBP
 
 cp $NEATIBP_INSTALL_DIR/NeatIBP/continue.sh $install_ROOT/NeatIBP/continue.sh
