@@ -309,7 +309,8 @@ OrthogonalComplement[external_,vectors_,vectorsComplement_,kinematics_,OptionsPa
 
 DeepMomentumMap[internal_,external_,prop1_,prop2_,kinematics_]:=Module[{allvectors,group1,group1C,group2,group2C,rep1,backrep1,rep2,backrep2,LocalGram1,
 LocalGram2,MatrixT,localE,MatrixA,MatrixB,Localprop1,Localprop2,LocalETrans,LocalLTrans,Trans,PropEqns,LocalKinematics1,LocalKinematics2,LocalGramEqns,
-LocalGB,clist,sol,GlobalMatrixT,GlobalETrans,a,b,c,i,DM,sol1,instance,additionalConditions
+LocalGB,clist,sol,GlobalMatrixT,GlobalETrans,a,b,c,i,DM,sol1,instance,additionalConditions,
+LocalEqns,nLocalGB
 },
 
 (*   Find the symmetry using the actual momenta*)
@@ -341,12 +342,12 @@ LocalGB,clist,sol,GlobalMatrixT,GlobalETrans,a,b,c,i,DM,sol1,instance,additional
 	PropEqns=#[[2]]&/@Flatten[CoefficientRules[PropEqns,Join[internal,(groupMomentumV/@Range[localE])]]];
 	LocalGramEqns=Flatten[LocalGram1-MatrixT . LocalGram2 . Transpose[MatrixT]]; 
 	clist=Variables[{MatrixA,MatrixB,MatrixT}];
-	
-	LocalGB=GroebnerBasis[Join[PropEqns,LocalGramEqns],clist,MonomialOrder->DegreeReverseLexicographic,CoefficientDomain->RationalFunctions];
-	Switch[QuotientRingSize[LocalGB,clist],
+	LocalEqns=Join[PropEqns,LocalGramEqns];
+	nLocalGB=GroebnerBasis[LocalEqns/.GenericPoint,clist,MonomialOrder->DegreeReverseLexicographic,CoefficientDomain->RationalFunctions];
+	Switch[QuotientRingSize[nLocalGB,clist],
 	99999,
 		TimeConstrained[
-			instance=FindInstance[LocalGB==0/.GenericPoint,clist];
+			instance=FindInstance[nLocalGB==0/.GenericPoint,clist];
 			If[instance=={},
 				PrintAndLog["** Warning: continuous solution found in DeepMomentumMaps between the following propagators:"];
 				PrintAndLog[prop1//InputForm,"\n",prop2//InputForm];
@@ -357,7 +358,7 @@ LocalGB,clist,sol,GlobalMatrixT,GlobalETrans,a,b,c,i,DM,sol1,instance,additional
 				Return[{}];
 			];
 			If[MemberQ[(Element[#,Rationals]===True)&/@Factor[instance[[1,All,2]]],False],
-				instance=FindInstance[LocalGB==0/.GenericPoint,clist,Rationals];
+				instance=FindInstance[nLocalGB==0/.GenericPoint,clist,Rationals];
 			];
 			If[instance=={},
 				PrintAndLog["** Warning: continuous solution found in DeepMomentumMaps between the following propagators:"];
@@ -374,7 +375,8 @@ LocalGB,clist,sol,GlobalMatrixT,GlobalETrans,a,b,c,i,DM,sol1,instance,additional
 			additionalConditions=(#[[1]]-#[[2]])&/@Select[instance,MemberQ[{1,0,-1},#[[2]]]&];(*c are scaleless, we do not worry about some GenricPoint having s\[Rule]1 or similar*)
 			
 			(*probe2023=LocalGB;(*debug2023*)*)
-			LocalGB=GroebnerBasis[Join[LocalGB,additionalConditions],clist,MonomialOrder->DegreeReverseLexicographic,CoefficientDomain->RationalFunctions];
+			LocalGB=GroebnerBasis[Join[LocalEqns,additionalConditions],clist,Sort->True,MonomialOrder->DegreeReverseLexicographic,CoefficientDomain->RationalFunctions];
+			LocalGB=GroebnerBasis[LocalGB,clist,MonomialOrder->DegreeReverseLexicographic,CoefficientDomain->RationalFunctions];
 			Switch[QuotientRingSize[LocalGB,clist],
 			99999,
 				PrintAndLog["** Warning: continuous solution found in DeepMomentumMaps between the following propagators:"];
@@ -419,7 +421,20 @@ LocalGB,clist,sol,GlobalMatrixT,GlobalETrans,a,b,c,i,DM,sol1,instance,additional
 		Return[{}];
 	,
 	_,
-		sol=Solve[LocalGB==0,clist];
+		TimeConstrained[
+			LocalGB=GroebnerBasis[LocalEqns,clist,Sort->True,MonomialOrder->DegreeReverseLexicographic,CoefficientDomain->RationalFunctions];
+			LocalGB=GroebnerBasis[LocalGB,clist,MonomialOrder->DegreeReverseLexicographic,CoefficientDomain->RationalFunctions];
+			sol=Solve[LocalGB==0,clist];
+		,
+			MomentumMapTimeConstrain
+		,
+			PrintAndLog["** Warning: solving equations timed out in DeepMomentumMaps between the following propagators:"];
+			PrintAndLog[prop1//InputForm,"\n",prop2//InputForm];
+			PrintAndLog["** Momenta groups:"];
+			PrintAndLog[group1//InputForm,"\n",group2//InputForm];
+			PrintAndLog["** Giving up finding the corresponding symmetries."];
+			Return[{}];
+		]
 	];
 	
 	If[sol=={},Return[{}]];
