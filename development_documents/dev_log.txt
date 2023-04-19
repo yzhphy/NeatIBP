@@ -761,12 +761,28 @@ If[step==s+OptionValue[AdditionalDegree],
 	Quit[];
 ]
 
+-----------------------
+2023.4.17
+[I]
+added PrintAndLog in Ini and Summary
 
 
+[II]
+modified 
+If[Det[DM]^2!=1,Continue[]]; 
+to 
+If[Factor[Det[DM]]^2=!=1,Continue[]]; 
+in MomentumMap
 
+[III]
+adding FindInstance implemented by YZ in MomentumMap, many modifications 
 
+-----------------------
+2023.4.19
+[I]
+Many Modifications in Pak_Algorithm.wl, upgrating MomentumMap
 
-
-
+[*]
+RW provided Spack scripts.
 
 

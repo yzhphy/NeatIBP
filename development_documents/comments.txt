@@ -19,6 +19,8 @@ if propagators are not linearly dependent and complete, let user know
 If at the first step IBPs are all sub sector IBPs...opps!
 
 ==========Important=================
+plugin RW`s singularGB into MomentumMap, currently in temp_files
+
 need to improve the sub sector integral degrees, now is abs degree, need more options
 
 we can also use SRFindPivots in IBPAnalyze
@@ -28,7 +30,6 @@ a comment in SyzygyRed.wl: (*FIBPFunction is a function with #, is it still safe
 
 modify seeding implementations to C
 
-log the ini and summaries
 
 finding symmetry in initialization can be parallelized
 
@@ -88,6 +89,8 @@ figure out why there is a label (* this is not the final MI *)
 
 
 add diagram name into monitor
+
+We have not proved that the projection way to find ext momenta symmetry always guarantee that the w transform always have solution...
 
 =============Not Important=================
 why do we need to set TemporaryDirectory everywhere?

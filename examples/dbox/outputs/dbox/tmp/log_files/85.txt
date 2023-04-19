@@ -1,86 +1,150 @@
+====================================
+Preparing
+L=2 E=3
+Parameters {s, t}
+Baikov variables: var={z[1], z[2], z[3], z[4], z[5], z[6], z[7], z[8], z[9]}
+Prepared
 Analyzing sector {1, 0, 1, 0, 1, 0, 1, 0, 0}.
 1 non-zero sector(s) are found.
 --------------------------------------------------------------------
 Initializing new sector {1, 0, 1, 0, 1, 0, 1, 0, 0} ...
 Target integrals: 45
-#85	  Initialized. Time Used: 0 second(s).
+#85	  Initialized. Time Used: 0 second(s). Memory used: 0 MB.
+#85  Finding z maps of sector self-symmetries...
+#85	  Z maps of sector self-symmetries found. Time Used: 0 second(s). Memory used: 25 MB.
+#85   3 zMap(s) found.
+#85  Finding MIs using Azuritino...
+#85		Lee's MI counting ... 1
+#85		start to find MIs from IBPs with numerator degree  ...2
+/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/dbox/outputs/dbox/tmp/singular_temp/singular_temp_85/azuritino_intersection.sing
+Singular running time ... 0.058189
+#85		Azuritino: number of syzygy generators: 14
+#85		Azuritino: formal max-cut IBPs generated... 0.138007
+#85		Azuritino: Step 0 : 0 test IBPs generated... 0.006095
+#85		Azuritino: Step 0 : 3 symmetry relations generated... 0.002968
+#85		Azuritino: Step 1 : 10 test IBPs generated... 0.024056
+#85		Azuritino: Step 1 : 15 symmetry relations generated... 0.015933
+#85		Azuritino: Step 2 : 54 test IBPs generated... 0.027595
+#85		Azuritino: Step 2 : 45 symmetry relations generated... 0.042516
+#85		Azuritino: Step 2 :        test IBPs reduced over the finite field ... 0.054793
+#85		Azuritino: Step 3 : 170 test IBPs generated... 0.021254
+#85		Azuritino: Step 3 : 105 symmetry relations generated... 0.237151
+#85		Azuritino: Step 3 :        test IBPs reduced over the finite field ... 0.283293
+#85		Azuritino: Step 4 : 410 test IBPs generated... 0.043966
+#85		Azuritino: Step 4 : 210 symmetry relations generated... 0.740127
+#85		Azuritino: Step 4 :        test IBPs reduced over the finite field ... 0.866930
+#85		Azuritino:  Sector {1, 0, 1, 0, 1, 0, 1, 0, 0}:  master integrals found ... 0.000025
+#85	  MIs found. Time Used: 2 second(s). Memory used: 6 MB.
+#85   1 MI(s) : {G[1, 0, 1, 0, 1, 0, 1, 0, 0]}
 #85	  numerator degree: 3 propagator degree: 0
 #85  Solving module intersections...
-/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/dbox/outputs/dbox/tmp/singular_temp/singular_temp_85/intersection_test.sing
-Singular running time ... 0.060750
-#85	  Module intersections solved. Time Used: 0 second(s).
+/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/dbox/outputs/dbox/tmp/singular_temp/singular_temp_85/intersection.sing
+Singular running time ... 0.069737
+Degree bound:5
+#85	  Module intersections solved. Time Used: 0 second(s). Memory used: 4 MB.
 #85	  VectorList Length: 60
 #85	  VectorList ByteCount: 2888336
 #85  Generating Formal IBPs...
-#85	  60 Formal IBPs generated. Time Used: 1 second(s).
+#85	  60 Formal IBPs generated. Time Used: 1 second(s). Memory used: 6 MB.
 #85  Driving DenominatorTypes...
-#85	  DenominatorTypes derived. Time Used: 0 second(s).
+#85	  DenominatorTypes derived. Time Used: 0 second(s). Memory used: 0 MB.
+#85  Removing FIBPs for lower sectors seeding with DenominatorTypes...
+#85	  60 Formal IBPs are generated; 47 Formal IBPs are used. 13 Formal IBPs are removed. 
+#85	  IBPs for lower sectors removed. Time Used: 0 second(s). Memory used: 2 MB.
 #85  Generating numerical FIBPs...
-#85	  nFIBPs generated. Time Used: 0 second(s).
-#85  Finding sector self-symmetries...
-#85	  Sector self-symmetries found. Time Used: 0 second(s).
+#85	  nFIBPs generated. Time Used: 0 second(s). Memory used: 2 MB.
+#85  Generating nFIBPFunctions...
+#85	  nFIBPFunctions generated. Time Used: 0 second(s). Memory used: 3 MB.
 #85  Seeding in step 0...
 #85	  Deriving IBPISPdegrees...
-#85		  IBPISPdegrees derived. Time Used: 0 second(s).
+#85		  IBPISPdegrees derived. Time Used: 0 second(s). Memory used: 0 MB.
 #85  	Zurich seeding...
-#85  		Zurich seeding finished. Time Used: 2 second(s).
+#85  		Zurich seeding finished. Time Used: 0 second(s). Memory used: 0 MB.
 #85  	Appending self-symmetries at current step...
-#85  		Appending self-symmetries finished. Time Used: 0 second(s).
+#85  		Appending self-symmetries finished. Time Used: 0 second(s). Memory used: 0 MB.
+#85  		Number of self-symmety relations appended: 18 .
 #85	  Deriving SectorIntegrals...
-#85		  SectorIntegrals Derived. Time Used: 0 second(s).
-#85	  Complying IBPAnalyze...
-#85		  RowReduce in IBPAnalyze started. Matrix dimension: {943, 56}
-#85			  RowReduce in IBPAnalyze finished. Matrix dimension: {943, 56}. Time used: 0 s.
-#85		  IBPAnalyze finished. Time Used: 0 second(s).
-#85	  Seeding in step 0 finished. Time Used: 3 second(s).
-#85  Seeding in step 4...
+#85		  SectorIntegrals Derived. Time Used: 0 second(s). Memory used: 0 MB.
+#85	  Performing IBPAnalyze...
+#85		  RowReduce in IBPAnalyze started. Matrix dimension: {37, 6}
+#85			  RowReduce in IBPAnalyze finished. Matrix dimension: {37, 6}. Time used: 0 second(s). Memory used: 0 MB.
+#85		  Deriving pivots in IBPAnalyze...
+#85			  Pivots derived in IBPAnalyze. Time used: 0 second(s). Memory used: 0 MB.
+#85		  IBPAnalyze finished. Time Used: 0 second(s). Memory used: 0 MB.
+#85	  Seeding in step 0 finished. Time Used: 0 second(s). Memory used: 0 MB.
+#85  Seeding in step 2...
 #85	  Zurich seeding...
-#85		  Zurich seeding finished. Time Used: 2 second(s).
+#85		  Zurich seeding finished. Time Used: 0 second(s). Memory used: 0 MB.
 #85  	Appending self-symmetries at current step...
-#85  		Appending self-symmetries finished. Time Used: 0 second(s).
+#85  		Appending self-symmetries finished. Time Used: 0 second(s). Memory used: 0 MB.
+#85  		Number of self-symmety relations appended: 45 .
 #85	  Joining results of the steps...
-#85		  Joining finished. Time Used: 0 second(s).
-#85	  Complying IBPAnalyze...
-#85		  RowReduce in IBPAnalyze started. Matrix dimension: {2541, 126}
-#85			  RowReduce in IBPAnalyze finished. Matrix dimension: {2541, 126}. Time used: 0 s.
-#85		  IBPAnalyze finished. Time Used: 0 second(s).
+#85		  Joining finished. Time Used: 0 second(s). Memory used: 0 MB.
+#85	  Deriving SectorIntegrals...
+#85		  SectorIntegrals derived. Time Used: 0 second(s). Memory used: 0 MB.
+#85	  Performing IBPAnalyze...
+#85		  RowReduce in IBPAnalyze started. Matrix dimension: {198, 21}
+#85			  RowReduce in IBPAnalyze finished. Matrix dimension: {198, 21}. Time used: 0 second(s). Memory used: 0 MB.
+#85		  Deriving pivots in IBPAnalyze...
+#85			  Pivots derived in IBPAnalyze. Time used: 0 second(s). Memory used: 0 MB.
+#85		  IBPAnalyze finished. Time Used: 0 second(s). Memory used: 1 MB.
 #85	  Ending this step...
-#85		  Step4 finished. Time Used: 0 second(s).
-#85		  s=4, 1598 more IBPs are generated
-#85	  Seeding in step 4 finished. Time Used: 3 second(s).
-#85  1 MI(s) : {G[1, 0, 1, 0, 1, 0, 1, 0, 0]}
-#85  Current IBP number: 2541
+#85		  s=2, 161 more IBPs are generated
+#85		  Step2 finished. Time Used: 0 second(s). Memory used: 0 MB.
+#85	  Seeding in step 2 finished. Time Used: 1 second(s). Memory used: 0 MB.
+#85  Seeding in step 3...
+#85	  Zurich seeding...
+#85		  Zurich seeding finished. Time Used: 1 second(s). Memory used: 2 MB.
+#85  	Appending self-symmetries at current step...
+#85  		Appending self-symmetries finished. Time Used: 0 second(s). Memory used: 1 MB.
+#85  		Number of self-symmety relations appended: 105 .
+#85	  Joining results of the steps...
+#85		  Joining finished. Time Used: 0 second(s). Memory used: 0 MB.
+#85	  Deriving SectorIntegrals...
+#85		  SectorIntegrals derived. Time Used: 0 second(s). Memory used: 1 MB.
+#85	  Performing IBPAnalyze...
+#85		  RowReduce in IBPAnalyze started. Matrix dimension: {700, 56}
+#85			  RowReduce in IBPAnalyze finished. Matrix dimension: {700, 56}. Time used: 0 second(s). Memory used: 0 MB.
+#85		  Deriving pivots in IBPAnalyze...
+#85			  Pivots derived in IBPAnalyze. Time used: 0 second(s). Memory used: 0 MB.
+#85		  IBPAnalyze finished. Time Used: 0 second(s). Memory used: 2 MB.
+#85	  Ending this step...
+#85		  s=3, 502 more IBPs are generated
+#85		  Step3 finished. Time Used: 0 second(s). Memory used: 0 MB.
+#85	  Seeding in step 3 finished. Time Used: 1 second(s). Memory used: 0 MB.
+#85  Current IBP number: 700
 #85  Removing subsector IBPs...
-#85	  1626 IBPs removed, 915 IBPs remained.
-#85	  Subsector IBPs removed. Time Used: 0 second(s).
+#85	  340 IBPs removed, 360 IBPs remained.
+#85	  Subsector IBPs removed. Time Used: 0 second(s). Memory used: 0 MB.
 #85  Sorting nFIBPs...
 #85	  Calculating IBPDegreeList...
-#85		  Finished. Time Used: 0 second(s).
+#85		  Finished. Time Used: 0 second(s). Memory used: 0 MB.
 #85		  Calculating leafCounts...
-#85	  Finished. Time Used: 0 second(s).
+#85	  Finished. Time Used: 0 second(s). Memory used: 0 MB.
 #85		  Calculating byteCounts...
-#85	  Finished. Time Used: 0 second(s).
+#85	  Finished. Time Used: 0 second(s). Memory used: 0 MB.
 #85		  Sorting...
-#85	  Finished. Time Used: 0 second(s).
-#85	  nFIBPs sorted. Time Used: 1 second(s).
-#85  Selecting independent FIBPs...
-#85		  RowReduce in IndepedentSet started. Matrix dimension: {126, 915}
-#85			  RowReduce in IndepedentSet finished. Matrix dimension: {126, 915}. Time used: 0 s.
-#85	  Independent FIBPs selected. Time Used: 0 second(s).
-#85	  125 IBPs are selected with 0 integrals in current sector.
+#85	  Finished. Time Used: 0 second(s). Memory used: 0 MB.
+#85	  nFIBPs sorted. Time Used: 0 second(s). Memory used: 0 MB.
+#85  Selecting independent IBPs...
+#85		  RREF-pivots finding in IndepedentSet started. Matrix dimension: {56, 360}
+#85			  RREF-pivots finding in IndepedentSet finished. Matrix dimension: {56, 360}. Time used: 0 second(s). Memory used: 1 MB.
+#85	  Independent IBPs selected. Time Used: 0 second(s). Memory used: 0 MB.
+#85	  55 IBPs are selected with 56 integrals in current sector.
 #85  Removing the unneeded IBPs...
-#85		  RowReduce in UsedRelations started. Matrix dimension: {125, 469}
-#85			  RowReduce in UsedRelations finished. Matrix dimension: {125, 469}. Time used: 0 s.
-#85  75 IBP relations are removed. 50 left.
-#85	  Uneeded IBPs removed. Time Used: 0 second(s).
-#85	  50 IBPs remaining with 0 integrals in current sector.
+#85		  RowReduce in UsedRelations started. Matrix dimension: {55, 190}
+#85			  RowReduce in UsedRelations finished. Matrix dimension: {55, 190}. Time used: 0 second(s). Memory used: 1 MB.
+#85  5 IBP relations are removed. 50 left.
+#85	  Uneeded IBPs removed. Time Used: 0 second(s). Memory used: 0 MB.
+#85	  50 IBPs remaining with 51 integrals in current sector.
 #85  Realizing raw IBPs...
-#85	  Raw IBP realized. Time Used: 0 second(s).
-#85  Complying sector maps...
-#85	  Sector mapping finished. Time Used: 0 second(s).
+#85	  Raw IBP realized. Time Used: 0 second(s). Memory used: 0 MB.
+#85  Performing sector maps...
+#85	  Sector mapping finished. Time Used: 0 second(s). Memory used: 0 MB.
 #85  Removing zero-sector integrals...
-#85	  Zero-sector integrals removed. Time Used: 0 second(s).
+#85	  Zero-sector integrals removed. Time Used: 0 second(s). Memory used: 0 MB.
 #85	  50 IBPs remaining with 51 integrals in current sector.
 #85  Saving results in current sector...
-#85	  Results saved for current sector. Time Used: 0 second(s).
+#85	  Results saved for current sector. Time Used: 0 second(s). Memory used: 0 MB.
+Analyze sector finished in sector 85. Time used:6 second(s). Memory used: 38 MB.
 Sector 85 finished.

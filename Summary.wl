@@ -31,6 +31,23 @@ If[commandLineMode,
 
 
 
+LogFile="";
+PrintAndLog[x___]:=Module[{string,originalString},
+	If[LogFile=!="",
+		string=StringRiffle[ToString/@{x},""];
+		(*Run["echo \""<>string<>"\" >> "<>LogFile]*)
+		If[FileExistsQ[LogFile],
+			originalString=Import[LogFile]<>"\n"
+		,
+			originalString=""
+		];
+		Export[LogFile,originalString<>string]
+	];
+	Print[x]
+]
+
+
+
 SectorNumberToSectorIndex//ClearAll
 SectorNumberToSectorIndex[num_]:=IntegerDigits[num,2,Length[Propagators]]//Reverse
 
@@ -59,9 +76,24 @@ If[Intersection[StringSplit[outputPath,""],{" ","\t","\n","?","@","#","$","*","&
 If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
 
+TemporaryDirectory=outputPath<>"tmp"
+(*Run["rm -rf "<>TemporaryDirectory];*)(*It seems to be useless*)
+If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectory]
+Get[packagePath<>"SyzygyRed.wl"]
+
+
+LogFile=outputPath<>"results/summary"<>".txt";
+(*If[!DirectoryQ[#],Run["mkdir "<>#]]&[LogPath]*)
+Print["Summarizing..."]
+
+
+
+
+
+
 tmpPath=outputPath<>"tmp/"
 If[!FileExistsQ[tmpPath<>"initialized.txt"],
-	Print["Initialization failed, cannot summarize."];
+	PrintAndLog["Initialization failed, cannot summarize."];
 	Exit[0];
 ]
 
@@ -69,13 +101,11 @@ If[!FileExistsQ[tmpPath<>"initialized.txt"],
 missionStatusFolder=tmpPath<>"mission_status/"
 missionStatus={ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex,Get[#]}&/@FileNames[All,missionStatusFolder]
 If[!SubsetQ[{"ComputationFinished"},Union[missionStatus[[All,2]]]],
-	Print["Not all missions are finished, cannot summarize."];
+	PrintAndLog["Not all missions are finished, cannot summarize."];
 	Exit[0];
 ]
 
 
-TemporaryDirectory=outputPath<>"tmp"
-Get[packagePath<>"SyzygyRed.wl"]
 
 
 
@@ -84,11 +114,6 @@ Get[packagePath<>"SyzygyRed.wl"]
 
 
 
-
-
-
-
-Print["Summarizing..."];
 
 fileNamesMI=FileNames[All,outputPath<>"results/MI/"];
 sectorIDsMI=ToExpression[StringReplace[FileNameSplit[#][[-1]],{".txt"->""}]]&/@fileNamesMI;
@@ -121,26 +146,26 @@ Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 
-Print["=================Summary==================="]
+PrintAndLog["=================Summary==================="]
 
 
-Print["Total MI number: ",Length[Flatten[MIs]]]
-Print["Total IBP number: ",Length[Flatten[IBPs]]]
-Print["Total integral number: ",Length[Flatten[integralList]]]
-Print["---------------MIs-------------------------"]
-Print[Flatten[MIs]//InputForm//ToString]
-Print["---------------MI numbers------------------"]
+PrintAndLog["Total MI number: ",Length[Flatten[MIs]]]
+PrintAndLog["Total IBP number: ",Length[Flatten[IBPs]]]
+PrintAndLog["Total integral number: ",Length[Flatten[integralList]]]
+PrintAndLog["---------------MIs-------------------------"]
+PrintAndLog[Flatten[MIs]//InputForm//ToString]
+PrintAndLog["---------------MI numbers------------------"]
 For[i=1,i<=Length[fileNamesMI],i++,
 	sector=SectorNumberToSectorIndex[sectorIDsMI[[i]]];
 	MI=MIs[[i]];
-	If[Length[MI]>0,Print["sector ",sector," :\t",Length[MI]," MI(s)"]]
+	If[Length[MI]>0,PrintAndLog["sector ",sector," :\t",Length[MI]," MI(s)"]]
 ]
 
-Print["---------------IBP numbers------------------"]
+PrintAndLog["---------------IBP numbers------------------"]
 For[i=1,i<=Length[fileNamesIBP],i++,
 	sector=SectorNumberToSectorIndex[sectorIDsIBP[[i]]];
 	IBP=IBPs[[i]];
-	If[Length[IBP]>0,Print["sector ",sector," :\t",Length[IBP]," IBPs(s)"]]
+	If[Length[IBP]>0,PrintAndLog["sector ",sector," :\t",Length[IBP]," IBPs(s)"]]
 ]
 
 

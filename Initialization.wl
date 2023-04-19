@@ -33,6 +33,23 @@ If[commandLineMode,
 
 
 
+LogFile="";
+PrintAndLog[x___]:=Module[{string,originalString},
+	If[LogFile=!="",
+		string=StringRiffle[ToString/@{x},""];
+		(*Run["echo \""<>string<>"\" >> "<>LogFile]*)
+		If[FileExistsQ[LogFile],
+			originalString=Import[LogFile]<>"\n"
+		,
+			originalString=""
+		];
+		Export[LogFile,originalString<>string]
+	];
+	Print[x]
+]
+
+
+
 readmeTextLines=Import[packagePath<>"README.md"];
 versionNumber=DeleteCases[StringSplit[StringSplit[readmeTextLines,"## Version"][[2]],"\n"],""][[1]];
 Print["================================================================
@@ -80,7 +97,7 @@ TargetIntegrals=Get[targetIntegralsFile]
 If[TargetIntegrals===$Failed,Print["****  Unable to open target intergals file "<>targetIntegralsFile<>". Exiting.";Exit[]]]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Setting outputPath*)
 
 
@@ -141,43 +158,65 @@ Run["cp "<>kinematicsFile<>" "inputBackupPath]
 Run["cp "<>targetIntegralsFile<>" "inputBackupPath]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
+(*Some file or folders*)
+
+
+TemporaryDirectory = outputPath<>"tmp/"
+(*Run["rm -rf "<>TemporaryDirectory];*)(*It seems to be useless*)
+If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectory]
+TemporaryDirectorySingular = TemporaryDirectory<>"singular_temp/"
+If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectorySingular]
+
+
+Get[packagePath<>"Pak_Algorithm/Pak_Algorithm.wl"]
+Get[packagePath<>"SyzygyRed.wl"]
+runningScriptFolder=outputPath<>"tmp/running_scripts/"
+
+
+LogPath=outputPath<>"tmp/log_files/"
+LogFile=LogPath<>"initialization"<>".txt";
+If[!DirectoryQ[#],Run["mkdir "<>#]]&[LogPath]
+PrintAndLog["start initialization steps."]
+
+
+(* ::Section:: *)
 (*Validating Inputs*)
 
 
 If[Union[(Length[Propagators]===Length[#])&/@TargetIntegrals]=!={True},
-	Print["****  Length of Propagators and indices of TargetIntegrals mismatch. Exiting..."];
+	PrintAndLog["****  Length of Propagators and indices of TargetIntegrals mismatch. Exiting..."];
 	Exit[0];
 ]
 
 
 If[!SubsetQ[GenericPoint[[All,1]],Complement[Variables[{Propagators,Kinematics[[All,2]]}],LoopMomenta,ExternalMomenta]],
-	Print["****  GenericPoint dose not cover all scalar variables. Exiting..."];
+	PrintAndLog["****  GenericPoint dose not cover all scalar variables. Exiting..."];
 	Exit[0];
 ]
 
 
 If[CutIndices=!={}&&NeedSymmetry,
-	Print["****  Please turn off symmetry if there is any cut indices. Exiting..."];
+	PrintAndLog["****  Please turn off symmetry if there is any cut indices. Exiting..."];
 	Exit[0]
 ]
 
 
 
 If[IntegralOrder =!= "MultiplePropagatorElimination"&&MIFromAzuritino,
-	Print["****  IntegralOrder must be set as \"MultiplePropagatorElimination\" if MIFromArzuritino is enabled. Exiting..."];
+	PrintAndLog["****  IntegralOrder must be set as \"MultiplePropagatorElimination\" if MIFromArzuritino is enabled. Exiting..."];
 	Exit[0]
 ]
 
 
 If[FiniteFieldModulus>46337,
-	Print["****  FiniteFieldModulus must not be larger than 46337. Exiting..."];
+	PrintAndLog["****  FiniteFieldModulus must not be larger than 46337. Exiting..."];
 	Exit[0]
 ]
 
 
 If[!MemberQ[{"MultiplePropagatorElimination","ISPElimination","Global"},IntegralOrder],
-	Print["****  Invalid IntegralOrder \""<>ToString[IntegralOrder]<>"\". Exiting..."];
+	PrintAndLog["****  Invalid IntegralOrder \""<>ToString[IntegralOrder]<>"\". Exiting..."];
 	Exit[0]
 ]
 
@@ -186,7 +225,7 @@ If[!MemberQ[{"MultiplePropagatorElimination","ISPElimination","Global"},Integral
 
 
 (*If[NeedSymmetry&&MIFromAzuritino,
-	Print["****  Sorry, Azuritino dose not support symmetry in the current version.\n We are working on it and soon it will come.\n Exiting..."];
+	PrintAndLog["****  Sorry, Azuritino dose not support symmetry in the current version.\n We are working on it and soon it will come.\n Exiting..."];
 	Exit[0]
 ]*)
 
@@ -196,7 +235,7 @@ CuttedQ[integral_,cut_]:=MemberQ[Union[Sign/@((List@@integral[[cut]])-1)],-1](* 
 
 
 If[MemberQ[CutableQ[#,CutIndices]&/@TargetIntegrals,False],
-	Print["****  Sorry, this version dose not support cutting indices larger than 1. Please remove corresponding target integrals with such multiple propagators.\nExiting..."];
+	PrintAndLog["****  Sorry, this version dose not support cutting indices larger than 1. Please remove corresponding target integrals with such multiple propagators.\nExiting..."];
 	Exit[0];
 ]
 
@@ -205,18 +244,14 @@ If[MemberQ[CutableQ[#,CutIndices]&/@TargetIntegrals,False],
 
 
 (* ::Section:: *)
-(*The Rest steps*)
+(*Other file read and writes*)
 
 
 SectorNumberToSectorIndex//ClearAll
 SectorNumberToSectorIndex[num_]:=IntegerDigits[num,2,Length[Propagators]]//Reverse
 
 
-TemporaryDirectory = outputPath<>"tmp/"
-(*Run["rm -rf "<>TemporaryDirectory];*)(*It seems to be useless*)
-If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectory]
-TemporaryDirectorySingular = TemporaryDirectory<>"singular_temp/"
-If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectorySingular]
+
 
 
 resultFolder=outputPath<>"results/";
@@ -228,9 +263,7 @@ If[!DirectoryQ[#],Run["mkdir "<>#]]&[resultIBPFolder];
 
 
 
-Get[packagePath<>"Pak_Algorithm/Pak_Algorithm.wl"]
-Get[packagePath<>"SyzygyRed.wl"]
-runningScriptFolder=outputPath<>"tmp/running_scripts/"
+
 
 
 
@@ -247,8 +280,12 @@ reductionTasksFolder=TemporaryDirectory<>"reduction_tasks/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[reductionTasksFolder]
 
 
+(* ::Section:: *)
+(*The rest steps*)
+
+
 If[CutIndices=!={},
-	Print["Removing target integrals vanishing on cut "<>ToString[InputForm[CutIndices]]];
+	PrintAndLog["Removing target integrals vanishing on cut "<>ToString[InputForm[CutIndices]]];
 	timer=AbsoluteTime[];
 	cuttedTargets=Select[TargetIntegrals,CuttedQ[#,CutIndices]&];
 	TargetIntegrals=Complement[TargetIntegrals,cuttedTargets];
@@ -260,11 +297,11 @@ If[CutIndices=!={},
 		Export[resultMIFolder<>ToString[cuttedSectorID]<>".txt",{}//InputForm//ToString];
 		Export[resultIBPFolder<>ToString[cuttedSectorID]<>".txt",gatheredCuttedTargetsOnASector//InputForm//ToString]
 	];
-	Print["\t"<>ToString[Length[cuttedTargets]]<>"vanishing targets removed. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+	PrintAndLog["\t"<>ToString[Length[cuttedTargets]]<>"vanishing targets removed. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 ]
 
 
-Print["Finding nonzero sectors..."]
+PrintAndLog["Finding nonzero sectors..."]
 timer=AbsoluteTime[];
 Sectors=SortBy[Union[Sector/@TargetIntegrals],SectorOrdering]//Reverse;
 
@@ -277,14 +314,14 @@ If[CutIndices=!={},
 
 ZeroSectors=Select[RelavantSectors,ZeroSectorQ];
 NonZeroSectors=SortBy[Complement[RelavantSectors,Global`ZeroSectors],SectorOrdering]//Reverse;
-Print[Length[NonZeroSectors]," non-zero sector(s) are found."];
+PrintAndLog[Length[NonZeroSectors]," non-zero sector(s) are found."];
 ZeroTargets=Select[Global`TargetIntegrals,MemberQ[Global`ZeroSectors,Sector[#]]&];
 ReductionTargets=Complement[Global`TargetIntegrals,Global`ZeroTargets];
 ReductionTasks=Association[Table[NonZeroSectors[[i]]->Select[ReductionTargets,NonZeroSectors[[i]]==Sector[#]&],{i,1,Length[NonZeroSectors]}]];
 ZeroSectorRemoval=SectorElimination/@ZeroSectors;
 IBPList=Association[Table[NonZeroSectors[[i]]->{},{i,1,Length[NonZeroSectors]}]];
 MIList=Association[Table[NonZeroSectors[[i]]->{},{i,1,Length[NonZeroSectors]}]];
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 
@@ -292,7 +329,7 @@ Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 
-Print["Exporting zero targets..."];
+PrintAndLog["Exporting zero targets..."];
 timer=AbsoluteTime[];
 ZeroTargetsGatheredBySector=GatherBy[ZeroTargets,Sector]
 For[i=1,i<=Length[ZeroTargetsGatheredBySector],i++,
@@ -302,27 +339,27 @@ For[i=1,i<=Length[ZeroTargetsGatheredBySector],i++,
 	Export[resultMIFolder<>ToString[currentZeroSectorID]<>".txt",{}//InputForm//ToString];
 	Export[resultIBPFolder<>ToString[currentZeroSectorID]<>".txt",currentZeroTargets//InputForm//ToString]
 ]
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
-Print["Finding symmetry mappings between sectors..."];
+PrintAndLog["Finding symmetry mappings between sectors..."];
 timer=AbsoluteTime[];
 If[NeedSymmetry===False,
-	Print["\tSymmetry is off, skip."];
+	PrintAndLog["\tSymmetry is off, skip."];
 	{uniqueSectors,mappedSectors,sectorMaps}={NonZeroSectors,{},{}}
 ,
 	{uniqueSectors,mappedSectors,sectorMaps}=SectorMaps[NonZeroSectors];
 	
 ]
 Export[outputPath<>"tmp/sectorMaps.txt",sectorMaps//InputForm//ToString]
-Print[Length[mappedSectors]," mapped sector(s) found."];
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+PrintAndLog[Length[mappedSectors]," mapped sector(s) found."];
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 
-Print["Exporting mapped targets..."];
+PrintAndLog["Exporting mapped targets..."];
 timer=AbsoluteTime[];
-If[NeedSymmetry===False,Print["\tSymmetry is off, skip."]]
+If[NeedSymmetry===False,PrintAndLog["\tSymmetry is off, skip."]]
 newReductionTargets=ReductionTargets;
 
 For[i=1,i<=Length[mappedSectors],i++,
@@ -341,7 +378,7 @@ But they are not!
 Although they will not cause error but may cause confusion while debugging.
 No need to change, but better to change.
 *)
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 
@@ -356,7 +393,7 @@ Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 
-Print["Constructing trees of missions..."];
+PrintAndLog["Constructing trees of missions..."];
 timer=AbsoluteTime[];
 mapAndSubRelationMatrix=Table[0,Length[uniqueSectors],Length[uniqueSectors]]
 
@@ -392,7 +429,7 @@ For[indexK=1,indexK<=Length[uniqueSectors],indexK++,
 	
 ]
 Export[outputPath<>"tmp/superOrSourceSectors.txt",superOrSourceSectors//InputForm//ToString]
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 (*Add1[sector_,position_]:=Module[{result=sector,i},
@@ -418,7 +455,7 @@ MasterMissions[id_]:=SectorNumber/@SuperSectors[SectorNumberToSectorIndex[id]]*)
 (*topSectors=SectorNumberToSectorIndex/@Select[Flatten[masterMissions[[All,1]]],({#}/.(masterMissions))==={}&]*)
 
 
-Print["Creating reduction tasks."]
+PrintAndLog["Creating reduction tasks."]
 timer=AbsoluteTime[];
 For[i=1,i<=Length[uniqueSectors],i++,
 	currentSecNum=SectorNumber[uniqueSectors[[i]]];
@@ -427,14 +464,14 @@ For[i=1,i<=Length[uniqueSectors],i++,
 	If[!DirectoryQ[#],Run["mkdir "<>#]]&[reductionTasksFolderForSector[currentSecNum]];
 	Export[reductionTasksFolderForSector[currentSecNum]<>"-1.txt",Select[ReductionTargets,Sector[#]===uniqueSectors[[i]]&]//InputForm//ToString]
 ]
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
-Print["Initializing mission status..."];
+PrintAndLog["Initializing mission status..."];
 timer=AbsoluteTime[];
 Export[missionStatusFolder<>ToString[SectorNumber[#]]<>".txt","WaitingSupersectors"//InputForm//ToString]&/@uniqueSectors;
 Export[missionStatusFolder<>ToString[SectorNumber[#]]<>".txt","ComputationFinished"//InputForm//ToString]&/@mappedSectors;
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 
@@ -452,4 +489,4 @@ SimpleIBP[Verbosity->1,SeedingMethod->"Direct"]//AbsoluteTiming*)
 tmpPath=outputPath<>"tmp/";
 If[!DirectoryQ[#],Run["mkdir -p "<>#]]&[tmpPath];
 Export[tmpPath<>"initialized.txt",""]
-Print["Initialization Finished."]
+PrintAndLog["Initialization Finished."]

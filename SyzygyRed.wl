@@ -410,8 +410,11 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 ];*)
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Singular Interface*)
+
+
+(*IdString[x___]:=ToString[Round[AbsoluteTime[]]]<>ToString[Hash[ToString[InputForm[{x}]],"MD5"]]<>ToString[RandomInteger[ByteCount[{x}]]]*)
 
 
 ModuleSlash[m_]:=Table[If[Union[m[[j]]]==={0},Nothing,m[[j]]],{j,1,Length[m]}];
@@ -728,7 +731,7 @@ pivots[matrix_]:=Module[{ARLonglist},
 ];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Symmetry *)
 
 
@@ -747,6 +750,14 @@ ZSymmetry[momentumMap_]:=Module[{zs},
 SymmetryRules[zPerm_]:=Module[{prop1,prop2,momentumMaps},
 	prop1=zPerm[[All,1]]/.z[i_]:>Propagators[[i]];
 	prop2=zPerm[[All,2]]/.z[i_]:>Propagators[[i]];
+	(*momentumMaps=TimeConstrained[
+		MomentumMap[LoopMomenta,ExternalMomenta,prop1,prop2,Kinematics,FullEMsConstrain->True],
+		MomentumMapTimeConstrain,
+		Export[outputPath<>"tmp/MomentumMapFailureInput.txt",{LoopMomenta,ExternalMomenta,prop1,prop2,Kinematics}//InputForm//ToString];
+		PrintAndLog["** Failure: MomentumMap computation timed out.\n zPerm:",zPerm];
+		If[ParallelInFindingSectorMaps,CloseKernels[]];
+		Quit[];
+	];*)
 	momentumMaps=MomentumMap[LoopMomenta,ExternalMomenta,prop1,prop2,Kinematics,FullEMsConstrain->True];
 	ZSymmetry/@momentumMaps
 ]
@@ -1090,7 +1101,7 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries},
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Main *)
 
 
@@ -1949,6 +1960,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 

@@ -53,5 +53,7 @@ seedingViaFIBPFunction=True;
 SowAndReap=True;(*of the Zuirch seeding in the main body of NeatIBP*)
 ParallelInFindingSectorMaps=True;(*ParallelTable*)
 UseSRFindPivots=True;(*Currently, we only use this in IndepedentSet*)
+MomentumMapTimeConstrain=15;(*seconds*)
+
 
 
