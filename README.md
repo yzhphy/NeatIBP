@@ -189,6 +189,10 @@ cp $NEATIBP_INSTALL_DIR/NeatIBP/default_settings.txt config.txt
 
 mkdir outputs
 
+```
+
+Then it's ready to follow the manual to configure NeatIBP in workspace.
+
 
 ## Manual of how to use NeatIBP
 ### Preparing inputs
