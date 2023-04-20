@@ -322,7 +322,6 @@ OrthogonalComplement[external_,vectors_,vectorsComplement_,kinematics_,OptionsPa
 (*DeepMomentumMap*)
 
 
-
 Options[DeepMomentumMap]={ReportNotice->ReportNoticeInDeepMomentumMap}
 DeepMomentumMap[internal_,external_,prop1_,prop2_,kinematics_,OptionsPattern[]]:=Module[{allvectors,group1,group1C,group2,group2C,rep1,backrep1,rep2,backrep2,LocalGram1,
 LocalGram2,MatrixT,localE,MatrixA,MatrixB,Localprop1,Localprop2,LocalETrans,LocalLTrans,Trans,PropEqns,LocalKinematics1,LocalKinematics2,LocalGramEqns,
@@ -443,7 +442,7 @@ LocalEqns,nLocalGB
 		PrintAndLog[
 			"** Warning: no solution found in DeepMomentumMaps between the following propagators:","\n",
 			prop1//InputForm//ToString,"\n",prop2//InputForm//ToString,"\n",
-			"** Please check the following momenta groups:","\n",
+			"** Momenta groups:","\n",
 			group1//InputForm//ToString,"\n",group2//InputForm//ToString,"\n",
 			"** Giving up finding the corresponding symmetries."
 		];
