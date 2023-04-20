@@ -36,4 +36,4 @@ sector {1, 0, 1, 1, 0, 1, 0, 0, 0} :	9 IBPs(s)
 sector {0, 1, 0, 0, 1, 0, 1, 0, 0} :	27 IBPs(s)
 sector {1, 0, 0, 1, 0, 0, 1, 0, 0} :	27 IBPs(s)
 ==========================================
-Total real time used: 57s.
+Total real time used: 56s.
