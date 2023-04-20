@@ -73,7 +73,7 @@ positivity[list_]:=If[Union[#>0&/@list]==Head[list][True],True,False];
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Baikov Representation*)
 
 
@@ -415,7 +415,7 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 ];*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Singular Interface*)
 
 
@@ -736,7 +736,7 @@ pivots[matrix_]:=Module[{ARLonglist},
 ];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Symmetry *)
 
 
@@ -935,7 +935,7 @@ MappedAndSubSectorsAllFinder[sectorMaps_,sectors_]:=Module[{mappingOfSectors,old
 SelfSymmetryRealization[zMap_,indices_]:=Expand[MappedIntegral[zMap,indices]-(G@@indices)]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Azuritino*)
 
 
@@ -989,7 +989,7 @@ AzuritePoolToSeed[PoolMember_,ISPIndices_]:=Module[{i,result=Table[1,SDim]},
 ]
 
 
-Options[AzuritinoMIFind]={degBound->0,AzuritinoGenericD->GenericD,MaxISPDegree->4,MinISPDegreeForAnalysis->1,Modulus->FiniteFieldModulus,CriticalPointCounting->False,
+Options[AzuritinoMIFind]={degBound->0,AzuritinoGenericD->GenericD,MaxISPDegree->4,MinISPDegreeForAnalysis->3,Modulus->FiniteFieldModulus,CriticalPointCounting->False,
 selfSymmetryZMaps->{}
 };
 AzuritinoMIFind[sector_,OptionsPattern[]]:=Module[{P,secNo,Indices,ISPIndices,ISPlen,timer=AbsoluteTime[],tt=AbsoluteTime[],vectorList,FIBPs,FIBPISPdegree,IBPFunctions
@@ -1019,10 +1019,10 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries},
 				];
 				MinISPD=i+1;
 				MaxISPD=MinISPD+2;
-				PrintAndLog["#",secNo,"\t\t","start to find MIs from IBPs with numerator degree  ...",MinISPD]		
+						
 			]
 		];
-		
+		PrintAndLog["#",secNo,"\t\t","start to find MIs from IBPs with numerator starting degree ",MinISPD," and max degree ",MaxISPD];
 		
 		
 		
@@ -1965,6 +1965,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 

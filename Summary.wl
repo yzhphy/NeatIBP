@@ -172,9 +172,14 @@ For[i=1,i<=Length[fileNamesIBP],i++,
 PrintAndLog["=========================================="]
 If[FileExistsQ[TemporaryDirectory<>"start_abs_time.txt"],
 	startAbsTime=Get[TemporaryDirectory<>"start_abs_time.txt"];
-	timeUsed=Round[AbsoluteTime[]-startAbsTime];
-	{minutes,seconds}=QuotientRemainder[timeUsed,60];
-	{hours,minutes}=QuotientRemainder[minutes,60];
-	timeUsedString=If[hours>0,ToString[hours]<>"h",""]<>If[minutes>0||hours>0,ToString[minutes]<>"m",""]<>ToString[seconds]<>"s.";
+	If[startAbsTime===0,
+		timeUsedString="not available since this is a continued running.";
+	,
+		timeUsed=Round[AbsoluteTime[]-startAbsTime];
+		{minutes,seconds}=QuotientRemainder[timeUsed,60];
+		{hours,minutes}=QuotientRemainder[minutes,60];
+		timeUsedString=If[hours>0,ToString[hours]<>"h",""]<>If[minutes>0||hours>0,ToString[minutes]<>"m",""]<>ToString[seconds]<>"s.";
+	];
+	
 	PrintAndLog["Total real time used: ",timeUsedString];
 ]

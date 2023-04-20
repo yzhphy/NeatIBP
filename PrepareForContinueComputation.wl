@@ -70,7 +70,7 @@ TemporaryDirectorySingular = TemporaryDirectory<>"singular_temp/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectorySingular]
 
 
-If[FileExistsQ[#],Run["rm -f "]<>#]&[TemporaryDirectory<>"start_abs_time.txt"]
+If[FileExistsQ[#],Export[#,"0"]]&[TemporaryDirectory<>"start_abs_time.txt"]
 
 
 Get[packagePath<>"SyzygyRed.wl"]
