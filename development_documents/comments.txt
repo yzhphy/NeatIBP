@@ -16,7 +16,6 @@ some OS does not use "math" to run mathematica in commandline
 
 if propagators are not linearly dependent and complete, let user know
 
-If at the first step IBPs are all sub sector IBPs...opps!
 
 ==========Important=================
 plugin RW`s singularGB into MomentumMap, currently in temp_files
@@ -30,6 +29,7 @@ a comment in SyzygyRed.wl: (*FIBPFunction is a function with #, is it still safe
 
 modify seeding implementations to C
 
+add option ClearTempFolders in configs
 
 finding symmetry in initialization can be parallelized
 
@@ -51,12 +51,13 @@ if we generates numeric points randomly, we should add the values of numeric poi
 Check if replacement replaces the variables to numerics, if not, send a warning
 
 [SyzygyRed.wl]
-There are some global variables named "m" or "z" "x" "y" etc. in the code. 
+There are some global variables named "m" or "z" "x" "y"  etc. in the code. 
   They`d better be changed to some longer names, to avoid possible \
 contradiction with user`s code. (Like Litered`s "j").
   But considering we will use this in commandLine, this is not that \
 important
  No, it is important if user defines some kinematic variables like m[1]...
+But this is equivalent to considering what if user uses same function names as us. Is there anyway to prevent them to do so in the 3 input files? 
 
 also, n=Length[ExternalMomenta]+1;
 	L=Length[LoopMomenta];
@@ -93,6 +94,8 @@ add diagram name into monitor
 We have not proved that the projection way to find ext momenta symmetry always guarantee that the w transform always have solution...
 
 =============Not Important=================
+messages in DeepMomentumMap are ugly in terminal if ParallelTable is used
+
 why do we need to set TemporaryDirectory everywhere?
 
 Generate nFIBPs is slow because of CoefficientRules, I do not know the way to improve it.

@@ -175,24 +175,35 @@ result={},DM,leadingCoef,kvars,kEqns,kinematicVar,Exteqns,ExtGB,instance,additio
 	kinematicVar=Complement[Variables[eqns],clist];
 	Exteqns=#[[2]]&/@Flatten[CoefficientRules[#,kinematicVar]&/@Complement[eqns,{0}]];
 	ExtGB=GroebnerBasis[Exteqns,clist,MonomialOrder->DegreeReverseLexicographic,CoefficientDomain->RationalFunctions];
-    If[ExtGB==={1},Return[DeepMomentumMap[internal,external,prop1,prop2,kinematics]]];
+    If[ExtGB==={1},
+		If[UseNicePropagatorsInMomentumMap,
+			Return[DeeperMomentumMap[internal,external,prop1,prop2,kinematics]]
+		,
+			Return[DeepMomentumMap[internal,external,prop1,prop2,kinematics]]
+		];
+		
+	];
 	If[QuotientRingSize[ExtGB,clist]<99999,
 		sol=Solve[ExtGB==0,clist];
 	,
 		instance=FindInstance[ExtGB==0/.GenericPoint,clist,Rationals];
 		If[instance=={},
-			PrintAndLog["** Warning: contradiction between ExtGB and its instance solutions while finding MomentumMaps between the following propagators:"];
-			PrintAndLog[prop1//InputForm,"\n",prop2//InputForm];
-			PrintAndLog["** No instance found. Giving up finding the corresponding symmetries."];
+			PrintAndLog[
+				"** Warning: contradiction between ExtGB and its instance solutions while finding MomentumMaps between the following propagators:\n",
+				prop1//InputForm//ToString,"\n",prop2//InputForm//ToString,"\n",
+				"** No instance found. Giving up finding the corresponding symmetries."
+			];
 			Return[{}];
 		];
 		If[MemberQ[(Element[#,Rationals]===True)&/@Factor[instance[[1,All,2]]],False],
 			instance=FindInstance[ExtGB==0/.GenericPoint,clist,Rationals];
 		];
 		If[instance=={},
-			PrintAndLog["** Warning: contradiction between ExtGB and its instance solutions while finding MomentumMaps between the following propagators:"];
-			PrintAndLog[prop1//InputForm,"\n",prop2//InputForm];
-			PrintAndLog["** No rational instance found. Giving up finding the corresponding symmetries."];
+			PrintAndLog[
+				"** Warning: contradiction between ExtGB and its instance solutions while finding MomentumMaps between the following propagators:","\n",
+				prop1//InputForm//ToString,"\n",prop2//InputForm//ToString,"\n",
+				"** No rational instance found. Giving up finding the corresponding symmetries."
+			];
 			Return[{}];
 		];
 		instance=instance[[1]](*only 1 solution, take it*);
@@ -200,15 +211,19 @@ result={},DM,leadingCoef,kvars,kEqns,kinematicVar,Exteqns,ExtGB,instance,additio
 		ExtGB=GroebnerBasis[Join[ExtGB,additionalConditions],clist,MonomialOrder->DegreeReverseLexicographic,CoefficientDomain->RationalFunctions];
 		Switch[QuotientRingSize[ExtGB,clist],
 		99999,
-			PrintAndLog["** Warning: contradiction between ExtGB and its instance solutions while finding MomentumMaps between the following propagators:"];
-			PrintAndLog[prop1//InputForm,"\n",prop2//InputForm];
-			PrintAndLog["** The momentum map is not fixed by the instance searching. Giving up finding the corresponding symmetries."];
+			PrintAndLog[
+				"** Warning: contradiction between ExtGB and its instance solutions while finding MomentumMaps between the following propagators:","\n",
+				prop1//InputForm//ToString,"\n",prop2//InputForm//ToString,"\n",
+				"** The momentum map is not fixed by the instance searching. Giving up finding the corresponding symmetries."
+			];
 			Return[{}];
 		,
 		0,
-			PrintAndLog["** Warning: contradiction between ExtGB and its instance solutions while finding MomentumMaps between the following propagators:"];
-			PrintAndLog[prop1//InputForm,"\n",prop2//InputForm];
-			PrintAndLog["** The momentum map is not consistent with the instance searching. Giving up finding the corresponding symmetries."];
+			PrintAndLog[
+				"** Warning: contradiction between ExtGB and its instance solutions while finding MomentumMaps between the following propagators:","\n",
+				prop1//InputForm//ToString,"\n",prop2//InputForm//ToString,"\n",
+				"** The momentum map is not consistent with the instance searching. Giving up finding the corresponding symmetries."
+			];
 			Return[{}];
 		,
 		_,
@@ -240,7 +255,7 @@ result={},DM,leadingCoef,kvars,kEqns,kinematicVar,Exteqns,ExtGB,instance,additio
 (*DeepMomentumMap*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*reliaments*)
 
 
@@ -307,7 +322,9 @@ OrthogonalComplement[external_,vectors_,vectorsComplement_,kinematics_,OptionsPa
 (*DeepMomentumMap*)
 
 
-DeepMomentumMap[internal_,external_,prop1_,prop2_,kinematics_]:=Module[{allvectors,group1,group1C,group2,group2C,rep1,backrep1,rep2,backrep2,LocalGram1,
+
+Options[DeepMomentumMap]={ReportNotice->ReportNoticeInDeepMomentumMap}
+DeepMomentumMap[internal_,external_,prop1_,prop2_,kinematics_,OptionsPattern[]]:=Module[{allvectors,group1,group1C,group2,group2C,rep1,backrep1,rep2,backrep2,LocalGram1,
 LocalGram2,MatrixT,localE,MatrixA,MatrixB,Localprop1,Localprop2,LocalETrans,LocalLTrans,Trans,PropEqns,LocalKinematics1,LocalKinematics2,LocalGramEqns,
 LocalGB,clist,sol,GlobalMatrixT,GlobalETrans,a,b,c,i,DM,sol1,instance,additionalConditions,
 LocalEqns,nLocalGB
@@ -349,24 +366,28 @@ LocalEqns,nLocalGB
 		TimeConstrained[
 			instance=FindInstance[nLocalGB==0/.GenericPoint,clist];
 			If[instance=={},
-				PrintAndLog["** Warning: continuous solution found in DeepMomentumMaps between the following propagators:"];
-				PrintAndLog[prop1//InputForm,"\n",prop2//InputForm];
-				PrintAndLog["** Momenta groups:"];
-				PrintAndLog[group1//InputForm,"\n",group2//InputForm];
-				PrintAndLog["** No instance found."];
-				PrintAndLog["** Giving up finding the corresponding symmetries."];
+				PrintAndLog[
+					"** Warning: continuous solution found in DeepMomentumMaps between the following propagators:","\n",
+					prop1//InputForm//ToString,"\n",prop2//InputForm//ToString,"\n",
+					"** Momenta groups:","\n",
+					group1//InputForm//ToString,"\n",group2//InputForm//ToString,"\n",
+					"** No instance found.","\n",
+					"** Giving up finding the corresponding symmetries."
+				];
 				Return[{}];
 			];
 			If[MemberQ[(Element[#,Rationals]===True)&/@Factor[instance[[1,All,2]]],False],
 				instance=FindInstance[nLocalGB==0/.GenericPoint,clist,Rationals];
 			];
 			If[instance=={},
-				PrintAndLog["** Warning: continuous solution found in DeepMomentumMaps between the following propagators:"];
-				PrintAndLog[prop1//InputForm,"\n",prop2//InputForm];
-				PrintAndLog["** Momenta groups:"];
-				PrintAndLog[group1//InputForm,"\n",group2//InputForm];
-				PrintAndLog["** No rational instance found."];
-				PrintAndLog["** Giving up finding the corresponding symmetries."];
+				PrintAndLog[
+					"** Warning: continuous solution found in DeepMomentumMaps between the following propagators:","\n",
+					prop1//InputForm//ToString,"\n",prop2//InputForm//ToString,"\n",
+					"** Momenta groups:","\n",
+					group1//InputForm//ToString,"\n",group2//InputForm//ToString,"\n",
+					"** No rational instance found.","\n",
+					"** Giving up finding the corresponding symmetries."
+				];
 				Return[{}];
 			];
 			instance=instance[[1]](*only 1 solution, take it*);
@@ -379,22 +400,26 @@ LocalEqns,nLocalGB
 			LocalGB=GroebnerBasis[LocalGB,clist,MonomialOrder->DegreeReverseLexicographic,CoefficientDomain->RationalFunctions];
 			Switch[QuotientRingSize[LocalGB,clist],
 			99999,
-				PrintAndLog["** Warning: continuous solution found in DeepMomentumMaps between the following propagators:"];
-				PrintAndLog[prop1//InputForm,"\n",prop2//InputForm];
-				PrintAndLog["** Momenta groups:"];
-				PrintAndLog[group1//InputForm,"\n",group2//InputForm];
-				PrintAndLog["** The momentum map is not fixed by the instance solution."];
-				PrintAndLog["** Giving up finding the corresponding symmetries."];
+				PrintAndLog[
+					"** Warning: continuous solution found in DeepMomentumMaps between the following propagators:","\n",
+					prop1//InputForm//ToString,"\n",prop2//InputForm//ToString,"\n",
+					"** Momenta groups:","\n",
+					group1//InputForm//ToString,"\n",group2//InputForm//ToString,"\n",
+					"** The momentum map is not fixed by the instance solution.","\n",
+					"** Giving up finding the corresponding symmetries."
+				];
 				Return[{}];
 			,
 			0,
-				PrintAndLog["** Warning: continuous solution found in DeepMomentumMaps between the following propagators:"];
-				PrintAndLog[prop1//InputForm,"\n",prop2//InputForm];
-				PrintAndLog["** Momenta groups:"];
-				PrintAndLog[group1//InputForm,"\n",group2//InputForm];
-				PrintAndLog["** The momentum map is not consistent with the instance solution."];
-				PrintAndLog["** Giving up finding the corresponding symmetries."];
-				(*Export["instance.txt",{probe2023,additionalConditions,instance}//InputForm//ToString];(*debug2023*)*)
+				PrintAndLog[
+					"** Warning: continuous solution found in DeepMomentumMaps between the following propagators:","\n",
+					prop1//InputForm//ToString,"\n",prop2//InputForm//ToString,"\n",
+					"** Momenta groups:","\n",
+					group1//InputForm//ToString,"\n",group2//InputForm//ToString,"\n",
+					"** The momentum map is not consistent with the instance solution.","\n",
+					"** Giving up finding the corresponding symmetries."
+				];
+				(*Export["instance.txt",{probe2023,additionalConditions,instance}//InputForm//ToString//ToString];(*debug2023*)*)
 				Return[{}];
 			,
 			_,
@@ -403,21 +428,25 @@ LocalEqns,nLocalGB
 		,
 			MomentumMapTimeConstrain
 		,
-			PrintAndLog["** Warning: continuous solution found in DeepMomentumMaps between the following propagators:"];
-			PrintAndLog[prop1//InputForm,"\n",prop2//InputForm];
-			PrintAndLog["** Momenta groups:"];
-			PrintAndLog[group1//InputForm,"\n",group2//InputForm];
-			PrintAndLog["** Evaluation using FindInstance timed out."];
-			PrintAndLog["** Giving up finding the corresponding symmetries."];
+			PrintAndLog[
+				"** Warning: continuous solution found in DeepMomentumMaps between the following propagators:","\n",
+				prop1//InputForm//ToString,"\n",prop2//InputForm//ToString,"\n",
+				"** Momenta groups:","\n",
+				group1//InputForm//ToString,"\n",group2//InputForm//ToString,"\n",
+				"** Evaluation using FindInstance timed out.","\n",
+				"** Giving up finding the corresponding symmetries."
+			];
 			Return[{}];
 		]
 	,
 	0,
-		PrintAndLog["** Warning: no solution found in DeepMomentumMaps between the following propagators:"];
-		PrintAndLog[prop1//InputForm,"\n",prop2//InputForm];
-		PrintAndLog["** Please check the following momenta groups:"];
-		PrintAndLog[group1//InputForm,"\n",group2//InputForm];
-		PrintAndLog["** Giving up finding the corresponding symmetries."];
+		PrintAndLog[
+			"** Warning: no solution found in DeepMomentumMaps between the following propagators:","\n",
+			prop1//InputForm//ToString,"\n",prop2//InputForm//ToString,"\n",
+			"** Please check the following momenta groups:","\n",
+			group1//InputForm//ToString,"\n",group2//InputForm//ToString,"\n",
+			"** Giving up finding the corresponding symmetries."
+		];
 		Return[{}];
 	,
 	_,
@@ -428,11 +457,13 @@ LocalEqns,nLocalGB
 		,
 			MomentumMapTimeConstrain
 		,
-			PrintAndLog["** Warning: solving equations timed out in DeepMomentumMaps between the following propagators:"];
-			PrintAndLog[prop1//InputForm,"\n",prop2//InputForm];
-			PrintAndLog["** Momenta groups:"];
-			PrintAndLog[group1//InputForm,"\n",group2//InputForm];
-			PrintAndLog["** Giving up finding the corresponding symmetries."];
+			PrintAndLog[
+				"** Warning: solving equations timed out in DeepMomentumMaps between the following propagators:","\n",
+				prop1//InputForm//ToString,"\n",prop2//InputForm//ToString,"\n",
+				"** Momenta groups:","\n",
+				group1//InputForm//ToString,"\n",group2//InputForm//ToString,"\n",
+				"** Giving up finding the corresponding symmetries."
+			];
 			Return[{}];
 		]
 	];
@@ -452,12 +483,112 @@ LocalEqns,nLocalGB
 	(* Print[group1,(groupMomentumU/@Range[localE])/.LocalETrans/.sol/.backrep2]; *);
 	GlobalMatrixT=ExtendedRotationByOrthogonalization[external,group1,(groupMomentumU/@Range[localE])/.LocalETrans/.sol/.backrep2,kinematics];
 	GlobalETrans=MapThread[#1->#2&,{external,GlobalMatrixT . external}];
-	If[sol=!={},PrintAndLog["\t\t\t[Notice]: Symmetry found using DeepMomentumMaps between the following propagators"]];
-	PrintAndLog["\t\t\t",prop1//InputForm,"\n\t\t\t",prop2//InputForm];
+	If[(sol=!={})&&OptionValue[ReportNotice],
+		PrintAndLog[
+			"\t\t\t[Notice]: Symmetry found using DeepMomentumMaps between the following propagators","\n",
+			"\t\t\t",prop1//InputForm//ToString,"\n\t\t\t",prop2//InputForm//ToString
+		];
+	];
+	
 	Return[
 		{Join[GlobalETrans,LocalLTrans/.sol/.backrep2]}
 	];(*{Join[...]} is to keep data structure same as before*)
 	
+]
+
+
+(* ::Subsection:: *)
+(*DeeperMomentumMap*)
+
+
+(* Only for quadratic propagators *)
+NicePropagators[internal_,external_,prop1_,kinematics_]:=Module[{quadraticProp,\[Lambda],LoopFlow,LoopFlowMatrix,ll,SimpleIndepLoopMomenta,InterL,
+rep1,rep2={},backrep1,backrep2={},L,Flow,InterProp,i,LocalInterProp,LocalFlow,LocalExternalFlow,shortestLocalFlow,shortestLocalFlows},
+	quadraticProp=SeriesCoefficient[prop1/.MapThread[#1->#2&,{internal,\[Lambda] internal}],{\[Lambda],0,2}]//Factor;
+	L=Length[internal];
+	LoopFlow=quadraticProp/.Power[x_,2]:>x;(*wrong but work if propagator is defined like -(l+p)^2+m^2*)
+	LoopFlowMatrix=CoefficientArrays[LoopFlow,internal][[2]]//Normal;
+	LoopFlowMatrix=SortBy[LoopFlowMatrix,{Norm[#],Reverse[#]}&];
+	SimpleIndepLoopMomenta=LoopFlowMatrix[[pivots[RowReduce[Transpose[LoopFlowMatrix]]]]] . internal;
+	If[Length[SimpleIndepLoopMomenta]<L,Return["Failed"];];
+	backrep1=MapThread[#1->#2&,{InterL/@Range[L],SimpleIndepLoopMomenta}];
+	rep1=Solve[(InterL/@Range[L])-SimpleIndepLoopMomenta==0,internal][[1]];
+	(*Flow=(SeriesCoefficient[prop1/.MapThread[#1->#2&,{Join[internal,external],\[Lambda] Join[internal,external]}],{\[Lambda],0,2}]//Factor)/.Power[x_,2]:>x;*)
+	InterProp=prop1/.rep1;
+	Flow=(SeriesCoefficient[InterProp/.MapThread[#1->#2&,{Join[InterL/@Range[L],external],\[Lambda] Join[InterL/@Range[L],external]}],{\[Lambda],0,2}]//Factor)/.Power[x_,2]:>x;
+	shortestLocalFlows={};
+	For[i=1,i<=L,i++,
+		(*LocalInterProp=Select[InterProp,Intersection[Variables[#],InterL/@Range[L]]=={InterL[i]}&];
+		If[LocalInterProp==={},Return["Failed"]];
+		LocalExternalFlow=SortBy[D[LocalInterProp,InterL[i]]/2/.InterL[i]->0,ByteCount];
+		AppendTo[rep2,InterL[i]->StdL[i]-LocalExternalFlow[[1]]];
+		AppendTo[backrep2,StdL[i]->InterL[i]+LocalExternalFlow[[1]]];*)
+		LocalFlow=Select[Flow,Intersection[Variables[#],InterL/@Range[L]]=={InterL[i]}&];
+		If[LocalFlow==={},Return["Failed"]];
+		shortestLocalFlow=SortBy[LocalFlow,ByteCount[#/.InterL[i]->0]&][[1]];
+		AppendTo[shortestLocalFlows,shortestLocalFlow]
+	];
+	backrep2=Table[StdL[i]->shortestLocalFlows[[i]],{i,Length[shortestLocalFlows]}];
+	rep2=Solve[
+		Table[StdL[i]==shortestLocalFlows[[i]],{i,Length[shortestLocalFlows]}]
+	,InterL/@Range[L]][[1]];
+	
+	Return[{rep1/.rep2,backrep2/.backrep1}//Expand];
+]
+
+
+Options[DeeperMomentumMap]={ReportNotice->ReportNoticeInDeepMomentumMap}
+DeeperMomentumMap[internal_,external_,prop1_,prop2_,kinematics_,OptionsPattern[]]:=Module[{nice1,nice2,rep1,backrep1,rep2,backrep2,L,trans,CheckPoint1,CheckPoint2,result},
+	nice1=NicePropagators[internal,external,prop1,kinematics];
+	nice2=NicePropagators[internal,external,prop2,kinematics];
+	If[nice1=="Failed"||nice2=="Failed",
+		PrintAndLog[
+			"** Warning: nice form of the propagators not found in DeeperMomentumMaps between the following propagators:","\n",
+			prop1//InputForm//ToString,"\n",prop2//InputForm//ToString,"\n",
+			"** Giving up finding the corresponding symmetries."
+		];
+	];
+	L=Length[internal];
+	{rep1,backrep1}=nice1//Expand;
+	{rep2,backrep2}=nice2//Expand;
+	(*Print[prop1/.rep1//Factor,prop2/.rep2//Factor];*)
+	
+	trans=DeepMomentumMap[StdL/@Range[L],ExternalMomenta,prop1/.rep1//Factor,prop2/.rep2//Factor,Kinematics,ReportNotice->False];
+	
+	If[trans=={},Return[{}]];
+	trans=trans[[1]];(*data structure difference form original codes from YZ*)
+	
+	CheckPoint1=prop2-(prop1/.rep1/.trans/.backrep2)//Factor;
+	
+	If[Union[CheckPoint1]=!={0},
+		PrintAndLog[
+			"** Warning: wrong NicePropagator transformation in DeeperMomentumMaps between the following propagators:","\n",
+			prop1//InputForm//ToString,"\n",prop2//InputForm//ToString,"\n",
+			"** Giving up finding the corresponding symmetries."
+		];
+		Print[trans];
+		Return[{}];
+	];
+	
+	result=Collect[MapThread[#1->#2&,{Join[internal,external],Join[internal,external]/.rep1/.trans/.backrep2}],Join[internal,external],Factor];
+	CheckPoint2=D[internal/.result,{internal}]//Det//Factor;
+
+	If[Abs[CheckPoint2]=!=1,
+		PrintAndLog[
+			"** Warning: resulting transformation in DeeperMomentumMaps is of Jacobian unequal to 1 or -1 between the following propagators:","\n",
+			prop1//InputForm//ToString,"\n",prop2//InputForm//ToString,"\n",
+			"** Giving up finding the corresponding symmetries."
+		];
+		Return[{}];
+	];
+	If[(result=!={})&&OptionValue[ReportNotice],
+		PrintAndLog[
+			"\t\t\t[Notice]: Symmetry found using DeeperMomentumMaps between the following propagators","\n",
+			"\t\t\t",prop1//InputForm//ToString,"\n\t\t\t",prop2//InputForm//ToString
+		];
+	];
+	result={result};(*data structure difference form original codes from YZ*)
+	Return[result];
 ]
 
 

@@ -314,7 +314,7 @@ If[CutIndices=!={},
 
 ZeroSectors=Select[RelavantSectors,ZeroSectorQ];
 NonZeroSectors=SortBy[Complement[RelavantSectors,Global`ZeroSectors],SectorOrdering]//Reverse;
-PrintAndLog[Length[NonZeroSectors]," non-zero sector(s) are found."];
+PrintAndLog["\t",Length[NonZeroSectors]," non-zero sector(s) are found."];
 ZeroTargets=Select[Global`TargetIntegrals,MemberQ[Global`ZeroSectors,Sector[#]]&];
 ReductionTargets=Complement[Global`TargetIntegrals,Global`ZeroTargets];
 ReductionTasks=Association[Table[NonZeroSectors[[i]]->Select[ReductionTargets,NonZeroSectors[[i]]==Sector[#]&],{i,1,Length[NonZeroSectors]}]];
@@ -352,7 +352,7 @@ If[NeedSymmetry===False,
 	
 ]
 Export[outputPath<>"tmp/sectorMaps.txt",sectorMaps//InputForm//ToString]
-PrintAndLog[Length[mappedSectors]," mapped sector(s) found."];
+PrintAndLog["\t",Length[mappedSectors]," mapped sector(s) found."];
 PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 

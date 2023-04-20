@@ -38,14 +38,7 @@ CriticalPointInAzuritino=True;
 MemoryUsedLimit=Infinity;(*MB*)
 ThreadUsedLimit=Infinity;
 DeleteSingularTempFiles=True;
-ClearTempFolders={
-	"intermediate_results"->False,
-	"log_files"->False,
-	"running_scripts"->True,
-	"mission_status"->True,
-	"reduction_tasks"->False
-	
-};(*the auto-cleaning is not supported yet in the current version...*)
+
 
 (*--------developer settings-------------*)
 debugMode=False;
@@ -54,6 +47,6 @@ SowAndReap=True;(*of the Zuirch seeding in the main body of NeatIBP*)
 ParallelInFindingSectorMaps=True;(*ParallelTable*)
 UseSRFindPivots=True;(*Currently, we only use this in IndepedentSet*)
 MomentumMapTimeConstrain=15;(*seconds*)
-
-
+UseNicePropagatorsInMomentumMap=True;(*must turn off this if one or more propagators are not quadratic*)
+ReportNoticeInDeepMomentumMap=False;
 
