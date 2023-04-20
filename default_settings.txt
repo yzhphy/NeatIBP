@@ -49,3 +49,5 @@ MomentumMapTimeConstrain=15;(*seconds*)
 UseNicePropagatorsInMomentumMap=True;(*must turn off this if one or more propagators are not quadratic*)
 ReportNoticeInDeepMomentumMap=False;
 
+(*-------other default settings----------*)
+GenericD={d-> 3/137}
