@@ -9,24 +9,31 @@ targetIntegralsFile = workingPath<>"targetIntegrals.txt";
 
 (*-----------dependency settings---------*)
 SingularApp = "/usr/bin/Singular";
-SparseRREF`SpaSMLibrary = "/usr/local/lib/libspasm.so"
+SparseRREF`SpaSMLibrary = "/usr/local/lib/libspasm.so";
 
 (*-----------directory settings----------*)
-ReductionOutputName="dbox";(*do not use special characters, including space*)
-outputPath=Automatic;(*recommended*)
-
+ReductionOutputName="dbox";
+outputPath=Automatic;
 (*outputPath=workingPath<>"test/";*)(*alternative*)
-
 
 (*-----------math settings---------------*)
 OptionSimplification = 12;
+FiniteFieldModulus=42013;(*do not use any prime number larger than 46337*)
+AzuritinoIntersectionDegreeBound=0
+NeatIBPIntersectionDegreeBound=5
+
+(*-----------physics settings-------------*)
+IntegralOrder = "MultiplePropagatorElimination"
 NeedSymmetry=True;
 CutIndices={};
 
+(*-----------method settings--------------*)
+MIFromAzuritino=True;
+CriticalPointInAzuritino=True;
+
 
 (*-----------usage settings--------------*)
-MemoryUsedLimit=100000;(*MB*)
-ThreadUsedLimit=16;
-
-
+MemoryUsedLimit=Infinity;(*MB*)
+ThreadUsedLimit=Infinity;
+DeleteSingularTempFiles=True;
 

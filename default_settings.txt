@@ -15,6 +15,7 @@ SparseRREF`SpaSMLibrary = "/usr/local/lib/libspasm.so";
 (*-----------directory settings----------*)
 ReductionOutputName="Untitled";
 outputPath=Automatic;
+(*outputPath=workingPath<>"test/";*)(*alternative*)
 
 (*-----------math settings---------------*)
 OptionSimplification = 12;
@@ -24,10 +25,8 @@ NeatIBPIntersectionDegreeBound=5
 
 (*-----------physics settings-------------*)
 IntegralOrder = "MultiplePropagatorElimination"
-SubsectorIntegralPreference = "NumeratorDegree"
 NeedSymmetry=True;
 CutIndices={};
-GenericD = d -> 137/3;
 
 (*-----------method settings--------------*)
 MIFromAzuritino=True;

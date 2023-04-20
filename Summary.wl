@@ -93,15 +93,16 @@ Print["Summarizing..."]
 
 tmpPath=outputPath<>"tmp/"
 If[!FileExistsQ[tmpPath<>"initialized.txt"],
-	PrintAndLog["Initialization failed, cannot summarize."];
+	Print["Initialization failed, cannot summarize."];
 	Exit[0];
 ]
+TemporaryDirectory=tmpPath
 
 
 missionStatusFolder=tmpPath<>"mission_status/"
 missionStatus={ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex,Get[#]}&/@FileNames[All,missionStatusFolder]
 If[!SubsetQ[{"ComputationFinished"},Union[missionStatus[[All,2]]]],
-	PrintAndLog["Not all missions are finished, cannot summarize."];
+	Print["Not all missions are finished, cannot summarize."];
 	Exit[0];
 ]
 
@@ -168,5 +169,12 @@ For[i=1,i<=Length[fileNamesIBP],i++,
 	If[Length[IBP]>0,PrintAndLog["sector ",sector," :\t",Length[IBP]," IBPs(s)"]]
 ]
 
-
-
+PrintAndLog["=========================================="]
+If[FileExistsQ[TemporaryDirectory<>"start_abs_time.txt"],
+	startAbsTime=Get[TemporaryDirectory<>"start_abs_time.txt"];
+	timeUsed=Round[AbsoluteTime[]-startAbsTime];
+	{minutes,seconds}=QuotientRemainder[timeUsed,60];
+	{hours,minutes}=QuotientRemainder[minutes,60];
+	timeUsedString=If[hours>0,ToString[hours]<>"h",""]<>If[minutes>0||hours>0,ToString[minutes]<>"m",""]<>ToString[seconds]<>"s.";
+	PrintAndLog["Total real time used: ",timeUsedString];
+]

@@ -48,6 +48,15 @@ If[Intersection[StringSplit[outputPath,""],{" ","\t","\n","?","@","#","$","*","&
 If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
 
+
+
+
+tmpPath=outputPath<>"tmp/"
+If[!FileExistsQ[tmpPath<>"initialized.txt"],
+	Print["Cannot continue a computation without finishing initialization... Please run this conmpuation from the beginning."];
+]
+
+
 Print["Preparering for continue computation."]
 
 
@@ -59,6 +68,10 @@ TemporaryDirectory = outputPath<>"tmp/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectory]
 TemporaryDirectorySingular = TemporaryDirectory<>"singular_temp/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectorySingular]
+
+
+If[FileExistsQ[#],Run["rm -f "]<>#]&[TemporaryDirectory<>"start_abs_time.txt"]
+
 
 Get[packagePath<>"SyzygyRed.wl"]
 runningScriptFolder=outputPath<>"tmp/running_scripts/"

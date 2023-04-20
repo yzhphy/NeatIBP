@@ -8,7 +8,7 @@ Analyzing sector {1, 0, 0, 1, 0, 0, 1, 0, 0}.
 1 non-zero sector(s) are found.
 --------------------------------------------------------------------
 Initializing new sector {1, 0, 0, 1, 0, 0, 1, 0, 0} ...
-Target integrals: 26
+Target integrals: 25
 #73	  Initialized. Time Used: 0 second(s). Memory used: 0 MB.
 #73  Finding z maps of sector self-symmetries...
 #73	  Z maps of sector self-symmetries found. Time Used: 1 second(s). Memory used: 24 MB.
@@ -17,29 +17,29 @@ Target integrals: 26
 #73		Lee's MI counting ... 1
 #73		start to find MIs from IBPs with numerator degree  ...2
 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/dbox/outputs/dbox/tmp/singular_temp/singular_temp_73/azuritino_intersection.sing
-Singular running time ... 0.033632
+Singular running time ... 0.027222
 #73		Azuritino: number of syzygy generators: 14
-#73		Azuritino: formal max-cut IBPs generated... 0.047472
-#73		Azuritino: Step 0 : 1 test IBPs generated... 0.005888
-#73		Azuritino: Step 0 : 5 symmetry relations generated... 0.003803
-#73		Azuritino: Step 1 : 19 test IBPs generated... 0.011488
-#73		Azuritino: Step 1 : 30 symmetry relations generated... 0.029271
-#73		Azuritino: Step 2 : 99 test IBPs generated... 0.060094
-#73		Azuritino: Step 2 : 105 symmetry relations generated... 0.107724
-#73		Azuritino: Step 2 :        test IBPs reduced over the finite field ... 0.125109
-#73		Azuritino: Step 3 : 329 test IBPs generated... 0.033902
-#73		Azuritino: Step 3 : 280 symmetry relations generated... 0.434175
-#73		Azuritino: Step 3 :        test IBPs reduced over the finite field ... 0.487161
-#73		Azuritino: Step 4 : 854 test IBPs generated... 0.075409
-#73		Azuritino: Step 4 : 630 symmetry relations generated... 1.639423
-#73		Azuritino: Step 4 :        test IBPs reduced over the finite field ... 1.898340
-#73		Azuritino:  Sector {1, 0, 0, 1, 0, 0, 1, 0, 0}:  master integrals found ... 0.000025
+#73		Azuritino: formal max-cut IBPs generated... 0.043173
+#73		Azuritino: Step 0 : 1 test IBPs generated... 0.003261
+#73		Azuritino: Step 0 : 5 symmetry relations generated... 0.003344
+#73		Azuritino: Step 1 : 19 test IBPs generated... 0.012522
+#73		Azuritino: Step 1 : 30 symmetry relations generated... 0.020638
+#73		Azuritino: Step 2 : 99 test IBPs generated... 0.019389
+#73		Azuritino: Step 2 : 105 symmetry relations generated... 0.096147
+#73		Azuritino: Step 2 :        test IBPs reduced over the finite field ... 0.113487
+#73		Azuritino: Step 3 : 329 test IBPs generated... 0.034945
+#73		Azuritino: Step 3 : 280 symmetry relations generated... 0.369243
+#73		Azuritino: Step 3 :        test IBPs reduced over the finite field ... 0.424442
+#73		Azuritino: Step 4 : 854 test IBPs generated... 0.048733
+#73		Azuritino: Step 4 : 630 symmetry relations generated... 1.526101
+#73		Azuritino: Step 4 :        test IBPs reduced over the finite field ... 1.741716
+#73		Azuritino:  Sector {1, 0, 0, 1, 0, 0, 1, 0, 0}:  master integrals found ... 0.000023
 #73	  MIs found. Time Used: 3 second(s). Memory used: 14 MB.
 #73   1 MI(s) : {G[1, 0, 0, 1, 0, 0, 1, 0, 0]}
 #73	  numerator degree: 2 propagator degree: 0
 #73  Solving module intersections...
 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/dbox/outputs/dbox/tmp/singular_temp/singular_temp_73/intersection.sing
-Singular running time ... 0.031156
+Singular running time ... 0.043944
 Degree bound:5
 #73	  Module intersections solved. Time Used: 0 second(s). Memory used: 1 MB.
 #73	  VectorList Length: 44
@@ -112,8 +112,8 @@ Degree bound:5
 #73	  Independent IBPs selected. Time Used: 0 second(s). Memory used: 0 MB.
 #73	  27 IBPs are selected with 28 integrals in current sector.
 #73  Removing the unneeded IBPs...
-#73		  RowReduce in UsedRelations started. Matrix dimension: {27, 74}
-#73			  RowReduce in UsedRelations finished. Matrix dimension: {27, 74}. Time used: 0 second(s). Memory used: 0 MB.
+#73		  RowReduce in UsedRelations started. Matrix dimension: {27, 75}
+#73			  RowReduce in UsedRelations finished. Matrix dimension: {27, 75}. Time used: 0 second(s). Memory used: 0 MB.
 #73  0 IBP relations are removed. 27 left.
 #73	  Uneeded IBPs removed. Time Used: 0 second(s). Memory used: 0 MB.
 #73	  27 IBPs remaining with 28 integrals in current sector.
@@ -126,5 +126,5 @@ Degree bound:5
 #73	  27 IBPs remaining with 28 integrals in current sector.
 #73  Saving results in current sector...
 #73	  Results saved for current sector. Time Used: 0 second(s). Memory used: 0 MB.
-Analyze sector finished in sector 73. Time used:6 second(s). Memory used: 32 MB.
+Analyze sector finished in sector 73. Time used:5 second(s). Memory used: 32 MB.
 Sector 73 finished.

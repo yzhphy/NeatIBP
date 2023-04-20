@@ -87,6 +87,9 @@ If[Intersection[StringSplit[workingPath,""],{" ","\t","\n","?","@","#","$","*","
 ]
 
 
+
+
+
 (*If[FileExistsQ[workingPath<>#],Run["rm -f "<>workingPath<>#]]&/@
 {"log.txt","log1.txt","log2.txt","log3.txt","log4.txt"}*)
 (*AppendTo[$Path,workingPath];*)
@@ -95,6 +98,9 @@ If[Get[workingPath<>missionInput]===$Failed,Print["****  Unable to open config f
 If[Get[kinematicsFile]===$Failed,Print["****  Unable to open kinematics file "<>kinematicsFile<>". Exiting.";Exit[]]]
 TargetIntegrals=Get[targetIntegralsFile]
 If[TargetIntegrals===$Failed,Print["****  Unable to open target intergals file "<>targetIntegralsFile<>". Exiting.";Exit[]]]
+
+
+
 
 
 (* ::Section:: *)
@@ -178,22 +184,26 @@ LogPath=outputPath<>"tmp/log_files/"
 LogFile=LogPath<>"initialization"<>".txt";
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[LogPath]
 PrintAndLog["start initialization steps."]
+Export[TemporaryDirectory<>"start_abs_time.txt",AbsoluteTime[]//InputForm//ToString]
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Validating Inputs*)
-
-
-If[Union[(Length[Propagators]===Length[#])&/@TargetIntegrals]=!={True},
-	PrintAndLog["****  Length of Propagators and indices of TargetIntegrals mismatch. Exiting..."];
-	Exit[0];
-]
 
 
 If[!SubsetQ[GenericPoint[[All,1]],Complement[Variables[{Propagators,Kinematics[[All,2]]}],LoopMomenta,ExternalMomenta]],
 	PrintAndLog["****  GenericPoint dose not cover all scalar variables. Exiting..."];
 	Exit[0];
 ]
+If[Variables[Complement[Variables[{Propagators,Kinematics[[All,2]]}],LoopMomenta,ExternalMomenta]/.GenericPoint]=!={},
+	PrintAndLog["****  GenericPoint ",GenericPoint," is not properly defined. Exiting..."];
+	Exit[0];
+]
+If[Variables[d/.GenericD]=!={},
+	PrintAndLog["****  GenericD ",GenericD," is not defined or not properly defined. Exiting..."];
+	Exit[0];
+]
+
 
 
 If[CutIndices=!={}&&NeedSymmetry,
@@ -213,6 +223,11 @@ If[FiniteFieldModulus>46337,
 	PrintAndLog["****  FiniteFieldModulus must not be larger than 46337. Exiting..."];
 	Exit[0]
 ]
+If[!PrimeQ[FiniteFieldModulus],
+	PrintAndLog["****  FiniteFieldModulus ",FiniteFieldModulus ," is not a prime number. Exiting..."];
+	Exit[0]
+]
+
 
 
 If[!MemberQ[{"MultiplePropagatorElimination","ISPElimination","Global"},IntegralOrder],
@@ -243,6 +258,23 @@ If[MemberQ[CutableQ[#,CutIndices]&/@TargetIntegrals,False],
 
 
 
+preparation=Prepare[];
+If[preparation==="Propagators Length and SDim mismatch.",
+	PrintAndLog["*** The length of the Propagators ",Propagators," ",Length[Propagators]," and SDim=L(L+1)/2+LE=",SDim," mismatch. Exiting."];
+	Exit[0];
+]
+If[preparation==="Propagators is not a well-defined independent basis.",
+	PrintAndLog["*** The Propagators ",Propagators," is not a well-defined independent basis. Exiting."];
+	Exit[0];
+]
+
+
+If[Union[(Length[Propagators]===Length[#])&/@TargetIntegrals]=!={True},
+	PrintAndLog["****  Length of Propagators and indices of TargetIntegrals mismatch. Exiting..."];
+	Exit[0];
+]
+
+
 (* ::Section:: *)
 (*Other file read and writes*)
 
@@ -271,7 +303,7 @@ If[!DirectoryQ[#],Run["mkdir "<>#]]&[resultIBPFolder];
 
 
 
-Prepare[];
+
 
 
 missionStatusFolder=TemporaryDirectory<>"mission_status/"

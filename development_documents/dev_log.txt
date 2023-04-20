@@ -790,4 +790,13 @@ RW provided Spack scripts.
 [I]
 Imported DeeperMomentumMap from YZ
 
+[II]
+if propagators are not linearly dependent and complete, let user know and wont compute
+
+[III]
+removed a option in default_settings.txt
+SubsectorIntegralPreference = "NumeratorDegree"
+maybe I planned to add corresponding codes but gave up due to its being unnecessary?
+
+
 

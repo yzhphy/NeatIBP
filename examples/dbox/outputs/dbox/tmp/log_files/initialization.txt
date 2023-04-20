@@ -3,13 +3,13 @@ L=2 E=3
 Parameters {s, t}
 Baikov variables: var={z[1], z[2], z[3], z[4], z[5], z[6], z[7], z[8], z[9]}
 Finding nonzero sectors...
-43 non-zero sector(s) are found.
+	43 non-zero sector(s) are found.
 	Done. Time Used: 0 second(s).
 Exporting zero targets...
 	Done. Time Used: 0 second(s).
 Finding symmetry mappings between sectors...
-25 mapped sector(s) found.
-	Done. Time Used: 6 second(s).
+	25 mapped sector(s) found.
+	Done. Time Used: 7 second(s).
 Exporting mapped targets...
 	Done. Time Used: 0 second(s).
 Constructing trees of missions...

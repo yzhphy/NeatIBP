@@ -1,1 +1,1 @@
-/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/
+../../../NeatIBP/

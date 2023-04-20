@@ -2,5 +2,6 @@ LoopMomenta={l1,l2};
 ExternalMomenta={k1,k2,k4};
 Propagators=#^2&/@{l1,l1+k1,l1+k1+k2,l2-k1-k2,l2+k4,l2,l1+l2,l1+k4,l2+k1}
 Kinematics={k1^2->m11,k2^2->m22,k4^2->m44,k1 k2->(s-m11-m22)/2,k1 k4->(t-m11-m44)/2,k2 k4->(m11+m33-s-t)/2}/.(#->0&/@{m11,m22,m33,m44});
-GenericPoint={s->-1,t->-137,m11->1/97,m22->1/23,m33->1/41,m44->1/17}; 
+GenericPoint={s->-1,t->-1/19,m11->1/97,m22->1/23,m33->1/41,m44->1/17}; 
+GenericD={d->1/137}
 

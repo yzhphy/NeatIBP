@@ -17,35 +17,35 @@ Target integrals: 2
 #127		Lee's MI counting ... 2
 #127		start to find MIs from IBPs with numerator degree  ...2
 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/dbox/outputs/dbox/tmp/singular_temp/singular_temp_127/azuritino_intersection.sing
-Singular running time ... 0.037230
+Singular running time ... 0.037903
 #127		Azuritino: number of syzygy generators: 3
-#127		Azuritino: formal max-cut IBPs generated... 0.004616
-#127		Azuritino: Step 0 : 0 test IBPs generated... 0.004473
-#127		Azuritino: Step 0 : 3 symmetry relations generated... 0.001948
-#127		Azuritino: Step 1 : 1 test IBPs generated... 0.001532
-#127		Azuritino: Step 1 : 6 symmetry relations generated... 0.003916
-#127		Azuritino: Step 2 : 4 test IBPs generated... 0.001076
-#127		Azuritino: Step 2 : 9 symmetry relations generated... 0.006568
-#127		Azuritino: Step 2 :        test IBPs reduced over the finite field ... 0.013582
-#127		Azuritino: Step 3 : 7 test IBPs generated... 0.001207
-#127		Azuritino: Step 3 : 12 symmetry relations generated... 0.010278
-#127		Azuritino: Step 3 :        test IBPs reduced over the finite field ... 0.017138
-#127		Azuritino: Step 4 : 10 test IBPs generated... 0.001026
-#127		Azuritino: Step 4 : 15 symmetry relations generated... 0.015236
-#127		Azuritino: Step 4 :        test IBPs reduced over the finite field ... 0.023377
-#127		Azuritino:  Sector {1, 1, 1, 1, 1, 1, 1, 0, 0}:  master integrals found ... 0.000019
+#127		Azuritino: formal max-cut IBPs generated... 0.004870
+#127		Azuritino: Step 0 : 0 test IBPs generated... 0.002510
+#127		Azuritino: Step 0 : 3 symmetry relations generated... 0.002037
+#127		Azuritino: Step 1 : 1 test IBPs generated... 0.001185
+#127		Azuritino: Step 1 : 6 symmetry relations generated... 0.003836
+#127		Azuritino: Step 2 : 4 test IBPs generated... 0.001119
+#127		Azuritino: Step 2 : 9 symmetry relations generated... 0.006399
+#127		Azuritino: Step 2 :        test IBPs reduced over the finite field ... 0.013040
+#127		Azuritino: Step 3 : 7 test IBPs generated... 0.001299
+#127		Azuritino: Step 3 : 12 symmetry relations generated... 0.012903
+#127		Azuritino: Step 3 :        test IBPs reduced over the finite field ... 0.022229
+#127		Azuritino: Step 4 : 10 test IBPs generated... 0.001324
+#127		Azuritino: Step 4 : 15 symmetry relations generated... 0.026913
+#127		Azuritino: Step 4 :        test IBPs reduced over the finite field ... 0.034810
+#127		Azuritino:  Sector {1, 1, 1, 1, 1, 1, 1, 0, 0}:  master integrals found ... 0.000022
 #127	  MIs found. Time Used: 0 second(s). Memory used: 1 MB.
 #127   2 MI(s) : {G[1, 1, 1, 1, 1, 1, 1, -1, 0], G[1, 1, 1, 1, 1, 1, 1, 0, 0]}
 #127	  numerator degree: 5 propagator degree: 0
 #127  Solving module intersections...
 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/dbox/outputs/dbox/tmp/singular_temp/singular_temp_127/intersection.sing
-Singular running time ... 0.093274
+Singular running time ... 0.090531
 Degree bound:5
-#127	  Module intersections solved. Time Used: 1 second(s). Memory used: 13 MB.
+#127	  Module intersections solved. Time Used: 1 second(s). Memory used: 14 MB.
 #127	  VectorList Length: 86
 #127	  VectorList ByteCount: 10800176
 #127  Generating Formal IBPs...
-#127	  86 Formal IBPs generated. Time Used: 2 second(s). Memory used: 20 MB.
+#127	  86 Formal IBPs generated. Time Used: 2 second(s). Memory used: 19 MB.
 #127  Driving DenominatorTypes...
 #127	  DenominatorTypes derived. Time Used: 0 second(s). Memory used: 0 MB.
 #127  Removing FIBPs for lower sectors seeding with DenominatorTypes...
@@ -134,7 +134,7 @@ Degree bound:5
 #127	  Seeding in step 4 finished. Time Used: 0 second(s). Memory used: 1 MB.
 #127  Seeding in step 5...
 #127	  Zurich seeding...
-#127		  Zurich seeding finished. Time Used: 0 second(s). Memory used: 3 MB.
+#127		  Zurich seeding finished. Time Used: 0 second(s). Memory used: 4 MB.
 #127  	Appending self-symmetries at current step...
 #127  		Appending self-symmetries finished. Time Used: 0 second(s). Memory used: 1 MB.
 #127  		Number of self-symmety relations appended: 18 .

@@ -73,7 +73,7 @@ positivity[list_]:=If[Union[#>0&/@list]==Head[list][True],True,False];
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Baikov Representation*)
 
 
@@ -98,7 +98,10 @@ Prepare[]:=Module[{Formula,MatrixA,VectorB,ScalarC,BList,AList,Vectorb,lambda},
 	ScalarVar=Join[Table[x[i,j],{i,1,Length[LoopMomenta]},{j,1,Length[ExternalMomenta]}]//Flatten,Table[y[i,j],{i,1,Length[LoopMomenta]},{j,i,Length[LoopMomenta]}]//Flatten];
 	
 	
-	If[Length[Propagators]<SDim,Return[]];
+	If[Length[Propagators]=!=SDim,
+		
+		Return["Propagators Length and SDim mismatch."]
+	];
 	(* Propagator search *)
 	
 	(*If[Length[Propagators]<SDim,
@@ -134,7 +137,9 @@ Prepare[]:=Module[{Formula,MatrixA,VectorB,ScalarC,BList,AList,Vectorb,lambda},
 	BaikovKernelScalar=Det[BaikovMatrix];
 	MatrixA=Coefficient[Expand[#]/.Kinematics/.ScalarVarRep,ScalarVar]&/@Propagators;
 	Vectorb=(Expand[#]/.zeroLoopMomenta/.Kinematics)&/@Propagators;
-	
+	If[MatrixRank[MatrixA]=!=SDim,
+		Return["Propagators is not a well-defined independent basis."]
+	];
 	(* z' s = MatrixA.ScalarVar + Vectorb, conversion between s_ij (x_ij here) to Baikov z's *)
 	
 	BaikovRevRep=MapThread[#1->#2&,{var,MatrixA.ScalarVar+Vectorb}];
@@ -1960,6 +1965,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 

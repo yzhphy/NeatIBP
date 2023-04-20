@@ -1,5 +1,4 @@
 ==========Urgent===================
-continue: refuse to continue a job terminated at initialization!
 
 
 issue in the dev_log.txt at 2022.0923 [II] needs to be improved.
@@ -10,11 +9,9 @@ and, what if FIBPs -> {} after removing subsec FIBPs? must consider (a1-1)G[a1, 
 
 
 
-EMs in symmetries...
-
 some OS does not use "math" to run mathematica in commandline
 
-if propagators are not linearly dependent and complete, let user know
+
 
 
 ==========Important=================

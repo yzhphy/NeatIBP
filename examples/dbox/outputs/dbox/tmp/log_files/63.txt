@@ -12,60 +12,60 @@ Target integrals: 6
 #63	  Initialized. Time Used: 0 second(s). Memory used: 0 MB.
 #63  Finding z maps of sector self-symmetries...
 ** Warning: no solution found in DeepMomentumMaps between the following propagators:
-{l1^2, (k1 + l1)^2, (k1 + k2 + l1)^2, (-k1 - k2 + l2)^2, (k4 + l2)^2, l2^2}
-{l1^2, (k1 + l1)^2, (k1 + k2 + l1)^2, l2^2, (k4 + l2)^2, (-k1 - k2 + l2)^2}
+{(k1 - StdL[1])^2, StdL[1]^2, (k2 + StdL[1])^2, (k1 + k2 + k4 - StdL[2])^2, StdL[2]^2, (k4 - StdL[2])^2}
+{(k1 - StdL[1])^2, StdL[1]^2, (k2 + StdL[1])^2, (k4 - StdL[2])^2, StdL[2]^2, (k1 + k2 + k4 - StdL[2])^2}
 ** Please check the following momenta groups:
 {k1, k2, k4}
 {k1, k2, k4}
 ** Giving up finding the corresponding symmetries.
 ** Warning: no solution found in DeepMomentumMaps between the following propagators:
-{l1^2, (k1 + l1)^2, (k1 + k2 + l1)^2, (-k1 - k2 + l2)^2, (k4 + l2)^2, l2^2}
-{(k1 + k2 + l1)^2, (k1 + l1)^2, l1^2, (-k1 - k2 + l2)^2, (k4 + l2)^2, l2^2}
+{(k1 - StdL[1])^2, StdL[1]^2, (k2 + StdL[1])^2, (k1 + k2 + k4 - StdL[2])^2, StdL[2]^2, (k4 - StdL[2])^2}
+{(k2 + StdL[1])^2, StdL[1]^2, (k1 - StdL[1])^2, (k1 + k2 + k4 - StdL[2])^2, StdL[2]^2, (k4 - StdL[2])^2}
 ** Please check the following momenta groups:
 {k1, k2, k4}
 {k1, k2, k4}
 ** Giving up finding the corresponding symmetries.
 ** Warning: no solution found in DeepMomentumMaps between the following propagators:
-{l1^2, (k1 + l1)^2, (k1 + k2 + l1)^2, (-k1 - k2 + l2)^2, (k4 + l2)^2, l2^2}
-{l2^2, (k4 + l2)^2, (-k1 - k2 + l2)^2, l1^2, (k1 + l1)^2, (k1 + k2 + l1)^2}
+{(k1 - StdL[1])^2, StdL[1]^2, (k2 + StdL[1])^2, (k1 + k2 + k4 - StdL[2])^2, StdL[2]^2, (k4 - StdL[2])^2}
+{(k4 - StdL[2])^2, StdL[2]^2, (k1 + k2 + k4 - StdL[2])^2, (k1 - StdL[1])^2, StdL[1]^2, (k2 + StdL[1])^2}
 ** Please check the following momenta groups:
 {k1, k2, k4}
 {k1, k2, k4}
 ** Giving up finding the corresponding symmetries.
 ** Warning: no solution found in DeepMomentumMaps between the following propagators:
-{l1^2, (k1 + l1)^2, (k1 + k2 + l1)^2, (-k1 - k2 + l2)^2, (k4 + l2)^2, l2^2}
-{(-k1 - k2 + l2)^2, (k4 + l2)^2, l2^2, (k1 + k2 + l1)^2, (k1 + l1)^2, l1^2}
+{(k1 - StdL[1])^2, StdL[1]^2, (k2 + StdL[1])^2, (k1 + k2 + k4 - StdL[2])^2, StdL[2]^2, (k4 - StdL[2])^2}
+{(k1 + k2 + k4 - StdL[2])^2, StdL[2]^2, (k4 - StdL[2])^2, (k2 + StdL[1])^2, StdL[1]^2, (k1 - StdL[1])^2}
 ** Please check the following momenta groups:
 {k1, k2, k4}
 {k1, k2, k4}
 ** Giving up finding the corresponding symmetries.
-#63	  Z maps of sector self-symmetries found. Time Used: 1 second(s). Memory used: 20 MB.
+#63	  Z maps of sector self-symmetries found. Time Used: 1 second(s). Memory used: 21 MB.
 #63   3 zMap(s) found.
 #63  Finding MIs using Azuritino...
 #63		Lee's MI counting ... 0
 #63		start to find MIs from IBPs with numerator degree  ...1
 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/dbox/outputs/dbox/tmp/singular_temp/singular_temp_63/azuritino_intersection.sing
-Singular running time ... 0.075926
+Singular running time ... 0.039059
 #63		Azuritino: number of syzygy generators: 4
-#63		Azuritino: formal max-cut IBPs generated... 0.005756
-#63		Azuritino: Step 0 : 2 test IBPs generated... 0.003647
-#63		Azuritino: Step 0 : 3 symmetry relations generated... 0.002444
-#63		Azuritino: Step 1 : 6 test IBPs generated... 0.007266
-#63		Azuritino: Step 1 : 9 symmetry relations generated... 0.005599
-#63		Azuritino: Step 1 :        test IBPs reduced over the finite field ... 0.012755
-#63		Azuritino: Step 2 : 14 test IBPs generated... 0.006004
-#63		Azuritino: Step 2 : 18 symmetry relations generated... 0.014834
-#63		Azuritino: Step 2 :        test IBPs reduced over the finite field ... 0.024393
-#63		Azuritino: Step 3 : 26 test IBPs generated... 0.039236
-#63		Azuritino: Step 3 : 30 symmetry relations generated... 0.030100
-#63		Azuritino: Step 3 :        test IBPs reduced over the finite field ... 0.054699
-#63		Azuritino:  Sector {1, 1, 1, 1, 1, 1, 0, 0, 0}:  master integrals found ... 0.000025
+#63		Azuritino: formal max-cut IBPs generated... 0.007260
+#63		Azuritino: Step 0 : 2 test IBPs generated... 0.002763
+#63		Azuritino: Step 0 : 3 symmetry relations generated... 0.001887
+#63		Azuritino: Step 1 : 6 test IBPs generated... 0.005150
+#63		Azuritino: Step 1 : 9 symmetry relations generated... 0.005554
+#63		Azuritino: Step 1 :        test IBPs reduced over the finite field ... 0.014107
+#63		Azuritino: Step 2 : 14 test IBPs generated... 0.011070
+#63		Azuritino: Step 2 : 18 symmetry relations generated... 0.015467
+#63		Azuritino: Step 2 :        test IBPs reduced over the finite field ... 0.026159
+#63		Azuritino: Step 3 : 26 test IBPs generated... 0.009260
+#63		Azuritino: Step 3 : 30 symmetry relations generated... 0.023525
+#63		Azuritino: Step 3 :        test IBPs reduced over the finite field ... 0.032628
+#63		Azuritino:  Sector {1, 1, 1, 1, 1, 1, 0, 0, 0}:  master integrals found ... 0.000018
 #63	  MIs found. Time Used: 0 second(s). Memory used: 1 MB.
 #63   0 MI(s) : {}
 #63	  numerator degree: 5 propagator degree: 0
 #63  Solving module intersections...
 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/dbox/outputs/dbox/tmp/singular_temp/singular_temp_63/intersection.sing
-Singular running time ... 0.026230
+Singular running time ... 0.026043
 Degree bound:5
 #63	  Module intersections solved. Time Used: 0 second(s). Memory used: 1 MB.
 #63	  VectorList Length: 29
@@ -125,9 +125,9 @@ Degree bound:5
 #63  		Appending self-symmetries finished. Time Used: 0 second(s). Memory used: 0 MB.
 #63  		Number of self-symmety relations appended: 30 .
 #63	  Joining results of the steps...
-#63		  Joining finished. Time Used: 0 second(s). Memory used: 0 MB.
+#63		  Joining finished. Time Used: 0 second(s). Memory used: 1 MB.
 #63	  Deriving SectorIntegrals...
-#63		  SectorIntegrals derived. Time Used: 0 second(s). Memory used: 0 MB.
+#63		  SectorIntegrals derived. Time Used: 0 second(s). Memory used: 1 MB.
 #63	  Performing IBPAnalyze...
 #63		  RowReduce in IBPAnalyze started. Matrix dimension: {306, 20}
 #63			  RowReduce in IBPAnalyze finished. Matrix dimension: {306, 20}. Time used: 0 second(s). Memory used: 1 MB.
@@ -198,8 +198,8 @@ Degree bound:5
 #63	  Independent IBPs selected. Time Used: 0 second(s). Memory used: 0 MB.
 #63	  56 IBPs are selected with 56 integrals in current sector.
 #63  Removing the unneeded IBPs...
-#63		  RowReduce in UsedRelations started. Matrix dimension: {56, 384}
-#63			  RowReduce in UsedRelations finished. Matrix dimension: {56, 384}. Time used: 0 second(s). Memory used: 1 MB.
+#63		  RowReduce in UsedRelations started. Matrix dimension: {56, 386}
+#63			  RowReduce in UsedRelations finished. Matrix dimension: {56, 386}. Time used: 0 second(s). Memory used: 1 MB.
 #63  45 IBP relations are removed. 11 left.
 #63	  Uneeded IBPs removed. Time Used: 0 second(s). Memory used: 0 MB.
 #63	  11 IBPs remaining with 11 integrals in current sector.

@@ -17,27 +17,27 @@ Target integrals: 28
 #79		Lee's MI counting ... 0
 #79		start to find MIs from IBPs with numerator degree  ...1
 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/dbox/outputs/dbox/tmp/singular_temp/singular_temp_79/azuritino_intersection.sing
-Singular running time ... 0.052373
+Singular running time ... 0.032389
 #79		Azuritino: number of syzygy generators: 6
-#79		Azuritino: formal max-cut IBPs generated... 0.015480
-#79		Azuritino: Step 0 : 3 test IBPs generated... 0.004891
-#79		Azuritino: Step 0 : 1 symmetry relations generated... 0.000943
-#79		Azuritino: Step 1 : 13 test IBPs generated... 0.009838
-#79		Azuritino: Step 1 : 4 symmetry relations generated... 0.003968
-#79		Azuritino: Step 1 :        test IBPs reduced over the finite field ... 0.026760
-#79		Azuritino: Step 2 : 36 test IBPs generated... 0.035073
-#79		Azuritino: Step 2 : 10 symmetry relations generated... 0.016264
-#79		Azuritino: Step 2 :        test IBPs reduced over the finite field ... 0.041593
-#79		Azuritino: Step 3 : 78 test IBPs generated... 0.066433
-#79		Azuritino: Step 3 : 20 symmetry relations generated... 0.067388
-#79		Azuritino: Step 3 :        test IBPs reduced over the finite field ... 0.084451
-#79		Azuritino:  Sector {1, 1, 1, 1, 0, 0, 1, 0, 0}:  master integrals found ... 0.000024
+#79		Azuritino: formal max-cut IBPs generated... 0.022503
+#79		Azuritino: Step 0 : 3 test IBPs generated... 0.003778
+#79		Azuritino: Step 0 : 1 symmetry relations generated... 0.001160
+#79		Azuritino: Step 1 : 13 test IBPs generated... 0.020074
+#79		Azuritino: Step 1 : 4 symmetry relations generated... 0.003168
+#79		Azuritino: Step 1 :        test IBPs reduced over the finite field ... 0.018676
+#79		Azuritino: Step 2 : 36 test IBPs generated... 0.032258
+#79		Azuritino: Step 2 : 10 symmetry relations generated... 0.026406
+#79		Azuritino: Step 2 :        test IBPs reduced over the finite field ... 0.054912
+#79		Azuritino: Step 3 : 78 test IBPs generated... 0.020144
+#79		Azuritino: Step 3 : 20 symmetry relations generated... 0.095073
+#79		Azuritino: Step 3 :        test IBPs reduced over the finite field ... 0.112204
+#79		Azuritino:  Sector {1, 1, 1, 1, 0, 0, 1, 0, 0}:  master integrals found ... 0.000025
 #79	  MIs found. Time Used: 1 second(s). Memory used: 1 MB.
 #79   0 MI(s) : {}
 #79	  numerator degree: 4 propagator degree: 0
 #79  Solving module intersections...
 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/dbox/outputs/dbox/tmp/singular_temp/singular_temp_79/intersection.sing
-Singular running time ... 0.071714
+Singular running time ... 0.080150
 Degree bound:5
 #79	  Module intersections solved. Time Used: 0 second(s). Memory used: 2 MB.
 #79	  VectorList Length: 38
@@ -72,7 +72,7 @@ Degree bound:5
 #79	  Seeding in step 0 finished. Time Used: 0 second(s). Memory used: 0 MB.
 #79  Seeding in step 2...
 #79	  Zurich seeding...
-#79		  Zurich seeding finished. Time Used: 0 second(s). Memory used: 1 MB.
+#79		  Zurich seeding finished. Time Used: 1 second(s). Memory used: 1 MB.
 #79  	Appending self-symmetries at current step...
 #79  		Appending self-symmetries finished. Time Used: 0 second(s). Memory used: 0 MB.
 #79  		Number of self-symmety relations appended: 10 .
@@ -150,8 +150,8 @@ Degree bound:5
 #79	  Independent IBPs selected. Time Used: 0 second(s). Memory used: 0 MB.
 #79	  70 IBPs are selected with 70 integrals in current sector.
 #79  Removing the unneeded IBPs...
-#79		  RowReduce in UsedRelations started. Matrix dimension: {70, 332}
-#79			  RowReduce in UsedRelations finished. Matrix dimension: {70, 332}. Time used: 0 second(s). Memory used: 1 MB.
+#79		  RowReduce in UsedRelations started. Matrix dimension: {70, 334}
+#79			  RowReduce in UsedRelations finished. Matrix dimension: {70, 334}. Time used: 0 second(s). Memory used: 1 MB.
 #79  42 IBP relations are removed. 28 left.
 #79	  Uneeded IBPs removed. Time Used: 0 second(s). Memory used: 0 MB.
 #79	  28 IBPs remaining with 28 integrals in current sector.

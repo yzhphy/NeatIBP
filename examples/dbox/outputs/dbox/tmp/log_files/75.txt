@@ -17,27 +17,27 @@ Target integrals: 52
 #75		Lee's MI counting ... 0
 #75		start to find MIs from IBPs with numerator degree  ...1
 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/dbox/outputs/dbox/tmp/singular_temp/singular_temp_75/azuritino_intersection.sing
-Singular running time ... 0.022679
+Singular running time ... 0.028054
 #75		Azuritino: number of syzygy generators: 12
-#75		Azuritino: formal max-cut IBPs generated... 0.032216
-#75		Azuritino: Step 0 : 1 test IBPs generated... 0.005465
-#75		Azuritino: Step 0 : 1 symmetry relations generated... 0.000981
-#75		Azuritino: Step 1 : 16 test IBPs generated... 0.008669
-#75		Azuritino: Step 1 : 5 symmetry relations generated... 0.004447
-#75		Azuritino: Step 1 :        test IBPs reduced over the finite field ... 0.014944
-#75		Azuritino: Step 2 : 70 test IBPs generated... 0.045856
-#75		Azuritino: Step 2 : 15 symmetry relations generated... 0.018756
-#75		Azuritino: Step 2 :        test IBPs reduced over the finite field ... 0.033436
-#75		Azuritino: Step 3 : 200 test IBPs generated... 0.015351
-#75		Azuritino: Step 3 : 35 symmetry relations generated... 0.053460
-#75		Azuritino: Step 3 :        test IBPs reduced over the finite field ... 0.075111
-#75		Azuritino:  Sector {1, 1, 0, 1, 0, 0, 1, 0, 0}:  master integrals found ... 0.000017
+#75		Azuritino: formal max-cut IBPs generated... 0.025364
+#75		Azuritino: Step 0 : 1 test IBPs generated... 0.002828
+#75		Azuritino: Step 0 : 1 symmetry relations generated... 0.000883
+#75		Azuritino: Step 1 : 16 test IBPs generated... 0.010279
+#75		Azuritino: Step 1 : 5 symmetry relations generated... 0.005515
+#75		Azuritino: Step 1 :        test IBPs reduced over the finite field ... 0.019729
+#75		Azuritino: Step 2 : 70 test IBPs generated... 0.042052
+#75		Azuritino: Step 2 : 15 symmetry relations generated... 0.018165
+#75		Azuritino: Step 2 :        test IBPs reduced over the finite field ... 0.033066
+#75		Azuritino: Step 3 : 200 test IBPs generated... 0.016555
+#75		Azuritino: Step 3 : 35 symmetry relations generated... 0.072248
+#75		Azuritino: Step 3 :        test IBPs reduced over the finite field ... 0.106195
+#75		Azuritino:  Sector {1, 1, 0, 1, 0, 0, 1, 0, 0}:  master integrals found ... 0.000023
 #75	  MIs found. Time Used: 0 second(s). Memory used: 2 MB.
 #75   0 MI(s) : {}
 #75	  numerator degree: 3 propagator degree: 0
 #75  Solving module intersections...
 /home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/dbox/outputs/dbox/tmp/singular_temp/singular_temp_75/intersection.sing
-Singular running time ... 0.037899
+Singular running time ... 0.039493
 Degree bound:5
 #75	  Module intersections solved. Time Used: 0 second(s). Memory used: 2 MB.
 #75	  VectorList Length: 56
@@ -130,18 +130,18 @@ Degree bound:5
 #75	  Independent IBPs selected. Time Used: 0 second(s). Memory used: 0 MB.
 #75	  56 IBPs are selected with 56 integrals in current sector.
 #75  Removing the unneeded IBPs...
-#75		  RowReduce in UsedRelations started. Matrix dimension: {56, 168}
-#75			  RowReduce in UsedRelations finished. Matrix dimension: {56, 168}. Time used: 0 second(s). Memory used: 1 MB.
-#75  0 IBP relations are removed. 56 left.
+#75		  RowReduce in UsedRelations started. Matrix dimension: {56, 177}
+#75			  RowReduce in UsedRelations finished. Matrix dimension: {56, 177}. Time used: 0 second(s). Memory used: 1 MB.
+#75  2 IBP relations are removed. 54 left.
 #75	  Uneeded IBPs removed. Time Used: 0 second(s). Memory used: 0 MB.
-#75	  56 IBPs remaining with 56 integrals in current sector.
+#75	  54 IBPs remaining with 54 integrals in current sector.
 #75  Realizing raw IBPs...
 #75	  Raw IBP realized. Time Used: 0 second(s). Memory used: 0 MB.
 #75  Performing sector maps...
 #75	  Sector mapping finished. Time Used: 0 second(s). Memory used: 0 MB.
 #75  Removing zero-sector integrals...
 #75	  Zero-sector integrals removed. Time Used: 0 second(s). Memory used: 0 MB.
-#75	  56 IBPs remaining with 56 integrals in current sector.
+#75	  54 IBPs remaining with 54 integrals in current sector.
 #75  Saving results in current sector...
 #75	  Results saved for current sector. Time Used: 0 second(s). Memory used: 0 MB.
 Analyze sector finished in sector 75. Time used:4 second(s). Memory used: 30 MB.
