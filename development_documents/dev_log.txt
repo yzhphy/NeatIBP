@@ -798,5 +798,12 @@ removed a option in default_settings.txt
 SubsectorIntegralPreference = "NumeratorDegree"
 maybe I planned to add corresponding codes but gave up due to its being unnecessary?
 
+-------------------------------
+2023.4.21
+[I]
+modified Azuritino
+
+
+
 
 

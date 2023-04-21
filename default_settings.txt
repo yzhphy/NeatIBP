@@ -31,12 +31,13 @@ CutIndices={};
 (*-----------method settings--------------*)
 MIFromAzuritino=True;
 CriticalPointInAzuritino=True;
-
+AzuritinoDefaultStartDegree=3;
+AzuritinoDefaultMaxDegree=5;
 
 (*-----------usage settings--------------*)
 MemoryUsedLimit=Infinity;(*MB*)
 ThreadUsedLimit=Infinity;
-DeleteSingularTempFiles=True;
+DeleteSingularTempFiles=False;
 
 
 (*--------developer settings-------------*)

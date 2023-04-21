@@ -935,7 +935,7 @@ MappedAndSubSectorsAllFinder[sectorMaps_,sectors_]:=Module[{mappingOfSectors,old
 SelfSymmetryRealization[zMap_,indices_]:=Expand[MappedIntegral[zMap,indices]-(G@@indices)]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Azuritino*)
 
 
@@ -989,12 +989,15 @@ AzuritePoolToSeed[PoolMember_,ISPIndices_]:=Module[{i,result=Table[1,SDim]},
 ]
 
 
-Options[AzuritinoMIFind]={degBound->0,AzuritinoGenericD->GenericD,MaxISPDegree->4,MinISPDegreeForAnalysis->3,Modulus->FiniteFieldModulus,CriticalPointCounting->False,
+
+
+
+Options[AzuritinoMIFind]={degBound->0,AzuritinoGenericD->GenericD,MaxISPDegree->AzuritinoDefaultMaxDegree,MinISPDegreeForAnalysis->AzuritinoDefaultStartDegree,Modulus->FiniteFieldModulus,CriticalPointCounting->False,
 selfSymmetryZMaps->{}
 };
 AzuritinoMIFind[sector_,OptionsPattern[]]:=Module[{P,secNo,Indices,ISPIndices,ISPlen,timer=AbsoluteTime[],tt=AbsoluteTime[],vectorList,FIBPs,FIBPISPdegree,IBPFunctions
 ,Pool,IBPs,i,j,NewIBPs,IntList,M,MI,irreducibleInts,LeeCounting,MaxISPD=OptionValue[MaxISPDegree],sectorCut,
-MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries},
+MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries,LeeExpectedMICandidates},
 		secNo=SectorNumber[sector];
 		Indices=SectorIndex[sector];
 		sectorCut=SectorCut[sector];	
@@ -1019,10 +1022,12 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries},
 				];
 				MinISPD=i+1;
 				MaxISPD=MinISPD+2;
-						
+				LeeExpectedMICandidates=Flatten[SeedMerge[NumeratorShifts[sector,#],{sector}]&/@Range[0,MinISPD],1];
+				LeeExpectedMICandidates=(G@@#)&/@LeeExpectedMICandidates;
 			]
 		];
-		PrintAndLog["#",secNo,"\t\t","start to find MIs from IBPs with numerator starting degree ",MinISPD," and max degree ",MaxISPD];
+		(*If[MaxISPD<MinISPD+2,MaxISPD=MinISPD+2];*)
+		PrintAndLog["#",secNo,"\t\t","start to find MIs from IBPs with numerator starting degree ",MinISPD," to max degree ",MaxISPD];
 		
 		
 		
@@ -1042,6 +1047,7 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries},
 		(* Global`TestFIBPs=FIBPs; *) (* BackDoor *)
 		FIBPISPdegree=FIBPSectorISPDegree[#,sector]&/@(FIBPs);
 		FIBPISPdegree=FIBPISPdegree/.(-\[Infinity]->0);  (* To be improved; YZ *)
+		
 		IBPFunctions=Table[Function@@{FIBPs[[i]]}/. Table[m[ISPIndices[[k]]]->Slot[k],{k,1,SDim-SectorHeight[sector]}],{i,1,Length[FIBPs]}];
 	
 		
@@ -1080,8 +1086,15 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries},
 				PrintAndLog["#",secNo,"\t\t","Azuritino: Step "<>ToString[i]<>" : "<>ToString[Length[newSelfSymmetries]]<>" symmetry relations generated... ",AbsoluteTime[]-tt]
 			];
 			
+			IntList=IntegralList[IBPs];
+			If[OptionValue[CriticalPointCounting],
+				If[!SubsetQ[IntList,LeeExpectedMICandidates]&&i==MinISPD,
+					PrintAndLog["#",secNo,"\t\t","[Azuritino Notice]: Seeding in step "<>ToString[i]<>" dose not cover all MI candidates in estimated by critical point." ," Rearranging seeding range from degree ",MinISPD," to degree ",MaxISPD,"." ];
+					MinISPD+=1;
+					MaxISPD+=1;
+				]				
+			];
 			If[i>=MinISPD,
-				IntList=IntegralList[IBPs];
 				M=SRSparseRowReduce[CoefficientArrays[IBPs,IntList][[2]],Modulus->OptionValue[Modulus]];
 				pivotList=pivots[M];
 				
