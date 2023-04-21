@@ -1010,7 +1010,7 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries,L
 				Return[{G@@sector}]
 			];
 		];
-		
+		LeeExpectedMICandidates="not defined";
 		If[OptionValue[CriticalPointCounting],
 			LeeCounting=LeeCriticalPoints[sector];
 			PrintAndLog["#",secNo,"\t\t","Lee's MI counting ... ",LeeCounting];
@@ -1087,7 +1087,7 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries,L
 			];
 			
 			IntList=IntegralList[IBPs];
-			If[OptionValue[CriticalPointCounting],
+			If[LeeExpectedMICandidates=!="not defined",
 				If[!SubsetQ[IntList,LeeExpectedMICandidates]&&i==MinISPD,
 					PrintAndLog["#",secNo,"\t\t","[Azuritino Notice]: Seeding in step "<>ToString[i]<>" dose not cover all MI candidates in estimated by critical point." ," Rearranging seeding range from degree ",MinISPD," to degree ",MaxISPD,"." ];
 					MinISPD+=1;
