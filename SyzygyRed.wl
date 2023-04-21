@@ -292,7 +292,7 @@ SectorElimination[sector_]:=(G@@Table[If[sector[[i]]>0,PatternTest[Pattern[ToExp
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Integral Ordering*)
 
 
@@ -304,7 +304,7 @@ Switch[IntegralOrder,
 			SectorIndex[Sector[int]]
 		]],
 		{IntegralISPDegree[int]},
-		IntegralISPType[int][[
+		-IntegralISPType[int][[
 			Complement[
 				Range[Length[int/.G->List]],
 				SectorIndex[Sector[int]]
@@ -314,7 +314,7 @@ Switch[IntegralOrder,
 "ISPElimination",
 	IntegralWeight[int_]:=Join[
 		{IntegralISPDegree[int]},
-		IntegralISPType[int][[
+		-IntegralISPType[int][[
 			Complement[
 				Range[Length[int/.G->List]],
 				SectorIndex[Sector[int]]
@@ -328,7 +328,7 @@ Switch[IntegralOrder,
 "Global",
 	IntegralWeight[int_]:=Join[
 		{IntegralAbsDegree[int]},
-		int/.G->List
+		Abs/@(int/.G->List)
 	]
 ]
 
@@ -935,7 +935,7 @@ MappedAndSubSectorsAllFinder[sectorMaps_,sectors_]:=Module[{mappingOfSectors,old
 SelfSymmetryRealization[zMap_,indices_]:=Expand[MappedIntegral[zMap,indices]-(G@@indices)]
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Azuritino*)
 
 
@@ -1106,7 +1106,7 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries},
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Main *)
 
 
@@ -1965,6 +1965,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 
