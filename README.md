@@ -123,7 +123,7 @@ git clone https://github.com/singular-gpispace/spack-packages.git $software_ROOT
 
 Add the NeatIBP package repository to the Spack installation:
 ```bash
-spack repo add $software_ROOT/neatibp-spack
+spack repo add $software_ROOT/singgpispace
 
 ```
 
