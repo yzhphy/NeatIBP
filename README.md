@@ -117,13 +117,13 @@ Once you have installed Spack, our package can be installed with just three line
 
 Clone the NeatIBP package repository into this directory:
 ```bash
-git clone https://github.com/singular-gpispace/spack-packages.git $software_ROOT/neatibp-spack
+git clone https://github.com/singular-gpispace/spack-packages.git $software_ROOT/spack-packages
 
 ```
 
 Add the NeatIBP package repository to the Spack installation:
 ```bash
-spack repo add $software_ROOT/singgpispace
+spack repo add $software_ROOT/spack-packages
 
 ```
 
