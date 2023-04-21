@@ -151,9 +151,7 @@ One can just run the script to do the substitution and delete the script by:
 
 ```bash
 
-sh ~/spack_sub_script.sh
-
-rm -rf ~/spack_sub_script.sh
+sh $install_ROOT/spack_sub_script.sh
 
 ```
 Or manually do as the following:
