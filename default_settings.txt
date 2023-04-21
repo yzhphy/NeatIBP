@@ -50,4 +50,4 @@ UseNicePropagatorsInMomentumMap=True;(*must turn off this if one or more propaga
 ReportNoticeInDeepMomentumMap=False;
 
 (*-------other default settings----------*)
-GenericD={d-> 3/137}
+GenericD={d-> 3/137};
