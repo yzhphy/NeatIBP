@@ -828,3 +828,7 @@ Added FindIBPs, many codes. to find more IBPs with seeds with denominator power 
 [IV]
 new version : 1.0.2.0
 
+[V]
+some new reports in sub section Row Reduce Modules in SyzygyRed.wl
+
+

@@ -416,7 +416,7 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 ];*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Singular Interface*)
 
 
@@ -702,7 +702,7 @@ IBPCutGenerator[vector_,RestrictedPropIndex_,cutIndex_]:=Module[{i,b,ref,refloca
 ]*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*IBP sector Tools*)
 
 
@@ -1341,10 +1341,10 @@ ReduceTowards[rIBPs_,targets_,irredIntegrals_]:=Module[{result,rowInts,i,rowTarg
 
 
 Options[FindIBPs]={Verbosity->1,DenominatorLift->1,AdditionalDegree->4,SelfSymmetryZMaps->{}};
-FindIBPs[sector_,targets0_,MIs_,basicnIBPs_,FIBPs_,DenominatorTypes0_,OptionsPattern[]]:=Module[
+FindIBPs[sector_,targets0_,MIs_,basicnIBPs_,basicSectorIntegrals_,FIBPs_,DenominatorTypes0_,OptionsPattern[]]:=Module[
 {timer,memoryUsed,nFIBPFunctions,nFIBPs,secNo,IBPISPdegrees,sectorCut,targets,numeratorMaxDeg,DenominatorTypes1,DenominatorTypes,NewDenominatorTypes,nIBPs,rawIBPs,
 denLift,numDeg,denShifts,i,denShift,NewrawIBPs,NewnIBPs,seeds,newSymmetryRelations,zMaps,SectorIntegrals,result,breakQ,redIndex,irredIndex,rIBPs,irredIntegrals,
-WellAddressedIntegrals,targetsReduced,allSkipQ,timer2,memoryUsed2,IBPDenominatorDegreeList,IBPNumeratorDegreeList,leafCounts,byteCounts,IBPIndex,newMIs,liftedDenominatorTypes,NewDenominatorTypesList,j
+WellAddressedIntegrals,targetsReduced,allSkipQ,timer2,memoryUsed2,IBPDenominatorDegreeList,IBPNumeratorDegreeList,leafCounts,byteCounts,IBPIndex,newMIs,liftedDenominatorTypes,NewDenominatorTypesList,j,NewSectorIntegrals
 },
 	
 	targets=Complement[targets0,MIs];
@@ -1386,7 +1386,8 @@ FullForm]\);(*?*)
 	numeratorMaxDeg=(Max@@(IntegralISPDegree/@targets))+OptionValue[AdditionalDegree];
 	PrintAndLog["#",secNo,"[FindIBPs]:  ","numeratorMaxDeg=",numeratorMaxDeg];
 	DenominatorTypes=DenominatorTypes0;
-	nIBPs=basicnIBPs;
+	nIBPs=basicnIBPs/.sectorCut;   (*in FindIBPs, all nIBPs should be on-cut. I think this might be good to also be applied to the main function... let`s see in the future*)
+	SectorIntegrals=basicSectorIntegrals;
 	rawIBPs=BasicRawIBPs/@Range[Length[nIBPs]];
 	breakQ=False;
 	allSkipQ=True;
@@ -1406,7 +1407,7 @@ FullForm]\);(*?*)
 		For[numDeg=0,numDeg<=numeratorMaxDeg,numDeg++,
 			For[i=1,i<=Length[NewDenominatorTypesList],i++,
 				NewDenominatorTypes=NewDenominatorTypesList[[i]];
-				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t  ","Starting a new step:  ","denLift=",denLift,", ","numDeg=",numDeg,", ","denShift=",denShifts[[i]]];];
+				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:","Starting a new step:  ","denLift=",denLift,", ","numDeg=",numDeg,", ","denShift=",denShifts[[i]]];];
 				
 				If[NewDenominatorTypes==={},
 					PrintAndLog["#",secNo,"","[FindIBPs]:\tNo new DenominatorTypes in this step. Skipping the rest operations in this step."];
@@ -1421,13 +1422,14 @@ FullForm]\);(*?*)
 				,
 					{NewrawIBPs,NewnIBPs}=ZurichSeeding[sector,nFIBPs,IBPISPdegrees,numDeg,NewDenominatorTypes];
 				];
+				
 				(*end of MaxMemoryUsed*)];
 				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t\t  ","Zurich seeding finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 				If[Not[NeedSymmetry===False],
 					zMaps=OptionValue[SelfSymmetryZMaps];
 					timer=AbsoluteTime[];
 					memoryUsed=MaxMemoryUsed[
-					If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t","Appending self-symmetries at current step..."];];
+					If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t","    Appending self-symmetries at current step..."];];
 					seeds=Flatten[SeedMerge[NumeratorShifts[sector,#],NewDenominatorTypes]&/@{numDeg},1];
 					NewrawIBPs=Join[
 						NewrawIBPs,
@@ -1446,12 +1448,14 @@ FullForm]\);(*?*)
 					PrintAndLog["#",secNo,"","[FindIBPs]:\tNo new IBPs found in this step. Skipping the rest operations in this step."];
 					Continue[];
 				];
+				NewnIBPs=NewnIBPs/.sectorCut;
 				nIBPs=Join[nIBPs,NewnIBPs];
 				rawIBPs=Join[rawIBPs,NewrawIBPs];
 				timer=AbsoluteTime[];
 				memoryUsed=MaxMemoryUsed[
 				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t  ","Deriving SectorIntegrals..."];];
-				SectorIntegrals=Select[IntegralList[nIBPs,SortTheIntegrals->False],Sector[#]==sector&];
+				NewSectorIntegrals=Select[IntegralList[NewnIBPs,SortTheIntegrals->False],Sector[#]==sector&];
+				SectorIntegrals=Join[SectorIntegrals,Complement[NewSectorIntegrals,SectorIntegrals]]//DeleteDuplicates
 				
 				(*end of MaxMemoryUsed*)];
 				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t\t  ","SectorIntegrals derived. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
@@ -1460,7 +1464,14 @@ FullForm]\);(*?*)
 					Continue[];
 				];
 				allSkipQ=False;
+				
+				timer=AbsoluteTime[];
+				memoryUsed=MaxMemoryUsed[
+				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t  ","Sorting SectorIntegrals..."];];
 				SectorIntegrals=SortBy[SectorIntegrals,IntegralOrdering]//Reverse;
+				(*end of MaxMemoryUsed*)];
+				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t\t  ","SectorIntegrals sorted. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+				
 				timer=AbsoluteTime[];
 				memoryUsed=MaxMemoryUsed[
 				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t  ","Performing IBPAnalyze..."];];
@@ -1488,6 +1499,8 @@ FullForm]\);(*?*)
 	result={rawIBPs,nIBPs,targetsReduced,newMIs};
 	result
 ]
+
+
 
 
 
@@ -2047,10 +2060,15 @@ FullForm]\);(*?*)
 					redundantMIs=ReduceTowards[rIBPs,LocalTargets,irredIntegrals];
 					If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ",Length[redundantMIs]," redundant MI(s) : ",redundantMIs];];
 					redundantMIsToBeReduced=Complement[redundantMIs,MIs];
+					timer=AbsoluteTime[];
+					memoryUsed=MaxMemoryUsed[
 					FindIBPResult=FindIBPs[
-						sector,redundantMIsToBeReduced,MIs,nIBPs,FIBPs0,DenominatorTypes,
+						sector,redundantMIsToBeReduced,MIs,nIBPs,SectorIntegrals,FIBPs0,DenominatorTypes,
 						DenominatorLift->AllowedDenominatorPowerLift,AdditionalDegree->OptionValue[AdditionalDegree],SelfSymmetryZMaps->zMaps
 					];
+					(*end of MaxMemoryUsed*)];
+					If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","FindIBPs finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+				
 					If[FindIBPResult===$Failed,
 						PrintAndLog["#",secNo,"\t","*** Failed to find more IBPs by seeds with denominator powers lifted."];
 						{NewnIBPs,NewrawIBPs,redundantMIsReduced,newMIs}={{},{},{},redundantMIs}
@@ -2301,7 +2319,9 @@ FullForm]\);(*?*)
 
 
 
-(* ::Subsection::Closed:: *)
+
+
+(* ::Subsection:: *)
 (*Row Reduce Modules*)
 
 
@@ -2311,7 +2331,15 @@ FullForm]\);(*?*)
 
 Options[IBPAnalyze]:={Modulus->FiniteFieldModulus};
 IBPAnalyze[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,RM,redIndex,irredIndex,timer,memoryUsed},
+	
+	timer=AbsoluteTime[];
+	memoryUsed=MaxMemoryUsed[
+	(*ProbeIntermediateResult["M_IBPAnalyze",secNum,M];*)
+	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t  Deriving coefficient matrix in IBPAnalyze. "]];
 	M=CoefficientArrays[IBPs,Ints][[2]];
+	(*end of MaxMemoryUsed*)];
+	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t\t  Deriving coefficient matrix in IBPAnalyze finished. "," Time used: ",Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+	
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	(*ProbeIntermediateResult["M_IBPAnalyze",secNum,M];*)
@@ -2319,6 +2347,7 @@ IBPAnalyze[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,RM,redIndex,irredIndex,timer
 	RM=RowReduceFunction[M,Modulus->OptionValue[Modulus]];
 	(*end of MaxMemoryUsed*)];
 	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t\t  RowReduce in IBPAnalyze finished. Matrix dimension: ",Dimensions[M],". Time used: ",Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+	
 (*	timer=AbsoluteTime[];
 	RM=FFRowReduce[M];
 	If[TimingReportOfRowReduce===True,PrintAndLog["\t\t\tFFRowReduce in IBPAnalyze finished. Matrix dimension: ",Dimensions[M],". Time used: ",AbsoluteTime[]-timer," s."]];*)
@@ -2338,7 +2367,16 @@ IBPAnalyze[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,RM,redIndex,irredIndex,timer
 
 Options[IndepedentSet]:={Modulus->FiniteFieldModulus};
 IndepedentSet[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,RM,redIndex,indepIndex,timer,memoryUsed},
+	
+	
+	timer=AbsoluteTime[];
+	memoryUsed=MaxMemoryUsed[
+	(*ProbeIntermediateResult["M_IBPAnalyze",secNum,M];*)
+	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t  Deriving coefficient matrix in IndepedentSet. "]];
 	M=CoefficientArrays[IBPs,Ints][[2]];
+	(*end of MaxMemoryUsed*)];
+	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t\t  Deriving coefficient matrix in IndepedentSet finished. "," Time used: ",Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+	
 	
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
@@ -2380,8 +2418,17 @@ SparseIdentityMatrix[n_]:=SparseArray[Table[{k,k}->1,{k,n}]]
 
 Options[UsedRelations]:={Modulus->FiniteFieldModulus};
 UsedRelations[IBPs_,ReducedIntegrals_,MIs_,OptionsPattern[]]:=Module[{Ints,M,Mext,ReducedIntegralColumns,RM,i,j,columnIndex,rowIndex,MatrixL,tempList,result,timer,memoryUsed},
+	
+	
+	timer=AbsoluteTime[];
+	memoryUsed=MaxMemoryUsed[
+	(*ProbeIntermediateResult["M_IBPAnalyze",secNum,M];*)
+	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t  Deriving coefficient matrix and integral list in UsedRelations. "]];
 	Ints=IntegralList[IBPs];
 	M=CoefficientArrays[IBPs,Ints][[2]];
+	(*end of MaxMemoryUsed*)];
+	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t\t  Deriving coefficient matrix and integral list in UsedRelations finished. ","Time used: ",Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+	
 	
 	ReducedIntegralColumns=Flatten[Position[Ints,#]&/@ReducedIntegrals];
 	tempList=Table[Null,{i,1,Length[ReducedIntegralColumns]}];

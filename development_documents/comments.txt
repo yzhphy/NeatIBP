@@ -1,5 +1,5 @@
 ==========Urgent===================
-
+I cannot  continue.sh after an mistaken attempt of ./run.sh? Nonesense.. (initialized.txt removed in the attempt)
 
 issue in the dev_log.txt at 2022.0923 [II] needs to be improved.
 
