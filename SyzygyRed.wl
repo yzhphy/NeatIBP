@@ -1241,7 +1241,7 @@ DenominatorLiftingShifts[sector_,liftDegree_]:=Module[{cs,c,constrain1,constrain
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*ZurichSeeding*)
 
 
@@ -1344,7 +1344,7 @@ Options[FindIBPs]={Verbosity->1,DenominatorLift->1,AdditionalDegree->4,SelfSymme
 FindIBPs[sector_,targets0_,MIs_,basicnIBPs_,basicSectorIntegrals_,FIBPs_,DenominatorTypes0_,OptionsPattern[]]:=Module[
 {timer,memoryUsed,nFIBPFunctions,nFIBPs,secNo,IBPISPdegrees,sectorCut,targets,numeratorMaxDeg,DenominatorTypes1,DenominatorTypes,NewDenominatorTypes,nIBPs,rawIBPs,
 denLift,numDeg,denShifts,i,denShift,NewrawIBPs,NewnIBPs,seeds,newSymmetryRelations,zMaps,SectorIntegrals,result,breakQ,redIndex,irredIndex,rIBPs,irredIntegrals,
-WellAddressedIntegrals,targetsReduced,allSkipQ,timer2,memoryUsed2,IBPDenominatorDegreeList,IBPNumeratorDegreeList,leafCounts,byteCounts,IBPIndex,newMIs,liftedDenominatorTypes,NewDenominatorTypesList,j,NewSectorIntegrals
+WellAddressedIntegrals,targetsReduced,allSkipQ,timer2,memoryUsed2,IBPDenominatorDegreeList,IBPNumeratorDegreeList,leafCounts,byteCounts,IBPIndex,newMIs,liftedDenominatorTypes,NewDenominatorTypesList,j,NewSectorIntegrals,nIBPsUnCut,NewnIBPsUnCut
 },
 	
 	targets=Complement[targets0,MIs];
@@ -1387,6 +1387,7 @@ FullForm]\);(*?*)
 	PrintAndLog["#",secNo,"[FindIBPs]:  ","numeratorMaxDeg=",numeratorMaxDeg];
 	DenominatorTypes=DenominatorTypes0;
 	nIBPs=basicnIBPs/.sectorCut;   (*in FindIBPs, all nIBPs should be on-cut. I think this might be good to also be applied to the main function... let`s see in the future*)
+	nIBPsUnCut=basicnIBPs;
 	SectorIntegrals=basicSectorIntegrals;
 	rawIBPs=BasicRawIBPs/@Range[Length[nIBPs]];
 	breakQ=False;
@@ -1448,9 +1449,11 @@ FullForm]\);(*?*)
 					PrintAndLog["#",secNo,"","[FindIBPs]:\tNo new IBPs found in this step. Skipping the rest operations in this step."];
 					Continue[];
 				];
+				NewnIBPsUnCut=NewnIBPs;
 				NewnIBPs=NewnIBPs/.sectorCut;
 				nIBPs=Join[nIBPs,NewnIBPs];
 				rawIBPs=Join[rawIBPs,NewrawIBPs];
+				nIBPsUnCut=Join[nIBPsUnCut,NewnIBPsUnCut];
 				timer=AbsoluteTime[];
 				memoryUsed=MaxMemoryUsed[
 				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t  ","Deriving SectorIntegrals..."];];
@@ -1495,8 +1498,9 @@ FullForm]\);(*?*)
 	IBPIndex=Select[Range[Length[rawIBPs]],FreeQ[rawIBPs[[#]],BasicRawIBPs]&];
 	rawIBPs=rawIBPs[[IBPIndex]];
 	nIBPs=nIBPs[[IBPIndex]];
+	nIBPsUnCut=nIBPsUnCut[[IBPIndex]];
 	rawIBPs=rawIBPs/.FI->FI0/.ZM->ZM0;(*ZM0 is same as ZM, just for labelling. FI0 is different from FI*)
-	result={rawIBPs,nIBPs,targetsReduced,newMIs};
+	result={rawIBPs,nIBPsUnCut,targetsReduced,newMIs};
 	result
 ]
 
@@ -2087,6 +2091,8 @@ FullForm]\);(*?*)
 					
 					nIBPs=Join[nIBPs,NewnIBPs];
 					rawIBPs=Join[rawIBPs,NewrawIBPs];
+					
+					(*it would be good to set up a check step, IBPAnalyze, here.*)
 				,
 					If[StrictMI,
 						PrintAndLog["#",secNo,"\t","*** Targets are still not reduced to MIs in the maximum step ",step,". Failed.\n****** Sector ",secNo," Failed. ******"];
