@@ -57,6 +57,12 @@ Date: 2023.4.19
 	1. Upgraded symmetry algorithm. 
 	2. Provided Spack scripts.
 
+[NeatIBP 1.0.2.0]
+Date: 2023.5.4
+	1. Further upgraded symmetry algorithm. 
+	2. Provided solution for the case when redundant master intergals occur if Singular degBound is not enough, by allowing minimized denominator lifts.
+	3. Some useful updates.
+
 
 
 

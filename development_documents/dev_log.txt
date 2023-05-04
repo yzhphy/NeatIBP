@@ -794,7 +794,7 @@ Imported DeeperMomentumMap from YZ
 if propagators are not linearly dependent and complete, let user know and wont compute
 
 [III]
-removed a option in default_settings.txt
+removed a option in default_settings.txt:
 SubsectorIntegralPreference = "NumeratorDegree"
 maybe I planned to add corresponding codes but gave up due to its being unnecessary?
 
@@ -803,7 +803,28 @@ maybe I planned to add corresponding codes but gave up due to its being unnecess
 [I]
 modified Azuritino
 
+--------------------------------
+2023.4.23
+[I]
+many modifications to solve not-reduced problem, including adding new function ReduceTowards in SyzygyRed.wl
+
+---------------------
+2023.5.1
+[I]
+fixed a bug in ReduceTowards in SyzygyRed.wl, the previous version did not consider if targets are reduced or irreduced, would produce 200+ fake MIs. Now it won`t.
+
+---------------------
+2023.5.4
+[I]
+modified DenominatorTypeCompleting in SyzygyRed.wl, adding strategy "CompleteForEach" and set it to default.
+
+[II]
+Added report in Summary.wl to notice MI number difference with Azuritino
 
 
+[III]
+Added FindIBPs, many codes. to find more IBPs with seeds with denominator power indices lifted if curren MI number is larger than Azuritino.
 
+[IV]
+new version : 1.0.2.0
 

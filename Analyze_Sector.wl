@@ -1,6 +1,10 @@
 (* ::Package:: *)
 
-moduleIntersectionMethod="Singular"
+(*moduleIntersectionMethod="Linear"
+If[moduleIntersectionMethod==="Linear",
+	InputString["===========Warning===================\n moduleIntersectionMethod is Linear! input anything to continue."];
+	Get["/home/zihao/projects/SyzygyRed/LinearSyz_release/LinearSyz.wl"]
+]*)
 
 
 commandLineMode=True
@@ -155,6 +159,9 @@ If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectory]
 
 
 
+If[MemberQ[{"Linear","Singular+Linear"},moduleIntersectionMethod],
+	Get[packagePath<>"LinearSyz/LinearSyz.wl"]
+]
 Get[packagePath<>"Pak_Algorithm/Pak_Algorithm.wl"]
 Get[packagePath<>"SyzygyRed.wl"]
 If[sectorID=!=-1,

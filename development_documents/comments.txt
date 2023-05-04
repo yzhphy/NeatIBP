@@ -91,6 +91,8 @@ add diagram name into monitor
 We have not proved that the projection way to find ext momenta symmetry always guarantee that the w transform always have solution...
 
 =============Not Important=================
+Function name typo: IndepedentSet
+
 messages in DeepMomentumMap are ugly in terminal if ParallelTable is used
 
 why do we need to set TemporaryDirectory everywhere?

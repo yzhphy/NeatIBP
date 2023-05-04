@@ -116,6 +116,12 @@ If[!SubsetQ[{"ComputationFinished"},Union[missionStatus[[All,2]]]],
 
 
 
+If[MIFromAzuritino===True,azuritinoMIFolder=outputPath<>"tmp/azuritino_MIs/"]
+
+
+
+
+
 fileNamesMI=FileNames[All,outputPath<>"results/MI/"];
 sectorIDsMI=ToExpression[StringReplace[FileNameSplit[#][[-1]],{".txt"->""}]]&/@fileNamesMI;
 MIs=Get/@fileNamesMI
@@ -123,6 +129,20 @@ ordering=SortBy[Range[Length[sectorIDsMI]],{-Total[SectorNumberToSectorIndex[sec
 (*Print[{Total[SectorNumberToSectorIndex[sectorIDsMI[[#]]]],sectorIDsMI[[#]]}&/@Range[Length[sectorIDsMI]]]*)
 sectorIDsMI=sectorIDsMI[[ordering]]
 MIs=MIs[[ordering]]
+
+
+sectorMaps=Get[outputPath<>"tmp/sectorMaps.txt"]
+mappedSectors=sectorMaps[[All,1]]
+If[MIFromAzuritino===True,
+	AzuritinoMIs=If[MemberQ[mappedSectors,SectorNumberToSectorIndex[#]],
+		{}
+	,
+		Get[azuritinoMIFolder<>ToString[#]<>".txt"]
+	]&/@sectorIDsMI
+	
+];
+
+
 
 fileNamesIBP=FileNames[All,outputPath<>"results/IBP/"];
 sectorIDsIBP=ToExpression[StringReplace[FileNameSplit[#][[-1]],{".txt"->""}]]&/@fileNamesIBP;
@@ -150,7 +170,19 @@ Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 PrintAndLog["=================Summary==================="]
 
 
-PrintAndLog["Total MI number: ",Length[Flatten[MIs]]]
+MIDifferenceReportString=""
+If[MIFromAzuritino===True,
+	MIDifference=Length[Flatten[MIs]]-Length[Flatten[AzuritinoMIs]];
+	MIDifferenceReportString=Switch[Sign[MIDifference],
+	1,
+		" (+"<>ToString[MIDifference]<>" MI(s) than azuritino)",
+	0,
+		"",
+	-1,
+		" (-"<>ToString[-MIDifference]<>" MI(s) than azuritino)"
+	]
+]
+PrintAndLog["Total MI number: ",Length[Flatten[MIs]],MIDifferenceReportString]
 PrintAndLog["Total IBP number: ",Length[Flatten[IBPs]]]
 PrintAndLog["Total integral number: ",Length[Flatten[integralList]]]
 PrintAndLog["---------------MIs-------------------------"]
@@ -159,7 +191,20 @@ PrintAndLog["---------------MI numbers------------------"]
 For[i=1,i<=Length[fileNamesMI],i++,
 	sector=SectorNumberToSectorIndex[sectorIDsMI[[i]]];
 	MI=MIs[[i]];
-	If[Length[MI]>0,PrintAndLog["sector ",sector," :\t",Length[MI]," MI(s)"]]
+	AzuritinoMI=AzuritinoMIs[[i]];
+	MIDifferenceReportString="";
+	If[MIFromAzuritino===True,
+		MIDifference=Length[MI]-Length[AzuritinoMI];
+		MIDifferenceReportString=Switch[Sign[MIDifference],
+		1,
+			" (+"<>ToString[MIDifference]<>" MI(s) than azuritino)",
+		0,
+			"",
+		-1,
+			" (-"<>ToString[-MIDifference]<>" MI(s) than azuritino)"
+		]
+	];
+	If[Length[MI]>0,PrintAndLog["sector ",sector," :\t",Length[MI]," MI(s)",MIDifferenceReportString]]
 ]
 
 PrintAndLog["---------------IBP numbers------------------"]

@@ -131,7 +131,11 @@ KinematicConstrains[internal_,external_,props_,kinematics_,head_]:=Module[{T,c,r
 (*MomentumMap*)
 
 
-Options[MomentumMap]={FreeEMs->False,FullEMsConstrain->False};
+(* ::Subsection:: *)
+(*MomentumMap*)
+
+
+Options[MomentumMap]={FreeEMs->False,FullEMsConstrain->True};
 MomentumMap[internal_,external_,prop1_,prop2_,kinematics_,OptionsPattern[]]:=Module[{allvectors,a,b,c,A,B,T,rep1,rep2,rep,prop1trans,prop2expand,eqns,formula,clist,GB,sol,i,
 result={},DM,leadingCoef,kvars,kEqns,kinematicVar,Exteqns,ExtGB,instance,additionalConditions},
 	allvectors=Join[internal,external];
@@ -255,7 +259,7 @@ result={},DM,leadingCoef,kvars,kEqns,kinematicVar,Exteqns,ExtGB,instance,additio
 (*DeepMomentumMap*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*reliaments*)
 
 
@@ -275,11 +279,41 @@ IntegralMomentaGroup[Internal_, External_, Propagators_]:=Module[{result,yList,y
 ]
 
 
-ExtendedRotationByOrthogonalization[external_,vectors_,vectorsImage_,kinematics_]:=Module[{d,n,vectorsC,vectorsImageC,basis1,basis2,MatrixB1,MatrixB2,MatrixS},
+
+
+
+Options[ExtendedRotationByOrthogonalization]={BackupMethod->"None",ReportNotice->ReportNoticeInDeepMomentumMap};
+ExtendedRotationByOrthogonalization[external_,vectors_,vectorsImage_,kinematics_,OptionsPattern[]]:=Module[
+{d,n,vectorsC,vectorsImageC,basis1,basis2,MatrixB1,MatrixB2,MatrixS,gramdet1,gramdet2,GlobalMatrixT,GlobalETrans},
 	d=Length[external];
 	n=Length[vectors];
 	If[vectors===vectorsImage,Return[IdentityMatrix[d]]];
 	If[vectors===-vectorsImage,Return[-IdentityMatrix[d]]];
+	
+	gramdet1=Det[Expand[KroneckerProduct[vectors,vectors]]/.kinematics]//Factor;
+	gramdet2=Det[Expand[KroneckerProduct[vectorsImage,vectors]]/.kinematics]//Factor;
+	
+	If[Or[gramdet1===0,gramdet2===0],
+		Switch[OptionValue[BackupMethod],
+		"None",
+			PrintAndLog[
+				"** Warning: failed to find a extended rotation by orthogonalization between vectors:","\n",
+				vectors//InputForm//ToString,"\n",vectorsImage//InputForm//ToString,"\n",
+				"** Vanishing local Gram determinat. Giving up finding the corresponding symmetries."
+			];
+			Return[{}],
+		"DeltaPlainProjection",
+			If[OptionValue[ReportNotice],
+				PrintAndLog[
+					"\t\t\t[Notice]: vanishing local Gram determinat in extending rotation by orthogonalization between vectors:","\n",
+					"\t\t\t",vectors//InputForm//ToString,"\n","\t\t\t",vectorsImage//InputForm//ToString,"\n",
+					"\t\t\t\t Using backup method DeltaPlainProjection."
+				]
+			];
+			Return[ExtendedRotationByDeltaPlainProjection[external,vectors,vectorsImage,kinematics]]
+		]
+	];
+	
 	vectorsC=LinearComplement[external,vectors];
 	vectorsImageC=LinearComplement[external,vectorsImage];
 	basis1=OrthogonalComplement[external,vectors,vectorsC,kinematics];
@@ -289,18 +323,20 @@ ExtendedRotationByOrthogonalization[external_,vectors_,vectorsImage_,kinematics_
 	MatrixB2=CoefficientArrays[basis2,external][[2]];
 	MatrixS=IdentityMatrix[d];
 	Do[MatrixS[[i,i]]=Sqrt[Expand[basis1[[i]]^2]/Expand[basis2[[i]]^2]/.kinematics//Together],{i,n+1,d}];
-	Return[Inverse[MatrixB1] . MatrixS . MatrixB2//Together];
-	
+	(*Return[Inverse[MatrixB1] . MatrixS . MatrixB2//Together];*)
+	GlobalMatrixT=Inverse[MatrixB1] . MatrixS . MatrixB2//Together;
+	GlobalETrans=MapThread[#1->#2&,{external,GlobalMatrixT . external}];
+	Collect[GlobalETrans,external,Factor]
 ];
 LinearComplement[external_,vectors_]:=Module[{M},
-	If[vectors=={},Return[external]];
+	If[vectors=={},Return[external]];  
 	M=RowReduce[CoefficientArrays[vectors,external][[2]]];
 	Return[external[[Complement[Range[Length[external]],pivots[M]]]]];
 
 ];
 LinearProjection[external_,vectors_,targetvector_,kinematics_]:=Module[{M,LocalGram},
-	LocalGram=Expand[KroneckerProduct[vectors,vectors]]/.kinematics;
-	Return[(Expand[targetvector vectors]/.kinematics) . Inverse[LocalGram] . vectors];
+	LocalGram=Expand[KroneckerProduct[vectors,vectors]]/.kinematics;  
+	Return[(Expand[targetvector vectors]/.kinematics) . Inverse[LocalGram] . vectors]; 
 ];
 Options[OrthogonalComplement]={Normalization->False};
 OrthogonalComplement[external_,vectors_,vectorsComplement_,kinematics_,OptionsPattern[]]:=Module[{i,n,d,result,newVector},
@@ -318,6 +354,75 @@ OrthogonalComplement[external_,vectors_,vectorsComplement_,kinematics_,OptionsPa
 
 
 
+Options[ExtendedRotationByDeltaPlainProjection]={BackupMethod->"None",ReportNotice->ReportNoticeInDeepMomentumMap};
+ExtendedRotationByDeltaPlainProjection[external_,vectors_,vectorsImage_,kinematics_,OptionsPattern[]]:=Module[
+{vectorsDiff,vectorsDiffMatrix,indepIndices,ws,subGram,invSubGram,selectedVectors,projectionMatrixAPrime,transformMatrixB,
+projectionMatrixA,rep,ind,p,pProjectionCoordinates,pImage
+},
+	vectorsDiff=vectorsImage-vectors;
+	vectorsDiffMatrix=CoefficientArrays[vectorsDiff,external][[2]];
+	indepIndices=pivots[vectorsDiffMatrix//Transpose//RowReduce];
+	ws=vectorsDiff[[indepIndices]];
+	selectedVectors=vectors[[indepIndices]];
+	subGram=Factor[Expand[Table[ws[[i]]ws[[j]],{i,Length[ws]},{j,Length[ws]}]]/.kinematics];
+	If[Factor[Det[subGram]]===0,
+		Switch[OptionValue[BackupMethod],
+		"None",
+			PrintAndLog[
+				"** Warning: failed to find a extended rotation by delta plain projection between vectors:","\n",
+				vectors//InputForm//ToString,"\n",vectorsImage//InputForm//ToString,"\n",
+				"** Vanishing local Gram determinat. Giving up finding the corresponding symmetries."
+			];
+			Return[{}],
+		"Orthogonalization",
+			If[OptionValue[ReportNotice],
+				PrintAndLog[
+					"\t\t\t[Notice]: vanishing local Gram determinat in extending rotation by delta plain projection between vectors:","\n",
+					"\t\t\t",vectors//InputForm//ToString,"\n","\t\t\t",vectorsImage//InputForm//ToString,"\n",
+					"\t\t\t\tUsing backup method Orthogonalization."
+				]
+			];
+			Return[ExtendedRotationByOrthogonalization[external,vectors,vectorsImage,kinematics]]
+		]
+	];
+	
+	invSubGram=Factor[Inverse[subGram]];
+	projectionMatrixA=Table[Expand[selectedVectors[[i]]ws[[j]]]/.kinematics,{i,Length[ws]},{j,Length[ws]}].invSubGram;
+	projectionMatrixAPrime=projectionMatrixA+IdentityMatrix[Length[ws]];
+	transformMatrixB=Factor[projectionMatrixAPrime.Inverse[projectionMatrixA]];
+	rep=Table[0,Length[external]];
+	For[ind=1,ind<=Length[external],ind++,
+		p=external[[ind]];
+		pProjectionCoordinates=Table[Expand[p ws[[i]]]/.kinematics,{i,Length[ws]}].invSubGram;
+		pImage=p-pProjectionCoordinates.ws+pProjectionCoordinates.transformMatrixB.ws;
+		rep[[ind]]=p->Collect[pImage,external,Factor]
+	];
+	If[Union[Expand[vectors/.rep]-vectorsImage]=!={0},
+		Switch[OptionValue[BackupMethod],
+		"None",
+			PrintAndLog[
+				"** Warning: failed to find a extended rotation by delta plain projection.","\n",
+				"** Inconsistent delta plain transformation ", rep," between vectors:\n",
+				vectors//InputForm//ToString,"\n",vectorsImage//InputForm//ToString,
+				"Giving up finding the corresponding symmetries."
+			];
+			Return[{}],
+		"Orthogonalization",
+			If[OptionValue[ReportNotice],
+				PrintAndLog[
+					"\t\t\t[Notice]: Inconsistent delta plain transformation ", rep," resulted when finding extended rotation by delta plain projection between vectors:\n",
+					"\t\t\t",vectors//InputForm//ToString,"\n","\t\t\t",vectorsImage//InputForm//ToString,"\n",
+					"\t\t\t\tUsing backup method Orthogonalization."
+				]
+			];
+			Return[ExtendedRotationByOrthogonalization[external,vectors,vectorsImage,kinematics]]
+		]
+	];
+	rep
+	(*Table[D[(external[[i]]/.rep),external[[j]]],{i,Length[external]},{j,Length[external]}]//Factor*)
+]
+
+
 (* ::Subsubsection:: *)
 (*DeepMomentumMap*)
 
@@ -326,7 +431,7 @@ Options[DeepMomentumMap]={ReportNotice->ReportNoticeInDeepMomentumMap}
 DeepMomentumMap[internal_,external_,prop1_,prop2_,kinematics_,OptionsPattern[]]:=Module[{allvectors,group1,group1C,group2,group2C,rep1,backrep1,rep2,backrep2,LocalGram1,
 LocalGram2,MatrixT,localE,MatrixA,MatrixB,Localprop1,Localprop2,LocalETrans,LocalLTrans,Trans,PropEqns,LocalKinematics1,LocalKinematics2,LocalGramEqns,
 LocalGB,clist,sol,GlobalMatrixT,GlobalETrans,a,b,c,i,DM,sol1,instance,additionalConditions,
-LocalEqns,nLocalGB
+LocalEqns,nLocalGB,result
 },
 
 (*   Find the symmetry using the actual momenta*)
@@ -480,18 +585,29 @@ LocalEqns,nLocalGB
 	sol=SortBy[sol,ByteCount[Expand[Trans/.#]]&][[1]];
 	
 	(* Print[group1,(groupMomentumU/@Range[localE])/.LocalETrans/.sol/.backrep2]; *);
-	GlobalMatrixT=ExtendedRotationByOrthogonalization[external,group1,(groupMomentumU/@Range[localE])/.LocalETrans/.sol/.backrep2,kinematics];
-	GlobalETrans=MapThread[#1->#2&,{external,GlobalMatrixT . external}];
-	If[(sol=!={})&&OptionValue[ReportNotice],
+	(*GlobalMatrixT=ExtendedRotationByOrthogonalization[external,group1,(groupMomentumU/@Range[localE])/.LocalETrans/.sol/.backrep2,kinematics];
+	GlobalETrans=MapThread[#1->#2&,{external,GlobalMatrixT . external}];*)
+	Switch[PreferedExternalExtendedRotationMethod,
+	"Orthogonalization",
+		GlobalETrans=ExtendedRotationByOrthogonalization[external,group1,(groupMomentumU/@Range[localE])/.LocalETrans/.sol/.backrep2,kinematics,BackupMethod->"DeltaPlainProjection"],
+	"DeltaPlainProjection",
+		GlobalETrans=ExtendedRotationByDeltaPlainProjection[external,group1,(groupMomentumU/@Range[localE])/.LocalETrans/.sol/.backrep2,kinematics,BackupMethod->"Orthogonalization"]
+	];
+	
+	
+	
+	
+	If[GlobalETrans==={},Return[{}]];
+	result={Join[GlobalETrans,LocalLTrans/.sol/.backrep2]};(*{Join[...]} is to keep data structure same as before*)
+	
+	If[(result=!={})&&OptionValue[ReportNotice],
 		PrintAndLog[
 			"\t\t\t[Notice]: Symmetry found using DeepMomentumMaps between the following propagators","\n",
 			"\t\t\t",prop1//InputForm//ToString,"\n\t\t\t",prop2//InputForm//ToString
 		];
 	];
 	
-	Return[
-		{Join[GlobalETrans,LocalLTrans/.sol/.backrep2]}
-	];(*{Join[...]} is to keep data structure same as before*)
+	Return[result];
 	
 ]
 

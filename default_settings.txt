@@ -33,11 +33,16 @@ MIFromAzuritino=True;
 CriticalPointInAzuritino=True;
 AzuritinoDefaultStartDegree=3;
 AzuritinoDefaultMaxDegree=5;
+SeedingAdditionalDegree=4;
+StrictMI=False;
+StrictDenominatorPowerIndices=True;
+AllowedDenominatorPowerLift=1;
 
 (*-----------usage settings--------------*)
 MemoryUsedLimit=Infinity;(*MB*)
 ThreadUsedLimit=Infinity;
-DeleteSingularTempFiles=False;
+DeleteSingularScriptFiles=False;
+DeleteSingularResultFiles=True;
 
 
 (*--------developer settings-------------*)
@@ -49,6 +54,12 @@ UseSRFindPivots=True;(*Currently, we only use this in IndepedentSet*)
 MomentumMapTimeConstrain=15;(*seconds*)
 UseNicePropagatorsInMomentumMap=True;(*must turn off this if one or more propagators are not quadratic*)
 ReportNoticeInDeepMomentumMap=False;
+PreferedExternalExtendedRotationMethod="Orthogonalization";(*or "DeltaPlainProjection"*)
+moduleIntersectionMethod = "Singular";
+DenominatorTypeLiftIndexLists={};(*data structure: a list of index lists*)
+LinearSyzDegree=3;
+NumericIBP=False;
+ReportIrreducibleIntegralsAfterIBPAnalyze=False;
 
 (*-------other default settings----------*)
 GenericD={d-> 3/137};
