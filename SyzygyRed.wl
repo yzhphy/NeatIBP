@@ -416,7 +416,7 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 ];*)
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Singular Interface*)
 
 
@@ -1642,6 +1642,8 @@ FullForm]\);(*?*)
 
 
 
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -2223,11 +2225,10 @@ FullForm]\);(*?*)
 							MIs=newMIs;
 						]
 					];
-					ProbeIntermediateResult["FindIBPsResult",secNo,FindIBPResult];(*debug2023*)
+					
 					nIBPs=Join[nIBPs,NewnIBPs];
 					rawIBPs=Join[rawIBPs,NewrawIBPs];
-					ProbeIntermediateResult["FindIBPsResult_rawIBPs",secNo,rawIBPs];(*debug2023*)
-					ProbeIntermediateResult["FindIBPsResult_NewrawIBPs",secNo,NewrawIBPs];(*debug2023*)
+					
 					timer=AbsoluteTime[];
 					memoryUsed=MaxMemoryUsed[
 					If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Checking the result from FindIBPs..."];];
@@ -2333,16 +2334,6 @@ FullForm]\);(*?*)
 	
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  Sorting..."]];
 	
-	If[debugMode=!=False,
-		If[secNo===123,
-			ProbeIntermediateResult[
-				"rawIBPs_nIBPs_CompensationIBPDenominatorDegrees_IBPDegreeList",
-				secNo,
-				{rawIBPs,nIBPs,CompensationIBPDenominatorDegrees,IBPDegreeList}
-			]
-		]
-	];(*debug2023*)
-	
 	timer2=AbsoluteTime[];
 	memoryUsed2=MaxMemoryUsed[
 	IBPIndex=SortBy[Range[Length[nIBPs]],{CompensationIBPDenominatorDegrees[[#]],IBPDegreeList[[#]],leafCounts[[#]],byteCounts[[#]]}&];
@@ -2431,15 +2422,8 @@ FullForm]\);(*?*)
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Performing sector maps..."]];
 		If[mappedSectors=!={},
 			(*rawIBPs=rawIBPs/.G[x__]:>GMapped[sectorMaps,{x}];*)
-			If[debugMode=!=False,
-				If[True,
-					ProbeIntermediateResult["sectorMaps_rawIBPs",secNo,{sectorMaps,rawIBPs}]
-				]
-			];(*debug2023*)
 			(*rawIBPs=SymmetryMap[sectorMaps,#]&/@rawIBPs;*)
 			rawIBPs=SymmetryMap[sectorMaps,rawIBPs];
-			PrintAndLog["#",secNo,"\t  Sector mapping finished.."];(*debug2023*)
-			ProbeIntermediateResult["sectorMapped_rawIBPs",secNo,{rawIBPs}];(*debug2023*)
 		];
 		(*end of MaxMemoryUsed*)];
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Sector mapping finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
@@ -2475,6 +2459,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 
