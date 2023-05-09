@@ -852,3 +852,12 @@ SymmetryMap and ReduceTowards in SyzygyRed.wl
 SymmetryMap: debugged the "Backward" mode rep and changed default direction to "Foreward"
 ReduceTowards: considered irrelavant target integrals
 
+----------------------------
+2023.5.9
+[I]
+Added many codes in SyzygyRed.wl and Summary.wl
+to addin AdditionalMISymmetries related usages
+
+[II]
+new version number 1.0.2.1
+

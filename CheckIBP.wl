@@ -15,7 +15,7 @@ If[commandLineMode,
 	Print["WARNING: program is not running in command line mode!"];
 	workingPath=NotebookDirectory[];
 	packagePath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/";
-	checkPath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples_private/double_pentagon/outputs/double_pentagon/"
+	checkPath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples_private/Examples_in_the_paper/2l4p_top/lxb3/outputs/lxb3"
 	
 ]
 

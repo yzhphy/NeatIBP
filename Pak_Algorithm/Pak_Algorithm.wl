@@ -131,7 +131,7 @@ KinematicConstrains[internal_,external_,props_,kinematics_,head_]:=Module[{T,c,r
 (*MomentumMap*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*MomentumMap*)
 
 
@@ -259,7 +259,7 @@ result={},DM,leadingCoef,kvars,kEqns,kinematicVar,Exteqns,ExtGB,instance,additio
 (*DeepMomentumMap*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*reliaments*)
 
 
@@ -439,7 +439,7 @@ LocalEqns,nLocalGB,result
 	{group1,group1C,rep1,backrep1}=IntegralMomentaGroup[internal, external, prop1];
 	{group2,group2C,rep2,backrep2}=IntegralMomentaGroup[internal, external, prop2]/.groupMomentumU->groupMomentumV;
 	If[Length[group1]=!=Length[group2],
-		Return[{}];(*this may have problems in massive tadepole, we expect these tadepoles will not need DeepMomentumMap... but not guaranteed*)
+		Return[{}];(*this may have problems in massive tadepole, we expect these tadepoles will not need DeepMomentumMap... but not guaranteed. 2023.05.08: we have endeed encountered this in lxb3 {1,4,6}\[Rule]{1,5,6}, and MomentumMap does not find such a symmetry.*)
 	];
 	localE=group1//Length;
 	Localprop1=prop1/.rep1//Together;
@@ -662,6 +662,7 @@ DeeperMomentumMap[internal_,external_,prop1_,prop2_,kinematics_,OptionsPattern[]
 			prop1//InputForm//ToString,"\n",prop2//InputForm//ToString,"\n",
 			"** Giving up finding the corresponding symmetries."
 		];
+		Return[{}];
 	];
 	L=Length[internal];
 	{rep1,backrep1}=nice1//Expand;
@@ -707,7 +708,7 @@ DeeperMomentumMap[internal_,external_,prop1_,prop2_,kinematics_,OptionsPattern[]
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*backups *)
 
 

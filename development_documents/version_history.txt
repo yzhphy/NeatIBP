@@ -63,6 +63,11 @@ Date: 2023.5.4
 	2. Provided solution for the case when redundant master intergals occur if Singular degBound is not enough, by allowing minimized denominator lifts.
 	3. Some useful updates.
 
+[NeatIBP 1.0.2.1]
+Date: 2023.5.9
+	1. Optimized the algorithm for sector symmetry mapping. 
+	2. Allow to find additional symmetry relations between master integrals even if their corresponding SECTORS are not related by symmetries.
+	3. Some other optimizations.
 
 
 

@@ -13,14 +13,9 @@ If[commandLineMode,
 
 	,
 	Print["WARNING: program is not running in command line mode!"];
-	workingPath=NotebookDirectory[];
-	missionInput="inputs_and_config.txt";
-	LoopMomenta={l1,l2};
-	ExternalMomenta={k1,k2,k4};
-	Propagators={l1^2,(l1-k1)^2,(l1-k1-k2)^2,(l2+k1+k2)^2,(l2-k4)^2,l2^2,(l1+l2)^2,(l1+k4)^2,(l2+k1)^2};
-	Kinematics={k1^2->0,k2^2->0,k4^2->0,k1 k2->s/2,k1 k4->t/2,k2 k4->(-s/2-t/2)};
-	GenericPoint={s->-1,t->-3}; 
-	TargetIntegrals={G[1,1,1,1,1,1,1,-5,0],G[1,1,1,1,1,1,1,-4,-1],G[1,1,1,1,1,1,1,-1,-4]}
+	workingPath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples_private/Examples_in_the_paper/2l4p_top/lxb3/";
+	packagePath=NotebookDirectory[];
+	missionInput="config.txt";
 	
 ]
 
@@ -79,7 +74,9 @@ If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 TemporaryDirectory=outputPath<>"tmp"
 (*Run["rm -rf "<>TemporaryDirectory];*)(*It seems to be useless*)
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[TemporaryDirectory]
+Get[packagePath<>"Pak_Algorithm/Pak_Algorithm.wl"]
 Get[packagePath<>"SyzygyRed.wl"]
+Prepare[];
 
 
 LogFile=outputPath<>"results/summary"<>".txt";
@@ -100,7 +97,7 @@ TemporaryDirectory=tmpPath
 
 
 missionStatusFolder=tmpPath<>"mission_status/"
-missionStatus={ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex,Get[#]}&/@FileNames[All,missionStatusFolder]
+missionStatus={ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex,Get[#]}&/@FileNames[All,missionStatusFolder];
 If[!SubsetQ[{"ComputationFinished"},Union[missionStatus[[All,2]]]],
 	Print["Not all missions are finished, cannot summarize."];
 	Exit[0];
@@ -124,17 +121,21 @@ If[MIFromAzuritino===True,azuritinoMIFolder=outputPath<>"tmp/azuritino_MIs/"]
 
 fileNamesMI=FileNames[All,outputPath<>"results/MI/"];
 sectorIDsMI=ToExpression[StringReplace[FileNameSplit[#][[-1]],{".txt"->""}]]&/@fileNamesMI;
-MIs=Get/@fileNamesMI
-ordering=SortBy[Range[Length[sectorIDsMI]],{-Total[SectorNumberToSectorIndex[sectorIDsMI[[#]]]],-sectorIDsMI[[#]]}&]
+MIs=Get/@fileNamesMI;
+ordering=SortBy[Range[Length[sectorIDsMI]],{-Total[SectorNumberToSectorIndex[sectorIDsMI[[#]]]],-sectorIDsMI[[#]]}&];
 (*Print[{Total[SectorNumberToSectorIndex[sectorIDsMI[[#]]]],sectorIDsMI[[#]]}&/@Range[Length[sectorIDsMI]]]*)
-sectorIDsMI=sectorIDsMI[[ordering]]
-MIs=MIs[[ordering]]
+sectorIDsMI=sectorIDsMI[[ordering]];
+MIs=MIs[[ordering]];
 
 
-sectorMaps=Get[outputPath<>"tmp/sectorMaps.txt"]
-mappedSectors=sectorMaps[[All,1]]
+sectorMaps=Get[outputPath<>"tmp/sectorMaps.txt"];
+mappedSectors=sectorMaps[[All,1]];
 If[MIFromAzuritino===True,
-	AzuritinoMIs=If[MemberQ[mappedSectors,SectorNumberToSectorIndex[#]],
+	AzuritinoMIs=If[
+		Or[
+			MemberQ[mappedSectors,SectorNumberToSectorIndex[#]],
+			ZeroSectorQ[SectorNumberToSectorIndex[#]]
+		],
 		{}
 	,
 		Get[azuritinoMIFolder<>ToString[#]<>".txt"]
@@ -146,13 +147,96 @@ If[MIFromAzuritino===True,
 
 fileNamesIBP=FileNames[All,outputPath<>"results/IBP/"];
 sectorIDsIBP=ToExpression[StringReplace[FileNameSplit[#][[-1]],{".txt"->""}]]&/@fileNamesIBP;
-IBPs=Get/@fileNamesIBP
-ordering=SortBy[Range[Length[sectorIDsIBP]],{-Total[SectorNumberToSectorIndex[sectorIDsIBP[[#]]]],-sectorIDsIBP[[#]]}&]
-sectorIDsIBP=sectorIDsIBP[[ordering]]
-IBPs=IBPs[[ordering]]
+IBPs=Get/@fileNamesIBP;
+ordering=SortBy[Range[Length[sectorIDsIBP]],{-Total[SectorNumberToSectorIndex[sectorIDsIBP[[#]]]],-sectorIDsIBP[[#]]}&];
+sectorIDsIBP=sectorIDsIBP[[ordering]];
+IBPs=IBPs[[ordering]];
 
 
-SDim=Length[Cases[Variables[IBPs],_G][[1]]/.G->List]
+If[And[NeedSymmetry===True,AdditionalMISymmetries===True],
+	timer=AbsoluteTime[];
+	PrintAndLog["Finding additional symmetry relations between master integrals"];
+	MIsbackupPath=outputPath<>"tmp/MIs_before_AdditionalMISymmetries/";
+	MIsbackup=MIs;
+	For[i=1,i<=sectorIDsMI,i++,
+		Export[MIsbackupPath<>ToString[sectorIDsMI[[i]]]<>".txt",MIs[[i]]//InputForm//ToString]
+	];
+	undeterminedMIs=SortBy[MIs//Flatten,IntegralOrdering]//Reverse//Reverse;(* the function tends to choose master integrals in the fronter of the list as unique integrals, 2 reverses for remindering! This order must agrees our convention!*)
+	AdditionalMISymmetryRelations={};
+	uniqueMIs={};
+	mappedMIs={};
+	While[True,
+		If[undeterminedMIs==={},Break[]];
+		(*Print["\t\t",Length[undeterminedMIs]," undetermined master intergal(s) left."];*)
+		newUniqueMI=undeterminedMIs[[1]];
+		uniqueMIs=Join[uniqueMIs,{newUniqueMI}];
+		undeterminedMIs=undeterminedMIs[[2;;-1]];
+		mappedUndeterminedMIIndices={};
+		For[i=1,i<=Length[undeterminedMIs],i++,
+			newTestingMI=undeterminedMIs[[i]];
+			If[LPSymmetryQ[newTestingMI,newUniqueMI],
+				mappedMIs=Join[mappedMIs,{newTestingMI}];
+				mappedUndeterminedMIIndices=Join[mappedUndeterminedMIIndices,{{i}}];
+				AdditionalMISymmetryRelations=Join[AdditionalMISymmetryRelations,{newTestingMI->newUniqueMI}]
+			]
+		];
+		undeterminedMIs=Delete[undeterminedMIs,mappedUndeterminedMIIndices]
+	];
+	PrintAndLog["\tFinished. Found ",Length[AdditionalMISymmetryRelations]," additional symmetry relation(s):\n\t",AdditionalMISymmetryRelations];
+	PrintAndLog["\tTime used: ",Round[AbsoluteTime[]-timer]," second(s)"];
+	timer=AbsoluteTime[];
+	PrintAndLog["Rearranging results... "];
+	MIs=Complement[#,mappedMIs]&/@MIs;
+	MINumberDecreased=-(Length[Flatten[MIs]]-Length[Flatten[MIsbackup]]);
+	PrintAndLog[
+		"\tRemoved ",
+		MINumberDecreased,
+		If[MINumberDecreased===Length[AdditionalMISymmetryRelations]," "," (*** abnormal!) "],
+		"mapped master integral(s) in MIs from NeatIBP results."
+	];
+	If[MIFromAzuritino===True,
+		AzuritinoMIsbackup=AzuritinoMIs;
+		AzuritinoMIs=Complement[#,AzuritinoMIs]&/@MIs;
+		AzuritinoMINumberDecreased=-(Length[Flatten[AzuritinoMIs]]-Length[Flatten[AzuritinoMIsbackup]]);
+		PrintAndLog[
+			"\tRemoved ",
+			AzuritinoMINumberDecreased,
+			If[AzuritinoMINumberDecreased===Length[AdditionalMISymmetryRelations]," "," "],
+			"mapped master integral(s) in MIs from Azuritino results."
+		];
+	];
+	IBPNumberIncreased=0;
+	For[i=1,i<=Length[sectorIDsIBP],i++,
+		sectorID=sectorIDsIBP[[i]];
+		mappedMIsInCurrentSector=Select[mappedMIs,SectorNumber[Sector[#]]===sectorID&];
+		IBPs[[i]]=Join[
+			IBPs[[i]],
+			(#-(#/.AdditionalMISymmetryRelations))&/@mappedMIsInCurrentSector
+		];
+		IBPNumberIncreased+=Length[mappedMIsInCurrentSector]
+	];
+	PrintAndLog[
+		"\tAdded ",
+		IBPNumberIncreased,
+		If[IBPNumberIncreased===Length[AdditionalMISymmetryRelations]," "," (*** abnormal!) "],
+		"relations(s) into IBPs."
+	];
+	For[i=1,i<=Length[sectorIDsMI],i++,
+		Export[outputPath<>"results/MI/"<>ToString[sectorIDsMI[[i]]]<>".txt",MIs[[i]]//InputForm//ToString]
+	];
+	PrintAndLog["\tnew MIs from NeatIBP results saved."];
+	For[i=1,i<=Length[sectorIDsIBP],i++,
+		Export[outputPath<>"results/IBP/"<>ToString[sectorIDsIBP[[i]]]<>".txt",IBPs[[i]]//InputForm//ToString]
+	];(*I really do not like overwriting this... maybe we will rewrite here in the future*)
+	PrintAndLog["\tnew IBPs saved."];
+	PrintAndLog["\tFinished. Time used: ",Round[AbsoluteTime[]-timer]," second(s)"];
+]
+
+
+
+
+
+(*SDim=Length[Cases[Variables[IBPs],_G][[1]]/.G->List]*)
 
 timer=AbsoluteTime[];
 relavantIntegrals=Get/@FileNames[All,outputPath<>"tmp/relavant_integrals/"];
@@ -162,7 +246,9 @@ Export[outputPath<>"results/OrderedIntegrals.txt",integralList//InputForm//ToStr
 Export[outputPath<>"results/MI_all.txt",MIs//Flatten//InputForm//ToString];
 Export[outputPath<>"results/IBP_all.txt",IBPs//Flatten//InputForm//ToString];
 
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+(*Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]*)
+
+
 
 
 
@@ -228,3 +314,6 @@ If[FileExistsQ[TemporaryDirectory<>"start_abs_time.txt"],
 	
 	PrintAndLog["Total real time used: ",timeUsedString];
 ]
+
+
+

@@ -27,22 +27,22 @@ NeatIBPIntersectionDegreeBound=5
 IntegralOrder = "MultiplePropagatorElimination"
 NeedSymmetry=True;
 CutIndices={};
+SeedingAdditionalDegree=4;
+AdditionalMISymmetries=True;(*find possible additional symmetries between master integrals in summarization step*)
 
 (*-----------method settings--------------*)
 MIFromAzuritino=True;
 CriticalPointInAzuritino=True;
-AzuritinoDefaultStartDegree=3;
-AzuritinoDefaultMaxDegree=5;
-SeedingAdditionalDegree=4;
 StrictMI=False;
-StrictDenominatorPowerIndices=True;
-AllowedDenominatorPowerLift=1;
+StrictDenominatorPowerIndices=False;
+AllowedDenominatorPowerLift=1;(*Irrelavant if StrictDenominatorPowerIndices==True*)
 
 (*-----------usage settings--------------*)
 MemoryUsedLimit=Infinity;(*MB*)
 ThreadUsedLimit=Infinity;
 DeleteSingularScriptFiles=False;
 DeleteSingularResultFiles=True;
+
 
 
 (*--------developer settings-------------*)
@@ -56,7 +56,9 @@ UseNicePropagatorsInMomentumMap=True;(*must turn off this if one or more propaga
 ReportNoticeInDeepMomentumMap=False;
 PreferedExternalExtendedRotationMethod="Orthogonalization";(*or "DeltaPlainProjection"*)
 moduleIntersectionMethod = "Singular";
-DenominatorTypeLiftIndexLists={};(*data structure: a list of index lists*)
+AzuritinoDefaultStartDegree=3;(*Irrelavant if CriticalPointInAzuritino==True*)
+AzuritinoDefaultMaxDegree=5;(*Irrelavant if CriticalPointInAzuritino==True*)
+DenominatorTypeLiftIndexLists={};(*data structure: a list of index lists. This is a discarded setting, recommended to leave it as default*)
 LinearSyzDegree=3;
 NumericIBP=False;
 ReportIrreducibleIntegralsAfterIBPAnalyze=False;

@@ -416,7 +416,7 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 ];*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Singular Interface*)
 
 
@@ -725,8 +725,8 @@ LeadingIntegral[IBP_]:=Block[{list},
 (* Functions for the complexity of IBPs *)
 IBPSectorHeight[IBP_]:=Block[{LT},LT=LeadingIntegral[IBP]; If[LT==={},Return[-1],Return[SectorHeight[Int]]];];
 IBPSubSectorDegree[IBP_,sector_]:=Max[Total[IntegralAbsDegree[#]]&/@(Select[IntegralList[IBP,SortTheIntegrals->False],Sector[#]=!=sector&])];
-IBPSubSectorDenominatorDegree[IBP_,sector_]:=Max[Total[IntegralPropagatorDegree[#]]&/@(Select[IntegralList[IBP,SortTheIntegrals->False],Sector[#]=!=sector&])];
-IBPSubSectorNumeratorDegree[IBP_,sector_]:=Max[Total[IntegralISPDegree[#]]&/@(Select[IntegralList[IBP,SortTheIntegrals->False],Sector[#]=!=sector&])];
+IBPSubSectorDenominatorDegree[IBP_,sector_]:=Max[IntegralPropagatorDegree[#]&/@(Select[IntegralList[IBP,SortTheIntegrals->False],Sector[#]=!=sector&])];
+IBPSubSectorNumeratorDegree[IBP_,sector_]:=Max[IntegralISPDegree[#]&/@(Select[IntegralList[IBP,SortTheIntegrals->False],Sector[#]=!=sector&])];
 IBPISPSectorDegree[IBP_,sector_]:=Max[(IntegralISPDegree/@Select[IntegralList[IBP,SortTheIntegrals->False],Sector[#]==sector&])]; (* "IntegralISPDegree" vs "IntegralAbsDegree" *)
 FIBPSectorISPDegree[FIBP_,sector_]:=Max[FIntegralSectorISPDegree[#,sector]&/@(Cases[Variables[FIBP],_G])]
 
@@ -760,7 +760,7 @@ pivots[matrix_]:=Module[{ARLonglist},
 ];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Symmetry *)
 
 
@@ -768,7 +768,7 @@ pivots[matrix_]:=Module[{ARLonglist},
 (*These codes depend on Pak.wl. But we need to include it outside this .wl file, some place where this .wl file is included.*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*SectorMaps*)
 
 
@@ -877,7 +877,7 @@ SectorMaps[sectors_]:=Module[
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Integral Maps*)
 
 
@@ -920,7 +920,7 @@ GMapped[sectorMaps_,indices_]:=Module[{sector,mappedSectors,map,preResult,result
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Map a expression*)
 
 
@@ -1060,6 +1060,60 @@ MappedAndSubSectorsAllFinder[sectorMaps_,sectors_]:=Module[{mappingOfSectors,old
 
 
 SelfSymmetryRealization[zMap_,indices_]:=Expand[MappedIntegral[zMap,indices]-(G@@indices)](*well this function does not map the produced subsec integrals*)
+
+
+(* ::Subsection:: *)
+(*LPSymmetryQ*)
+
+
+LPIntegrand[indices_]:=Module[
+{i,zeroIndices,positiveIndices,negativeIndices,Gpol,index,k,GD
+},
+	zeroIndices=Select[Range[SDim],indices[[#]]===0&];
+	positiveIndices=Select[Range[SDim],indices[[#]]>0&];
+	negativeIndices=Select[Range[SDim],indices[[#]]<0&];
+	Gpol=Global`PolynomialG/.Table[z[k]->0,{k,zeroIndices}];
+	GD=Gpol^(-d/2);
+	For[k=1,k<=Length[negativeIndices],k++,
+		i=negativeIndices[[k]];
+		index=indices[[i]];
+		GD=D[GD,{z[i],-index}](-1)^(-index)/.z[i]->0
+	];
+	For[k=1,k<=Length[positiveIndices],k++,
+		i=positiveIndices[[k]];
+		index=indices[[i]];
+		GD=GD*z[i]^(index-1)/Gamma[index]
+	];
+	GD*(-1)^Total[indices]*Gamma[d/2]/Gamma[(L+1)d/2-Total[indices]]
+]
+
+
+LPSymmetryQ[integral1_,integral2_]:=Module[
+{sec1,sec2,indices1,indices2,zs,G1,G2,zs1,zs2,zPerms,i,zPerm,GIntegrand1,GIntegrand2},
+	If[integral1===integral2,Return[True]];
+	indices1=integral1/.G->List;
+	indices2=integral2/.G->List;
+	If[Total[indices1]=!=Total[indices2],Return[False]];(*LP Integrand containds a Gamma[(L+1)d/2-Total[indices]], if the sum of indices dismatch, they must not have LP symmetry*)
+	sec1=Sector[integral1];
+	sec2=Sector[integral2];
+	If[Total[sec1]=!=Total[sec2],Return[False]];(*integrals with different sector height are considered to be without symmetry between each other*)
+	zs=Sort[Cases[Variables[PolynomialG],_z]];
+	G1=PolynomialG/. Table[z[i]->z[i] sec1[[i]],{i,Length[zs]}];
+	G2=PolynomialG/. Table[z[i]->z[i] sec2[[i]],{i,Length[zs]}];
+	zs1=Cases[Variables[G1],_z];zs2=Cases[Variables[G2],_z];
+	zPerms=FullPakCompare[G1,G2,zs1,zs2];
+	If[zPerms==={},Return[False]];(*no symmetry*)
+
+	For[i=1,i<=Length[zPerms],i++,
+		zPerm=zPerms[[i]];
+		GIntegrand1=integral1/.G[x__]:>LPIntegrand[{x}];
+		GIntegrand2=integral2/.G[x__]:>LPIntegrand[{x}];
+		
+		If[Factor[(GIntegrand1/.zPerm)-GIntegrand2]===0,Return[True]]
+	];
+	Return[False]
+
+]
 
 
 (* ::Section::Closed:: *)
@@ -1444,11 +1498,11 @@ ReduceTowards[rIBPs_,targets_,irredIntegrals_]:=Module[
 
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*FindIBPs (to seed by more denominator degrees)*)
 
 
-Options[FindIBPs]={Verbosity->1,DenominatorLift->1,AdditionalDegree->4,SelfSymmetryZMaps->{}};
+Options[FindIBPs]={Verbosity->1,DenominatorLift->1,AdditionalDegree->4,SelfSymmetryZMaps->{},FunctionTitle->"[AdditionalIBPs]:"};
 FindIBPs[sector_,targets0_,MIs_,(*basicnIBPs_,basicSectorIntegrals_,*)FIBPs_,DenominatorTypes0_,OptionsPattern[]]:=Module[
 {timer,memoryUsed,nFIBPFunctions,nFIBPs,secNo,IBPISPdegrees,sectorCut,targets,numeratorMaxDeg,DenominatorTypes1,DenominatorTypes,NewDenominatorTypes,nIBPs,rawIBPs,
 denLift,numDeg,denShifts,i,denShift,NewrawIBPs,NewnIBPs,seeds,newSymmetryRelations,zMaps,SectorIntegrals,result,breakQ,redIndex,irredIndex,rIBPs,irredIntegrals,
@@ -1460,21 +1514,21 @@ WellAddressedIntegrals,targetsReduced,allSkipQ,timer2,memoryUsed2,IBPDenominator
 	sectorCut=SectorCut[sector];
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:  Generating numerical FIBPs0..."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"  Generating numerical FIBPs0..."]];
 	nFIBPs=(FIBPs/.GenericPoint/.GenericD);
 	(*end of MaxMemoryUsed*)];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t  nFIBPs0 generated. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t  nFIBPs0 generated. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	If[seedingViaFIBPFunction,
 		timer=AbsoluteTime[];
 		memoryUsed=MaxMemoryUsed[
-		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:  Generating nFIBPFunctions0..."]];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"  Generating nFIBPFunctions0..."]];
 		nFIBPFunctions=Table[Evaluate[nFIBPs[[k]]/.Table[m[i]->Slot[i],{i,1,SDim}]]&,{k,Length[nFIBPs]}];
 		(*end of MaxMemoryUsed*)];
-		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t  nFIBPFunctions0 generated. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t  nFIBPFunctions0 generated. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	];
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t  ","Deriving IBPISPdegrees0..."];];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t  ","Deriving IBPISPdegrees0..."];];
 	IBPISPdegrees=FIBPSectorISPDegree[#,sector]&/@FIBPs;
 	IBPISPdegrees=\!\(\*
 TagBox["IBPISPdegrees",
@@ -1490,13 +1544,13 @@ ShowStringCharacters->True,
 NumberMarks->True],
 FullForm]\);(*?*)
 	(*end of MaxMemoryUsed*)];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t\t  ","IBPISPdegrees derived. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t\t  ","IBPISPdegrees derived. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	numeratorMaxDeg=(Max@@(IntegralISPDegree/@targets))+OptionValue[AdditionalDegree];
-	PrintAndLog["#",secNo,"[FindIBPs]:  ","numeratorMaxDeg=",numeratorMaxDeg];
+	PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"  ","numeratorMaxDeg=",numeratorMaxDeg];
 	
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t  ","Preparing the searching steps..."];];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t  ","Preparing the searching steps..."];];
 	(*DenominatorTypes=DenominatorTypes0;
 	nIBPs=basicnIBPs/.sectorCut;   (*in FindIBPs, all nIBPs should be on-cut. I think this might be good to also be applied to the main function... let`s see in the future*)
 	nIBPsUnCut=basicnIBPs;
@@ -1509,7 +1563,7 @@ FullForm]\);(*?*)
 	breakQ=False;
 	allSkipQ=True;
 	(*end of MaxMemoryUsed*)];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t\t  ","Finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t\t  ","Finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 	For[denLift=0,denLift<=OptionValue[DenominatorLift],denLift++,
 		denShifts=DenominatorLiftingShifts[sector,denLift];
@@ -1527,16 +1581,16 @@ FullForm]\);(*?*)
 		For[numDeg=0,numDeg<=numeratorMaxDeg,numDeg++,
 			For[i=1,i<=Length[NewDenominatorTypesList],i++,
 				NewDenominatorTypes=NewDenominatorTypesList[[i]];
-				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:","Starting a new step:  ","denLift=",denLift,", ","numDeg=",numDeg,", ","denShift=",denShifts[[i]]];];
+				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"","Starting a new step:  ","denLift=",denLift,", ","numDeg=",numDeg,", ","denShift=",denShifts[[i]]];];
 				
 				If[NewDenominatorTypes==={},
-					PrintAndLog["#",secNo,"","[FindIBPs]:\tNo new DenominatorTypes in this step. Skipping the rest operations in this step."];
+					PrintAndLog["#",secNo,"",""<>OptionValue[FunctionTitle]<>"\tNo new DenominatorTypes in this step. Skipping the rest operations in this step."];
 					Continue[]
 				];
 				timer=AbsoluteTime[];
 				memoryUsed=MaxMemoryUsed[
 				
-				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t  ","Zurich seeding. "];];
+				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t  ","Zurich seeding. "];];
 				If[seedingViaFIBPFunction,
 					{NewrawIBPs,NewnIBPs}=ZurichSeedingVianFIBPFunctions[sector,nFIBPFunctions,IBPISPdegrees,numDeg,NewDenominatorTypes];
 				,
@@ -1544,12 +1598,12 @@ FullForm]\);(*?*)
 				];
 				
 				(*end of MaxMemoryUsed*)];
-				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t\t  ","Zurich seeding finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t\t  ","Zurich seeding finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 				If[Not[NeedSymmetry===False],
 					zMaps=OptionValue[SelfSymmetryZMaps];
 					timer=AbsoluteTime[];
 					memoryUsed=MaxMemoryUsed[
-					If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t","    Appending self-symmetries at current step..."];];
+					If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t","    Appending self-symmetries at current step..."];];
 					seeds=Flatten[SeedMerge[NumeratorShifts[sector,#],NewDenominatorTypes]&/@{numDeg},1];
 					NewrawIBPs=Join[
 						NewrawIBPs,
@@ -1561,11 +1615,11 @@ FullForm]\);(*?*)
 						newSymmetryRelations
 					];
 					(*end of MaxMemoryUsed*)];
-					If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"","[FindIBPs]:\t\tAppending self-symmetries finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
-					If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"","[FindIBPs]:\t\tNumber of self-symmety relations appended: ",Length[newSymmetryRelations]," ."]];
+					If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"",""<>OptionValue[FunctionTitle]<>"\t\tAppending self-symmetries finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+					If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"",""<>OptionValue[FunctionTitle]<>"\t\tNumber of self-symmety relations appended: ",Length[newSymmetryRelations]," ."]];
 				];
 				If[Length[NewrawIBPs]===0||Length[NewnIBPs]===0,
-					PrintAndLog["#",secNo,"","[FindIBPs]:\tNo new IBPs found in this step. Skipping the rest operations in this step."];
+					PrintAndLog["#",secNo,"",""<>OptionValue[FunctionTitle]<>"\tNo new IBPs found in this step. Skipping the rest operations in this step."];
 					Continue[];
 				];
 				NewnIBPsUnCut=NewnIBPs;
@@ -1575,34 +1629,34 @@ FullForm]\);(*?*)
 				nIBPsUnCut=Join[nIBPsUnCut,NewnIBPsUnCut];
 				timer=AbsoluteTime[];
 				memoryUsed=MaxMemoryUsed[
-				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t  ","Deriving SectorIntegrals..."];];
+				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t  ","Deriving SectorIntegrals..."];];
 				NewSectorIntegrals=Select[IntegralList[NewnIBPs,SortTheIntegrals->False],Sector[#]==sector&];
 				SectorIntegrals=Join[SectorIntegrals,Complement[NewSectorIntegrals,SectorIntegrals]]//DeleteDuplicates
 				
 				(*end of MaxMemoryUsed*)];
-				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t\t  ","SectorIntegrals derived. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t\t  ","SectorIntegrals derived. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 				If[!SubsetQ[SectorIntegrals,Union[Join[targets,MIs]]],
-					PrintAndLog["#",secNo,"[FindIBPs]:\t\t  ","SectorIntegrals does not cover all targets and MIs. Skipping the rest operations in this step."];
+					PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t\t  ","SectorIntegrals does not cover all targets and MIs. Skipping the rest operations in this step."];
 					Continue[];
 				];
 				allSkipQ=False;
 				
 				timer=AbsoluteTime[];
 				memoryUsed=MaxMemoryUsed[
-				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t  ","Sorting SectorIntegrals..."];];
+				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t  ","Sorting SectorIntegrals..."];];
 				SectorIntegrals=SortBy[SectorIntegrals,IntegralOrdering]//Reverse;
 				(*end of MaxMemoryUsed*)];
-				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t\t  ","SectorIntegrals sorted. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t\t  ","SectorIntegrals sorted. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 				
 				timer=AbsoluteTime[];
 				memoryUsed=MaxMemoryUsed[
-				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t  ","Performing IBPAnalyze..."];];
+				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t  ","Performing IBPAnalyze..."];];
 				{redIndex,irredIndex,rIBPs}=IBPAnalyze[nIBPs,SectorIntegrals];
 				irredIntegrals=SectorIntegrals[[irredIndex]];
 				(*end of MaxMemoryUsed*)];
-				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t\t  ","IBPAnalyze finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+				If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t\t  ","IBPAnalyze finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 				WellAddressedIntegrals=FindReducedIntegrals[rIBPs,MIs];
-				If[SubsetQ[WellAddressedIntegrals,targets],PrintAndLog["#",secNo,"[FindIBPs]:\t Found enough IBPs"];breakQ=True];
+				If[SubsetQ[WellAddressedIntegrals,targets],PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t Found enough IBPs"];breakQ=True];
 				If[breakQ===True,Break[]];
 			];
 			
@@ -1610,11 +1664,11 @@ FullForm]\);(*?*)
 		];
 		If[breakQ===True,Break[]];
 	];
-	If[!breakQ,PrintAndLog["#",secNo,"[FindIBPs]:\t Not found enough IBPs."]];
-	If[allSkipQ,PrintAndLog["#",secNo,"[FindIBPs]:\t Nothing new happend in FindIBPs."];Return[$Failed]];
+	If[!breakQ,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t Not found enough IBPs."]];
+	If[allSkipQ,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t Nothing new happend in FindIBPs."];Return[$Failed]];
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t  ","Rendering the result..."];];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t  ","Rendering the result..."];];
 	targetsReduced=Intersection[WellAddressedIntegrals,targets];
 	newMIs=ReduceTowards[rIBPs,targets,irredIntegrals];
 	IBPIndex=Select[Range[Length[rawIBPs]],FreeQ[rawIBPs[[#]],BasicRawIBPs]&];
@@ -1625,10 +1679,16 @@ FullForm]\);(*?*)
 	rawIBPs=rawIBPs/.FI->FI0/.ZM->ZM0;(*ZM0 is same as ZM, just for labelling. FI0 is different from FI*)
 	result={rawIBPs,nIBPsUnCut,targetsReduced,newMIs};
 	(*end of MaxMemoryUsed*)];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"[FindIBPs]:\t\t  ","Finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
-	PrintAndLog["#",secNo,"[FindIBPs]:\t Found ",Length[IBPIndex]," IBPs."];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t\t  ","Finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+	PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t Found ",Length[IBPIndex]," IBPs."];
 	result
 ]
+
+
+
+
+
+
 
 
 
@@ -2194,7 +2254,7 @@ FullForm]\);(*?*)
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Seeding in step ",step," finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 			If[SubsetQ[WellAddressedIntegrals,LocalTargets],Break[]];
 			If[step==s+OptionValue[AdditionalDegree],
-				If[And[!StrictDenominatorPowerIndices,AllowedDenominatorPowerLift>0],
+				If[And[StrictDenominatorPowerIndices===False,AllowedDenominatorPowerLift>0],
 					PrintAndLog["#",secNo,"\t","[Notice]: Targets are still not reduced to MIs in the maximum step ",step,". Trying to find more IBPs by seeds with denominator powers lifted."];
 					
 					(*FIBPs0 is the original FIBPs without killing corners*)
@@ -2217,7 +2277,7 @@ FullForm]\);(*?*)
 						{NewrawIBPs,NewnIBPs,redundantMIsReduced,newMIs}=FindIBPResult;
 					];
 					If[Complement[redundantMIsToBeReduced,redundantMIsReduced]=!={},
-						If[StrictMI,
+						If[StrictMI===True,
 							PrintAndLog["#",secNo,"\t","*** Targets are still not reduced to MIs Even after seeding with denominator powers lifted. Failed.\n****** Sector ",secNo," Failed. ******"];
 							Quit[];
 						,
@@ -2246,7 +2306,7 @@ FullForm]\);(*?*)
 					
 					
 				,
-					If[StrictMI,
+					If[StrictMI===True,
 						PrintAndLog["#",secNo,"\t","*** Targets are still not reduced to MIs in the maximum step ",step,". Failed.\n****** Sector ",secNo," Failed. ******"];
 						Quit[];
 					,
@@ -2459,6 +2519,12 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
 ];
+
+
+
+
+
+
 
 
 
