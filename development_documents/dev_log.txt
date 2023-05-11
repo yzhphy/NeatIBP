@@ -174,7 +174,7 @@ changed Global`NonZeroSectors to tailSectors(=DeleteDuplicates[Sector/@Subsector
 
 [II]
 Added function MappedAndSubSectorsAllFinder in SyzygyRed.wl
-Modified AnalyzeSector.wl to use MappedAndSubSectorsAllFinder rather than SubSectorsAllFinder to find RelavantSectors if NeedSymmetry is on. However, Initialization.wl temply remain the same, this may cause trouble when input targets are not in top sector but in separate subsectors. NEED TO BE IMPROVED!!!
+Modified AnalyzeSector.wl to use MappedAndSubSectorsAllFinder rather than SubsectorAllFinder to find RelavantSectors if NeedSymmetry is on. However, Initialization.wl temply remain the same, this may cause trouble when input targets are not in top sector but in separate subsectors. NEED TO BE IMPROVED!!!
 
 [III]
 Cancelled function SuperSectors[] in all .wl files but MissionStatusChecke.wl, because it is not used theres.
@@ -861,3 +861,29 @@ to addin AdditionalMISymmetries related usages
 [II]
 new version number 1.0.2.1
 
+-------------------------------
+2023.5.11
+[I]
+commented out an unused function in SyzygyRed.wl:
+(*IBPSectorHeight[IBP_]:=Block[{LT},LT=LeadingIntegral[IBP]; If[LT==={},Return[-1],Return[SectorHeight[Int]]];];*)
+
+[II]
+added variable name protection step in Validating Inputs section in Initialization.wl. But we still need to add more names appear in Initialization.wl, Analyze_Sector.wl .... into the list ProtectedNames in Initialization.wl
+
+
+[III] 
+modifications in Initialization.wl:
+(*If[FileExistsQ[#],Run["rm "<>#]]&[outputPath<>"tmp/"<>"initialized.txt"];*)
+If[FileExistsQ[outputPath<>"tmp/"<>"initialized.txt"],
+	Export[outputPath<>"tmp/"<>"once_initialized.txt",""];
+	Run["rm "<>outputPath<>"tmp/"<>"initialized.txt"]
+];
+and in PrepareForContinueCompuation.wl:
+If[FileExistsQ[tmpPath<>"once_initialized.txt"],
+	Export[outputPath<>"tmp/"<>"initialized.txt",""];
+]
+to solve the comment:
+I cannot  continue.sh after an mistaken attempt of ./run.sh? Nonesense.. (initialized.txt removed in the attempt)
+
+[IV]
+new version number 1.0.2.2

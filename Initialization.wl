@@ -18,7 +18,8 @@ If[commandLineMode,
 	,
 	Print["WARNING: program is not running in command line mode!"];
 	packagePath=NotebookDirectory[];
-	missionInput="example.txt"
+	workingPath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/dbox/";
+	missionInput="config.txt"
 	(*
 	LoopMomenta={l1,l2};
 	ExternalMomenta={k1,k2,k4};
@@ -122,8 +123,15 @@ If[Intersection[StringSplit[outputPath,""],{" ","\t","\n","?","@","#","$","*","&
 ]
 If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
+(*If[FileExistsQ[#],Run["rm "<>#]]&[outputPath<>"tmp/"<>"initialized.txt"];*)
+If[FileExistsQ[outputPath<>"tmp/"<>"initialized.txt"],
+	Export[outputPath<>"tmp/"<>"once_initialized.txt",""];
+	Run["rm "<>outputPath<>"tmp/"<>"initialized.txt"]
+];
+
+
 If[And[DirectoryQ[outputPath],automaticOutputPath],
-	If[FileExistsQ[#],Run["rm "<>#]]&[outputPath<>"tmp/"<>"initialized.txt"];
+	
 	continueQ=InputString["Output directory \""<>outputPath<>"\" already exists. Do you want to delete it? Type Y or y to continue. Type others to abort.\n"];
 	
 	If[Or[continueQ=="y",continueQ=="Y"],
@@ -187,8 +195,52 @@ PrintAndLog["start initialization steps."]
 Export[TemporaryDirectory<>"start_abs_time.txt",AbsoluteTime[]//InputForm//ToString]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Validating Inputs*)
+
+
+(* ::Subsection:: *)
+(*Variable Name Protection*)
+
+
+ProtectedNames=
+{m,x,y,z,G,d,n,L,zeroLoopMomenta,Momenta,ScalarVarRep,var,ScalarVar,BaikovMatrix,SDim,GramMatrix,LoopExternalScalars,ScalarTangentSet,
+ScalarExtendedTangentSet,BaikovKernelScalar,BaikovRevRep,BaikovRep,BaikovKernel,Parameters,TangentSet,ExtendedTangentSet,
+ForwardRep,BackwardRep,Scalar2sp,sp2Scalar,sp,PolynomialU,PolynomialF,PolynomialG,numericPolynomialG,gen,varOrder,ss,(*in SyzygyRed.wl, IntegerPartition function. I think this variable, ss, can be set as local*)
+ZeroSectors,NonZeroSectors,ZeroTargets,ReductionTargets,ReductionTasks,ZeroSectorRemoval,IBPList,MIList,SectorAnalyzeTiming,IntegralR,FI,BasicRawIBPs,FI0,ZM0,secNum,SelfSymmetryR,ZM,RelavantIntegrals,
+groupMomentumU,groupMomentumV,StdL,i
+
+}//DeleteDuplicates
+CheckRange={"TargetIntegrals","LoopMomenta","ExternalMomenta","Propagators","Kinematics","GenericPoint","GenericD"
+}
+AppearableList={
+G->{"TargetIntegrals"},
+d->{"GenericD"}
+}
+CheckFree[name_]:=Module[{range},
+	range=CheckRange;
+	If[MemberQ[AppearableList[[All,1]],name],range=Complement[range,name/.AppearableList]];
+	Select[range,!FreeQ[ToExpression[#],name]&]
+]
+allProtectedNamesDisappearQ=True
+Module[{name,i,checkFreeResult},
+	For[i=1,i<=Length[ProtectedNames],i++,
+		name=ProtectedNames[[i]];
+		checkFreeResult=CheckFree[name];
+		If[Length[checkFreeResult]>0,
+			PrintAndLog["****  Protected symbol \"",name,"\" appear in the following input(s):\n\t", checkFreeResult];
+			allProtectedNamesDisappearQ=False;
+		]
+	]
+]
+If[allProtectedNamesDisappearQ===False,
+	PrintAndLog["****  Please raname the above symbol(s) in your input(s). Exiting..."];
+	Exit[0];
+]
+
+
+(* ::Subsection:: *)
+(*Other Validations*)
 
 
 If[!SubsetQ[GenericPoint[[All,1]],Complement[Variables[{Propagators,Kinematics[[All,2]]}],LoopMomenta,ExternalMomenta]],

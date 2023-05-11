@@ -74,7 +74,7 @@ positivity[list_]:=If[Union[#>0&/@list]==Head[list][True],True,False];
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Baikov Representation*)
 
 
@@ -207,7 +207,7 @@ MatrixOutput[sector_]:=Module[{Modules},
 Get["/home/zihao/projects/SyzygyRed/LinearSyz/LinearSyzForLinearModule_FF_v2.wl"]*)
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Cut*)
 
 
@@ -219,7 +219,7 @@ SingularIdeal[propIndex_,cutIndex_]:=Module[{cut,FF1,SingularIdeal},
 ];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (* Sector Tools*)
 
 
@@ -293,7 +293,7 @@ SectorElimination[sector_]:=(G@@Table[If[sector[[i]]>0,PatternTest[Pattern[ToExp
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Integral Ordering*)
 
 
@@ -416,7 +416,7 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 ];*)
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Singular Interface*)
 
 
@@ -578,7 +578,7 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 ];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*IBP generator*)
 
 
@@ -702,7 +702,7 @@ IBPCutGenerator[vector_,RestrictedPropIndex_,cutIndex_]:=Module[{i,b,ref,refloca
 ]*)
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*IBP sector Tools*)
 
 
@@ -723,7 +723,7 @@ LeadingIntegral[IBP_]:=Block[{list},
 
 
 (* Functions for the complexity of IBPs *)
-IBPSectorHeight[IBP_]:=Block[{LT},LT=LeadingIntegral[IBP]; If[LT==={},Return[-1],Return[SectorHeight[Int]]];];
+(*IBPSectorHeight[IBP_]:=Block[{LT},LT=LeadingIntegral[IBP]; If[LT==={},Return[-1],Return[SectorHeight[Int]]];];*)
 IBPSubSectorDegree[IBP_,sector_]:=Max[Total[IntegralAbsDegree[#]]&/@(Select[IntegralList[IBP,SortTheIntegrals->False],Sector[#]=!=sector&])];
 IBPSubSectorDenominatorDegree[IBP_,sector_]:=Max[IntegralPropagatorDegree[#]&/@(Select[IntegralList[IBP,SortTheIntegrals->False],Sector[#]=!=sector&])];
 IBPSubSectorNumeratorDegree[IBP_,sector_]:=Max[IntegralISPDegree[#]&/@(Select[IntegralList[IBP,SortTheIntegrals->False],Sector[#]=!=sector&])];
@@ -768,7 +768,7 @@ pivots[matrix_]:=Module[{ARLonglist},
 (*These codes depend on Pak.wl. But we need to include it outside this .wl file, some place where this .wl file is included.*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*SectorMaps*)
 
 
@@ -877,7 +877,7 @@ SectorMaps[sectors_]:=Module[
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Integral Maps*)
 
 
@@ -920,7 +920,7 @@ GMapped[sectorMaps_,indices_]:=Module[{sector,mappedSectors,map,preResult,result
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Map a expression*)
 
 
@@ -1027,7 +1027,7 @@ SymmetryMap[sectorMaps_,expr_,OptionsPattern[]]:=Module[{exprExpanded,newExprExp
 ]*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*MappedAndSubSectorsAllFinder*)
 
 
@@ -1116,7 +1116,7 @@ LPSymmetryQ[integral1_,integral2_]:=Module[
 ]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Azuritino*)
 
 
@@ -1158,7 +1158,7 @@ LeeCriticalPoints[sector_,OptionsPattern[]]:=Module[{P,Indices,vlist,ideal,GB,w}
 
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*AzuritinoMIFind*)
 
 
@@ -1304,7 +1304,7 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries,L
 (*Main *)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*SimpleIBP*)
 
 
@@ -1337,7 +1337,7 @@ SimpleIBP[OptionsPattern[]]:=Module[{RelavantSectors,i,Sectors,timeUsed},
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*DenominatorTypeTools*)
 
 
@@ -1398,7 +1398,7 @@ DenominatorLiftingShifts[sector_,liftDegree_]:=Module[{cs,c,constrain1,constrain
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*ZurichSeeding*)
 
 
@@ -1457,7 +1457,7 @@ ZurichSeedingVianFIBPFunctions[sector_,nFIBPFunctions_,IBPISPdegreeList_,Current
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*FindReducedIntegrals and ReduceTowards*)
 
 
@@ -1683,6 +1683,8 @@ FullForm]\);(*?*)
 	PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t Found ",Length[IBPIndex]," IBPs."];
 	result
 ]
+
+
 
 
 
@@ -2535,7 +2537,9 @@ FullForm]\);(*?*)
 
 
 
-(* ::Subsection::Closed:: *)
+
+
+(* ::Subsection:: *)
 (*Row Reduce Modules*)
 
 

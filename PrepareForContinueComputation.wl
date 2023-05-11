@@ -52,8 +52,12 @@ If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
 
 tmpPath=outputPath<>"tmp/"
+If[FileExistsQ[tmpPath<>"once_initialized.txt"],
+	Export[outputPath<>"tmp/"<>"initialized.txt",""];
+]
 If[!FileExistsQ[tmpPath<>"initialized.txt"],
 	Print["Cannot continue a computation without finishing initialization... Please run this conmpuation from the beginning."];
+	Exit[0];
 ]
 
 

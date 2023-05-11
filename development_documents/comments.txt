@@ -1,20 +1,16 @@
 ==========Urgent===================
-I cannot  continue.sh after an mistaken attempt of ./run.sh? Nonesense.. (initialized.txt removed in the attempt)
 
-issue in the dev_log.txt at 2022.0923 [II] needs to be improved.
+
+
+==========Important=================
+issue in the dev_log.txt at 2022.0923 [II] needs to be considered.
 
 seeding denominators by denominator types is very very risky, what if FIBP decends all denominator indices? The seeding will never end because it dose not cover enough denominator degree!
 Oh there is another problem discovered by user, the seeding of denominator indeed need to be rebuilt! debugModification20230314 is a temp rescuring!
 and, what if FIBPs -> {} after removing subsec FIBPs? must consider (a1-1)G[a1, a2,...] when a1 only takes 1 in denominator types...
 
-
-
 some OS does not use "math" to run mathematica in commandline
 
-
-
-
-==========Important=================
 plugin RW`s singularGB into MomentumMap, currently in temp_files
 
 need to improve the sub sector integral degrees, now is abs degree, need more options
@@ -28,12 +24,10 @@ modify seeding implementations to C
 
 add option ClearTempFolders in configs
 
-finding symmetry in initialization can be parallelized
 
 remove subsec IBPs before throwing it into Spasm
 
-clear Singular tmp folder after finished running, it takes 10s MBs disk, wasting.
-and, is it necessary to export relavant_integrals in Analyze_Sector.wl?
+ is it necessary to export relavant_integrals in Analyze_Sector.wl?
 
 numeric point could be not general enough! For example, in doublepentagon, I once set {s12->1,s23->3,s34->73,s45->7,s15->213,...}
 then, accidently, one IBP coefficient is (s12+2s23-s45), it vanished! Then NeatIBP gave wrong results.
@@ -55,6 +49,10 @@ contradiction with user`s code. (Like Litered`s "j").
 important
  No, it is important if user defines some kinematic variables like m[1]...
 But this is equivalent to considering what if user uses same function names as us. Is there anyway to prevent them to do so in the 3 input files? 
+--2023.5.11: added variable name protection step in Validating Inputs section in Initialization.wl. But we still need to add more names appear in Initialization.wl, Analyze_Sector.wl .... into the list ProtectedNames in Initialization.wl
+
+
+
 
 also, n=Length[ExternalMomenta]+1;
 	L=Length[LoopMomenta];
