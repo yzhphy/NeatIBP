@@ -143,12 +143,12 @@ Prepare[]:=Module[{Formula,MatrixA,VectorB,ScalarC,BList,AList,Vectorb,lambda},
 	];
 	(* z' s = MatrixA.ScalarVar + Vectorb, conversion between s_ij (x_ij here) to Baikov z's *)
 	
-	BaikovRevRep=MapThread[#1->#2&,{var,MatrixA . ScalarVar+Vectorb}];
-	BaikovRep=MapThread[#1->#2&,{ScalarVar,Inverse[MatrixA] . (var-Vectorb)}];
+	BaikovRevRep=MapThread[#1->#2&,{var,MatrixA.ScalarVar+Vectorb}];
+	BaikovRep=MapThread[#1->#2&,{ScalarVar,Inverse[MatrixA].(var-Vectorb)}];
 	BaikovKernel=BaikovKernelScalar/.BaikovRep;
 	
 	Parameters=Select[Variables[BaikovMatrix/.BaikovRep],!Head[#]===z&];
-	TangentSet=MatrixA . #&/@ScalarTangentSet/.BaikovRep//Factor;
+	TangentSet=MatrixA.#&/@ScalarTangentSet/.BaikovRep//Factor;
 	ExtendedTangentSet=Transpose[Join[Transpose[TangentSet],{Transpose[ScalarExtendedTangentSet]//Last}]]; (* including the cofactors *)
 	
 	ForwardRep[1]=Join[Table[z[i]->ToExpression["z"<>ToString[i]],{i,1,SDim}],Table[Parameters[[i]]->ToExpression["c"<>ToString[i]],{i,1,Parameters//Length}]];
@@ -165,12 +165,12 @@ Prepare[]:=Module[{Formula,MatrixA,VectorB,ScalarC,BList,AList,Vectorb,lambda},
 	
 	(* Feynman representation  *)
 	
-	Formula=(Propagators . var)/.(#->lambda #&/@LoopMomenta);
+	Formula=(Propagators.var)/.(#->lambda #&/@LoopMomenta);
 	MatrixA=D[SeriesCoefficient[Formula,{lambda,0,2}],{LoopMomenta},{LoopMomenta}]/2;	
 	VectorB=Coefficient[SeriesCoefficient[Formula,{lambda,0,1}],LoopMomenta]/2;
 	ScalarC=SeriesCoefficient[Formula,{lambda,0,0}];
 	Global`PolynomialU=Det[MatrixA]//Factor;
-	Global`PolynomialF=-PolynomialU (Expand[ScalarC]/.Kinematics)+ Cancel[PolynomialU (Expand[VectorB . Inverse[MatrixA] . VectorB]/.Kinematics)]//Expand;
+	Global`PolynomialF=-PolynomialU (Expand[ScalarC]/.Kinematics)+ Cancel[PolynomialU (Expand[VectorB.Inverse[MatrixA].VectorB]/.Kinematics)]//Expand;
 	Global`PolynomialG=PolynomialU+PolynomialF;
 	Global`numericPolynomialG=PolynomialG/.GenericPoint;
 	PrintAndLog["L=",L," E=",Length[ExternalMomenta]];
@@ -197,7 +197,7 @@ TangentModules[propIndex_,cutIndex_]:=Module[{M1,M2,M1ext,cut,ISPcondition},
 ];
 MatrixOutput[sector_]:=Module[{Modules},
 	Modules=TangentModules[sector//SectorIndex,{}];
-	Return[{Modules[[1]] . (gen/@Range[SDim]),Modules[[3]] . (gen/@Range[SDim])}];
+	Return[{Modules[[1]].(gen/@Range[SDim]),Modules[[3]].(gen/@Range[SDim])}];
 
 ]
 
@@ -347,14 +347,14 @@ IntegralISPDegree[int_]:=-Total[Select[int/.G->List,#<0&]];
 IntegralPropagatorType[int_]:=Table[If[int[[j]]>=1,int[[j]],0],{j,1,Length[int]}]; 
 IntegralISPType[int_]:=Table[If[int[[j]]<=0,int[[j]],0],{j,1,Length[int]}]; 
 
-FIntegralSectorISPDegree[fInt_,sector_]:=(IntegralRealization[fInt,Table[0,SDim]]/.G->List) . (sector-1)
+FIntegralSectorISPDegree[fInt_,sector_]:=(IntegralRealization[fInt,Table[0,SDim]]/.G->List).(sector-1)
 
 
 
 IntegralOrdering[int_]:=Join[{IntegralSectorHeight[int],SectorNumber[int//Sector]},IntegralWeight[int]];   (* Key function *)
 
 
-CollectG[exp_]:=Coefficient[exp,Select[Variables[exp],Head[#]==G&]] . Select[Variables[exp],Head[#]==G&];
+CollectG[exp_]:=Coefficient[exp,Select[Variables[exp],Head[#]==G&]].Select[Variables[exp],Head[#]==G&];
 
 
 (* ::Subsection::Closed:: *)
@@ -426,7 +426,7 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 ModuleSlash[m_]:=Table[If[Union[m[[j]]]==={0},Nothing,m[[j]]],{j,1,Length[m]}];
 
 
-Vector2gen[vec_,mode_]:=vec . Table[gen[j],{j,1,Length[vec]}]/.ForwardRep[mode];
+Vector2gen[vec_,mode_]:=vec.Table[gen[j],{j,1,Length[vec]}]/.ForwardRep[mode];
 Vector2SingularForm[vec_,mode_]:=StringReplace[ToString[InputForm[Vector2gen[vec,mode]]],{"gen["~~Shortest[x__]~~"]":>"gen("<>x<>")","{"->"[","}"->"]"}];
 Module2SingularForm[m_,mode_]:=StringReplace[ToString[Vector2SingularForm[#,mode]&/@m],{"{"->"","}"->""}];
 
@@ -887,8 +887,8 @@ MappedIntegral[zMap_,indices_]:=Module[{zs,sector,ispq,test,numeratorInds,denomi
 	zs=Sort[zMap[[All,1]]];
 	test=Product[zs[[i]]^-sector[[i]],{i,Length[zs]}]/.zMap//Expand;
 	If[Length[MonomialList[test]]>1,PrintAndLog["MappedIntegral: sector ",sector," inconsistent with map ",zMap];Return[$Failed]];
-	numeratorInds=indices . DiagonalMatrix[ispq];
-	denominatorInds=indices . DiagonalMatrix[sector];
+	numeratorInds=indices.DiagonalMatrix[ispq];
+	denominatorInds=indices.DiagonalMatrix[sector];
 	numerator=Product[zs[[i]]^-numeratorInds[[i]],{i,Length[zs]}]/.zMap//Expand;
 	denominator=Product[zs[[i]]^denominatorInds[[i]],{i,Length[zs]}]/.zMap//Expand;
 	crn=CoefficientRules[numerator,zs];
@@ -1391,7 +1391,7 @@ DenominatorLiftingShifts[sector_,liftDegree_]:=Module[{cs,c,constrain1,constrain
 	cs=c/@Range[Length[sector]];
 	constrain1=c[#]==0&/@Select[Range[Length[sector]],sector[[#]]===0&];
 	constrain2=c[#]>=0&/@Select[Range[Length[sector]],sector[[#]]===1&];
-	constrain3={sector . cs==liftDegree};
+	constrain3={sector.cs==liftDegree};
 	constrains=Join[constrain1,constrain2,constrain3];
 	sol=Solve[constrains,cs,Integers];
 	SortBy[cs/.sol,{Count[#,0],-#}&]
@@ -1683,10 +1683,6 @@ FullForm]\);(*?*)
 	PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t Found ",Length[IBPIndex]," IBPs."];
 	result
 ]
-
-
-
-
 
 
 
@@ -2363,17 +2359,15 @@ FullForm]\);(*?*)
 	(* Sort the IBPs and find the independent Ones*)
 	(* degRep=Dispatch[#->rr^Total[IntegralAbsDegree[#]]&/@IntegralList[nIBPs]];
 	IBPDegreeList=Exponent[#,rr]&/@(nIBPs/.degRep); *)
-	ProbeIntermediateResult["nIBPs_rawIBPs",secNo,{nIBPs,rawIBPs}];
+	
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Determining CompensationIBPDenominatorDegrees..."]];(*CompensationIBP: IBP from seeding with denominator lifted. If not a CompensationIBP,  this value is -1 *)
 	timer2=AbsoluteTime[];
 	memoryUsed2=MaxMemoryUsed[
-	CompensationIBPDenominatorDegrees=Table[-1,Length[rawIBPs]];
-	For[i=1,i<=Length[rawIBPs],i++,
-		If[And[FreeQ[rawIBPs[[i]],FI0],FreeQ[rawIBPs[[i]],ZM0]],
-			Continue[];
-		];
-		CompensationIBPDenominatorDegrees[[i]]=IBPSubSectorDenominatorDegree[nIBPs[[i]]]
-	];
+	CompensationIBPDenominatorDegrees=If[And[FreeQ[rawIBPs[[#]],FI0],FreeQ[rawIBPs[[#]],ZM0]],
+		-1
+	,
+		IBPSubSectorDenominatorDegree[nIBPs[[#]]]
+	]&/@Range[Length[nIBPs]];
 	(*end of MaxMemoryUsed*)];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","Finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
@@ -2503,7 +2497,7 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing zero-sector integrals..."]];
 	
     integrals=Select[IntegralList[rawIBPs],!MemberQ[Global`ZeroSectors,Sector[#]]&];
-	rawIBPs=Factor[CoefficientArrays[rawIBPs,integrals][[2]]] . integrals; (*Do I need to factor these coefficients?...OH yes, very important*)
+	rawIBPs=Factor[CoefficientArrays[rawIBPs,integrals][[2]]].integrals; (*Do I need to factor these coefficients?...OH yes, very important*)
 	(*end of MaxMemoryUsed*)];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Zero-sector integrals removed. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs remaining with ",Length[IntegralList[rawIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
@@ -2527,10 +2521,6 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
 ];
-
-
-
-
 
 
 
@@ -2589,7 +2579,7 @@ IBPAnalyze[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,RM,redIndex,irredIndex,timer
 	If[ReportIrreducibleIntegralsAfterIBPAnalyze,
 		PrintAndLog["#",secNum,"\t\t",Length[irredIndex]," irreducible integrals: ",Ints[[irredIndex]]]
 	];
-	Return[{redIndex,irredIndex,RM . Ints}];
+	Return[{redIndex,irredIndex,RM.Ints}];
 ];
 
 
