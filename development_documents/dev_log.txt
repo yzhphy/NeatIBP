@@ -887,3 +887,22 @@ I cannot  continue.sh after an mistaken attempt of ./run.sh? Nonesense.. (initia
 
 [IV]
 new version number 1.0.2.2
+
+----------------------------------
+2023.5.14
+[I]
+optimizations on CompensationIBPDenominatorDegrees
+changed to
+CompensationIBPDenominatorDegrees=Table[-1,Length[rawIBPs]];
+	For[i=1,i<=Length[rawIBPs],i++,
+		If[And[FreeQ[rawIBPs[[i]],FI0],FreeQ[rawIBPs[[i]],ZM0]],
+			Continue[];
+		];
+		CompensationIBPDenominatorDegrees[[i]]=IBPSubSectorDenominatorDegree[nIBPs[[i]]]
+	];
+maybe even if the "If" does not really run the 3rd arguments if the 1st arg is True, if the 3rd argument is large (such as nIBPs), the If code is still time and memory consuming...
+
+[II]
+added a setting to silence the warnings in MomentumMap
+
+[III]new version 1.0.2.3

@@ -1710,6 +1710,8 @@ FullForm]\);(*?*)
 
 
 
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -2363,7 +2365,7 @@ FullForm]\);(*?*)
 	(* Sort the IBPs and find the independent Ones*)
 	(* degRep=Dispatch[#->rr^Total[IntegralAbsDegree[#]]&/@IntegralList[nIBPs]];
 	IBPDegreeList=Exponent[#,rr]&/@(nIBPs/.degRep); *)
-	ProbeIntermediateResult["nIBPs_rawIBPs",secNo,{nIBPs,rawIBPs}];
+	(*ProbeIntermediateResult["nIBPs_rawIBPs",secNo,{nIBPs,rawIBPs}];*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Determining CompensationIBPDenominatorDegrees..."]];(*CompensationIBP: IBP from seeding with denominator lifted. If not a CompensationIBP,  this value is -1 *)
 	timer2=AbsoluteTime[];
 	memoryUsed2=MaxMemoryUsed[
@@ -2527,6 +2529,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 

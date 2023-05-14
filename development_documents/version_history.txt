@@ -74,5 +74,10 @@ Date: 2023.5.9
 Date: 2023.5.11
 	1. Some usage improvements.
 
+[NeatIBP 1.0.2.3]
+Date: 2023.5.14
+	1. Some usage improvements.
+	2. An efficiency optimization.
+
 
 

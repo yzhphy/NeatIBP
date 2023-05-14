@@ -104,7 +104,7 @@ If[TargetIntegrals===$Failed,Print["****  Unable to open target intergals file "
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Setting outputPath*)
 
 
@@ -195,7 +195,7 @@ PrintAndLog["start initialization steps."]
 Export[TemporaryDirectory<>"start_abs_time.txt",AbsoluteTime[]//InputForm//ToString]
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Validating Inputs*)
 
 
@@ -327,7 +327,7 @@ If[Union[(Length[Propagators]===Length[#])&/@TargetIntegrals]=!={True},
 ]
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Other file read and writes*)
 
 

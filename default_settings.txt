@@ -54,6 +54,7 @@ UseSRFindPivots=True;(*Currently, we only use this in IndepedentSet*)
 MomentumMapTimeConstrain=15;(*seconds*)
 UseNicePropagatorsInMomentumMap=True;(*must turn off this if one or more propagators are not quadratic*)
 ReportNoticeInDeepMomentumMap=False;
+ReportWarningInMomentumMap=False;
 PreferedExternalExtendedRotationMethod="Orthogonalization";(*or "DeltaPlainProjection"*)
 moduleIntersectionMethod = "Singular";
 AzuritinoDefaultStartDegree=3;(*Irrelavant if CriticalPointInAzuritino==True*)
