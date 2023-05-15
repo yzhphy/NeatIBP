@@ -1712,6 +1712,8 @@ FullForm]\);(*?*)
 
 
 
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -2460,7 +2462,7 @@ FullForm]\);(*?*)
 	
 	(*|||||||||*)(*ProbeIntermediateResult["nIBPs_used",secNo,nIBPs];*)
 	(*end of MaxMemoryUsed*)];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Uneeded IBPs removed. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Unneeded IBPs removed. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs remaining with ",Length[IntegralList[nIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
 	
 	timer=AbsoluteTime[];
@@ -2529,6 +2531,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 
