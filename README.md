@@ -51,10 +51,9 @@ write access. In the following, we assume this path is set as the environment va
 `software_ROOT`, as detailed in the following example:
 
 ```bash
-mkdir ~/neatibp-spack
-mkdir ~/neatibp-install
-export software_ROOT=~/neatibp-spack
-export install_ROOT=~/neatibp-install
+mkdir -p ~/singular-gpispace/neatibp-install
+export software_ROOT=~/singular-gpispace
+export install_ROOT=~/singular-gpispace/neatibp-install
 
 ```
 Note, this needs to be set again if you open a new terminal session (preferably set it automatically by adding the line to your .profile file).
