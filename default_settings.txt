@@ -43,6 +43,10 @@ ThreadUsedLimit=Infinity;
 DeleteSingularScriptFiles=False;
 DeleteSingularResultFiles=True;
 
+(*----------additional outputs-----------*)
+ExportUsedSyzygyVectors=False;(*The syzygy vectors really used in the final output IBPs*)
+ExportTheModules=False;(*the modules before module intersection, including M1, M1ext, M2.*)
+
 
 
 (*--------developer settings-------------*)

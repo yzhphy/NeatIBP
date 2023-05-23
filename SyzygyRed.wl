@@ -17,6 +17,16 @@ ProbeIntermediateResult[name_,sec_,expr_]:=Module[{intermediateResultFolder},
 ]
 
 
+ConvenientExport[path_,contents_]:=Module[{folder},
+	folder=DirectoryName[path];
+	If[!DirectoryQ[folder],Run["mkdir -p "<>folder]];
+	Export[path,contents]
+]
+
+
+
+
+
 PrintAndLog[x___]:=Module[{string,originalString},
 	If[LogFile=!="",
 		string=StringRiffle[ToString/@{x},""];
@@ -74,7 +84,7 @@ positivity[list_]:=If[Union[#>0&/@list]==Head[list][True],True,False];
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Baikov Representation*)
 
 
@@ -207,7 +217,7 @@ MatrixOutput[sector_]:=Module[{Modules},
 Get["/home/zihao/projects/SyzygyRed/LinearSyz/LinearSyzForLinearModule_FF_v2.wl"]*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Cut*)
 
 
@@ -219,7 +229,7 @@ SingularIdeal[propIndex_,cutIndex_]:=Module[{cut,FF1,SingularIdeal},
 ];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (* Sector Tools*)
 
 
@@ -293,7 +303,7 @@ SectorElimination[sector_]:=(G@@Table[If[sector[[i]]>0,PatternTest[Pattern[ToExp
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Integral Ordering*)
 
 
@@ -416,7 +426,7 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 ];*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Singular Interface*)
 
 
@@ -578,7 +588,7 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 ];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*IBP generator*)
 
 
@@ -702,7 +712,7 @@ IBPCutGenerator[vector_,RestrictedPropIndex_,cutIndex_]:=Module[{i,b,ref,refloca
 ]*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*IBP sector Tools*)
 
 
@@ -760,7 +770,7 @@ pivots[matrix_]:=Module[{ARLonglist},
 ];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Symmetry *)
 
 
@@ -1116,7 +1126,7 @@ LPSymmetryQ[integral1_,integral2_]:=Module[
 ]
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Azuritino*)
 
 
@@ -1304,7 +1314,7 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries,L
 (*Main *)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*SimpleIBP*)
 
 
@@ -1337,7 +1347,7 @@ SimpleIBP[OptionsPattern[]]:=Module[{RelavantSectors,i,Sectors,timeUsed},
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*DenominatorTypeTools*)
 
 
@@ -1398,7 +1408,7 @@ DenominatorLiftingShifts[sector_,liftDegree_]:=Module[{cs,c,constrain1,constrain
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*ZurichSeeding*)
 
 
@@ -1457,7 +1467,7 @@ ZurichSeedingVianFIBPFunctions[sector_,nFIBPFunctions_,IBPISPdegreeList_,Current
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*FindReducedIntegrals and ReduceTowards*)
 
 
@@ -1498,7 +1508,7 @@ ReduceTowards[rIBPs_,targets_,irredIntegrals_]:=Module[
 
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*FindIBPs (to seed by more denominator degrees)*)
 
 
@@ -1714,6 +1724,10 @@ FullForm]\);(*?*)
 
 
 
+
+
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -1727,7 +1741,7 @@ nFIBPs,WellAddressedIntegrals,secNo,degRep,rr,IBPDegreeList,IBPIndex,ReducedInte
 IBPISPdegrees,NewrawIBPs,NewnIBPs,timer2,M1,M1ext,M2,sectorMaps,mappedSectors,tailSectors,leafCounts,byteCounts,maxDenominatorIndices,formalIntegrals,
 zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctions,newSymmetryRelations,VectorList1,irredIntegrals,FIBPs0,FIBPISPDegree0,
 redundantMIs,nFIBPs0,azuritinoMIFolder,nFIBPFunctions0,redundantMIsReduced,newMIs,FindIBPResult,redundantMIsToBeReduced,CompensationIBPDenominatorDegrees,
-reduceTowards
+reduceTowards,remainedFIBPlabels,usedVectors,additionalResultFolder
 },
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
@@ -1838,6 +1852,13 @@ reduceTowards
 	(*ProbeIntermediateResult["vectors",secNo,VectorList];*)
 	(*end of MaxMemoryUsed*)];
 	
+	If[ExportTheModules===True,
+		{M1,M1ext,M2}=TangentModules[secindex,{}];
+		ConvenientExport[outputPath<>"results/additional_outputs/M1/"<>ToString[secNo]<>".txt",M1//InputForm//ToString];
+		ConvenientExport[outputPath<>"results/additional_outputs/M1ext/"<>ToString[secNo]<>".txt",M1ext//InputForm//ToString];
+		ConvenientExport[outputPath<>"results/additional_outputs/M2/"<>ToString[secNo]<>".txt",M2//InputForm//ToString];
+	];
+	
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Module intersections solved. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  VectorList Length: ", Length[VectorList]]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  VectorList ByteCount: ", ByteCount[VectorList]]];
@@ -1872,6 +1893,7 @@ reduceTowards
 	(* Remove IBPs for lower sectors *)
 	(* But this will wrongly kill some IBPs that generates IBPs not for lower sectors at non-corner seed*)
 	(* I (zihao) suggest we turn off this step, the subsec IBPs will be automatically removed in the next steps so it is not needed here to do so*)
+	(* In the new versions, this step is modified and on.*)
 	
 	If[OptionValue[KillCornerSubsecFIBPs],
 		timer=AbsoluteTime[];
@@ -1879,7 +1901,7 @@ reduceTowards
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing FIBPs for lower sectors seeding with DenominatorTypes..."]];
 		FIBPs1={};
 		CornerIBP={};
-		
+		remainedFIBPlabels={};
 		For[i=1,i<=Length[FIBPs],i++,
 			(*baseIBP=IntegralRealization[FIBPs[[i]],sector];*)
 			
@@ -1899,7 +1921,7 @@ reduceTowards
 			If[FIBPCurrentSectorIntegrals==={0},
 				Continue[];  (* This FIBP seeds to a lower sector in DenominatorTypes*)
 			]; 
-			
+			AppendTo[remainedFIBPlabels,i];
 			AppendTo[FIBPs1,FIBPs[[i]]];
 			AppendTo[CornerIBP,baseIBP];
 		];
@@ -2459,6 +2481,17 @@ FullForm]\);(*?*)
 	
 	rawIBPs=rawIBPs[[UsedIndex]];
 	nIBPs=nIBPs[[UsedIndex]];(*although not needed, we keep this to debug*)
+	ProbeIntermediateResult["rawIBPsFrom",secNo,rawIBPs[[All,1]]//Union];(*debug2023*)
+	If[ExportUsedSyzygyVectors===True,
+		usedVectors=Union[
+			Select[
+				rawIBPs[[All,1]]/.FI[x_]:>FI0[remainedFIBPlabels[[x]]],
+				Head[#]===FI0&
+			]
+		]/.FI0[x_]:>VectorList[[x]];
+		ConvenientExport[outputPath<>"results/additional_outputs/used_syzygy_vectors/"<>ToString[secNo]<>".txt",usedVectors//InputForm//ToString];
+	];
+	
 	
 	(*|||||||||*)(*ProbeIntermediateResult["nIBPs_used",secNo,nIBPs];*)
 	(*end of MaxMemoryUsed*)];
@@ -2557,7 +2590,11 @@ FullForm]\);(*?*)
 
 
 
-(* ::Subsection:: *)
+
+
+
+
+(* ::Subsection::Closed:: *)
 (*Row Reduce Modules*)
 
 

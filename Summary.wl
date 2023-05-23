@@ -277,7 +277,7 @@ PrintAndLog["---------------MI numbers------------------"]
 For[i=1,i<=Length[fileNamesMI],i++,
 	sector=SectorNumberToSectorIndex[sectorIDsMI[[i]]];
 	MI=MIs[[i]];
-	AzuritinoMI=AzuritinoMIs[[i]];
+	If[MIFromAzuritino===True,AzuritinoMI=AzuritinoMIs[[i]]];
 	MIDifferenceReportString="";
 	If[MIFromAzuritino===True,
 		MIDifference=Length[MI]-Length[AzuritinoMI];

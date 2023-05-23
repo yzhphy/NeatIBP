@@ -44,6 +44,8 @@ After this, please check that the file **libspasm.so** exists in the folder **/u
 
 ### Installation via Spack
 
+If the user prefer to install NeatIBP using spack, please follow the steps in this section. If the user have installed NeatIBP and its dependencies using the manual in the previous section, please skip this section.
+
 We will assume that the user has some directory path with read and
 write access. In the following, we assume this path is set as the environment variable
 `software_ROOT`, as detailed in the following example:
