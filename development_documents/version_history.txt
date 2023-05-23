@@ -79,5 +79,10 @@ Date: 2023.5.14
 	1. Some usage improvements.
 	2. An efficiency optimization.
 
+[NeatIBP 1.0.2.4]
+Date: 2023.5.14
+	1. Allow user to order some additional outputs, including used syzygy vectors and module before module intersection.
+	2. Some fixings in the summarization step.
+
 
 
