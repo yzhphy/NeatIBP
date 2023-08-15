@@ -34,6 +34,12 @@ If you do not have **SpaSM** installed on your computer, you can install this de
 
 https://github.com/cbouilla/spasm
 
+One should check that if their system has the dependency package **libtool** installed. If not, one can run: (debian-based system, for example)
+
+```
+sudo apt-get install libtool
+```
+
 However, considering some installation compatibility issues discovered in some operating systems (including Ubuntu 22.04 and CentOS), we recommend that you install **SpaSM** using the script provided in our repo. To do so, change to the **NeatIBP/SparseRREF** folder and run the script by the following command
 ```
 sudo bash spasm_mod_script.sh
