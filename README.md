@@ -48,6 +48,8 @@ This script modifies the original SpaSM installation steps (we thank the authour
 
 After this, please check that the file **libspasm.so** exists in the folder **/usr/local/lib**. If so, SpaSM is ready to go.
 
+Besides, NeatIBP supports an alternative way of installation via spack. If the user prefer to do so, please follow the instructions in the [appendix](https://github.com/yzhphy/NeatIBP#installation-via-spack-alternative).
+
 ## Manual of how to use NeatIBP
 ### Preparing inputs
 To run NeatIBP, you need to create 3 input file files in your working folder.
@@ -114,6 +116,29 @@ NeatIBP uses Mathematica in command line using command like
 math -script script_name.wl
 ```
 Please make sure that this works on your computer in order to use NeatIBP. This version of NeatIBP dose not support running Mathematica in command lines using other commands yet.
+
+## How to cite
+If you use NeatIBP in your research, we would appreciate it if you cite the related paper  [arxiv 2305.08783](https://arxiv.org/pdf/2305.08783.pdf). Or you can cite with
+```
+@article{Wu:2023upw,
+    author = "Wu, Zihao and Boehm, Janko and Ma, Rourou and Xu, Hefeng and Zhang, Yang",
+    title = "{NeatIBP 1.0, A package generating small-size integration-by-parts relations for Feynman integrals}",
+    eprint = "2305.08783",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ph",
+    reportNumber = "USTC-ICTS/PCFT-23-15",
+    month = "5",
+    year = "2023"
+}
+```
+or
+```
+%\cite{Wu:2023upw}
+\bibitem{Wu:2023upw}
+Z.~Wu, J.~Boehm, R.~Ma, H.~Xu and Y.~Zhang,
+%``NeatIBP 1.0, A package generating small-size integration-by-parts relations for Feynman integrals,''
+[arXiv:2305.08783 [hep-ph]].
+```
 
 ## Appendix
 ### Installation via Spack (alternative)
