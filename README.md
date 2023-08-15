@@ -118,7 +118,7 @@ math -script script_name.wl
 Please make sure that this works on your computer in order to use NeatIBP. This version of NeatIBP dose not support running Mathematica in command lines using other commands yet.
 
 ## How to cite
-If you use NeatIBP in your research, we would appreciate it if you cite the related paper  [arxiv 2305.08783](https://arxiv.org/pdf/2305.08783.pdf). Or you can cite with
+If you use NeatIBP in your research, we would appreciate it if you cite the related paper  [arxiv 2305.08783](https://arxiv.org/abs/2305.08783). Or you can cite with
 ```
 @article{Wu:2023upw,
     author = "Wu, Zihao and Boehm, Janko and Ma, Rourou and Xu, Hefeng and Zhang, Yang",
