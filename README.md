@@ -21,7 +21,6 @@ https://github.com/cbouilla/spasm
 
 ## Installation
 
-### Manual Installation
 This section shows how to install NeatIBP itself and its depencencies. You can use the following command to get NeatIBP itself installed on your computer:
 ```
 git clone https://github.com/yzhphy/NeatIBP.git
