@@ -25,7 +25,7 @@ This section shows how to install NeatIBP itself and its depencencies. You can u
 ```
 git clone https://github.com/yzhphy/NeatIBP.git
 ```
-Then, if you do not have **Singular** installed on your computer, please install this dependency from its [home page](https://www.singular.uni-kl.de/)
+Then, if you do not have **Singular** installed on your computer, please install this dependency from its [home page](https://www.singular.uni-kl.de/).
 
 If you do not have **SpaSM** installed on your computer, you need to install this dependency. At first, you should check that if your system has the dependency package **libtool** installed. If not, one can run: (debian-based system, for example)
 you can install this dependency from 
