@@ -1,8 +1,9 @@
 #!/bin/bash
 git clone https://github.com/cbouilla/spasm.git
-cp modules.c spasm/bench/modules.c
-cp Makefile.am spasm/bench/Makefile.am
+#cp modules.c spasm/bench/modules.c
+#cp Makefile.am spasm/bench/Makefile.am
 cd spasm
+git checkout 59135cc
 apt-get install libtool
 autoreconf -i
 automake --add-missing
