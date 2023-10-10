@@ -20,8 +20,11 @@ outputPath=Automatic;
 (*-----------math settings---------------*)
 OptionSimplification = 12;
 FiniteFieldModulus=42013;(*do not use any prime number larger than 46337*)
-AzuritinoIntersectionDegreeBound=0
-NeatIBPIntersectionDegreeBound=5
+AzuritinoIntersectionDegreeBound=0;
+NeatIBPIntersectionDegreeBound=5;
+FlexibleNeatIBPIntersectionDegreeBound=False;(*Something wrong... do not use True*)
+NeatIBPIntersectionTimeConstrain=3600;(*seconds*)
+NeatIBPIntersectionDegreeBoundDecreaseLimit=2;
 
 (*-----------physics settings-------------*)
 IntegralOrder = "MultiplePropagatorElimination"
@@ -44,12 +47,17 @@ DeleteSingularScriptFiles=False;
 DeleteSingularResultFiles=True;
 
 (*----------additional outputs-----------*)
-ExportUsedSyzygyVectors=False;(*The syzygy vectors really used in the final output IBPs*)
 ExportTheModules=False;(*the modules before module intersection, including M1, M1ext, M2.*)
+ExportUsedSyzygyVectors=False;(*The syzygy vectors really used in the final output IBPs*)
+ExportAllFIBPs=False;(*All the fundamental (symbolic) IBPs from the syzygy vectors from Singular*)
+
+(*----------spanning cuts related--------*)
+SpanningCutsEvaluationMode="Parallel";
 
 
 
 (*--------developer settings-------------*)
+SimplifySyzygyVectorsByCut=False;
 debugMode=False;
 seedingViaFIBPFunction=True;
 SowAndReap=True;(*of the Zuirch seeding in the main body of NeatIBP*)
@@ -67,6 +75,7 @@ DenominatorTypeLiftIndexLists={};(*data structure: a list of index lists. This i
 LinearSyzDegree=3;
 NumericIBP=False;
 ReportIrreducibleIntegralsAfterIBPAnalyze=False;
+
 
 (*-------other default settings----------*)
 GenericD={d-> 3/137};

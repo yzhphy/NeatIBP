@@ -56,7 +56,7 @@ If[FileExistsQ[tmpPath<>"once_initialized.txt"],
 	Export[outputPath<>"tmp/"<>"initialized.txt",""];
 ]
 If[!FileExistsQ[tmpPath<>"initialized.txt"],
-	Print["Cannot continue a computation without finishing initialization... Please run this conmpuation from the beginning."];
+	Print["Cannot continue a computation without finishing initialization... Please run this compuation from the beginning."];
 	Exit[0];
 ]
 

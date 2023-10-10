@@ -1,0 +1,38 @@
+(*
+This config file will be included into several mathematica scripts using Get.
+Please make sure the paths are absolute paths.
+*)
+
+(*------------input files----------------*)
+kinematicsFile = workingPath<>"kinematics.txt";(*workingPath will be set as the current working path*)
+targetIntegralsFile = workingPath<>"targetIntegrals_D.txt";
+
+(*-----------dependency settings---------*)
+SingularApp = "/usr/bin/Singular";
+SparseRREF`SpaSMLibrary = "/usr/local/lib/libspasm.so"
+
+(*-----------directory settings----------*)
+ReductionOutputName="pb_D";
+outputPath=Automatic;(*recommended*)
+
+(*outputPath=workingPath<>"test/";*)(*alternative*)
+
+(*-----------math settings---------------*)
+OptionSimplification = 12;
+FiniteFieldModulus=42013;(*do not use any prime number larger than 46337*)
+AzuritinoIntersectionDegreeBound=0
+NeatIBPIntersectionDegreeBound=5
+
+(*-----------physics settings-------------*)
+IntegralOrder = "MultiplePropagatorElimination"
+NeedSymmetry=True;
+CutIndices={};
+
+(*-----------method settings--------------*)
+MIFromAzuritino=True;
+CriticalPointInAzuritino=True;
+
+
+(*-----------usage settings--------------*)
+MemoryUsedLimit=Infinity;(*MB*)
+ThreadUsedLimit=Infinity;

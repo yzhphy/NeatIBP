@@ -60,6 +60,11 @@ SectorNumberToSectorIndex[num_]:=IntegerDigits[num,2,Length[Propagators]]//Rever
 
 
 
+Print["=================================================="];
+Print["Checking at ",checkPath]
+Print["-------------------------------------------------"]
+
+
 targetFileName=FileNameSplit[targetIntegralsFile][[-1]]
 kinematicsFileName=FileNameSplit[kinematicsFile][[-1]]
 

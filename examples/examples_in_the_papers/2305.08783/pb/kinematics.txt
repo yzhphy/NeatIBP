@@ -1,0 +1,8 @@
+LoopMomenta={l1,l2};
+ExternalMomenta={k1,k2,k3,k4};
+Propagators=#^2&/@{l1,l1-k1,l1-k1-k2,l1-k1-k2-k3,l2,l2+k1+k2+k3+k4,l2+k1+k2+k3,l1+l2,l1-k1-k2-k3-k4,l2+k1,l2+k2};
+Kinematics={k1^2 -> 0, k2^2 -> 0, k3^2 -> 0, k4^2 -> 0, k1 k2 -> s12/2, 
+  k1 k3 -> 1/2 (-s12 - s23 + s45), k1 k4 -> 1/2 (-s15 + s23 - s45), 
+  k2 k3 -> s23/2, k2 k4 -> 1/2 (s15 - s23 - s34), k3 k4 -> s34/2};
+GenericPoint={s12 -> -1/13, s23 -> -1/2, s34 -> -1/73, s45 -> -1/7, s15 -> -1/213};
+GenericD={d->1/137}

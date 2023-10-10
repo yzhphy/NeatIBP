@@ -65,6 +65,9 @@ PrintAndLog[x___]:=Module[{string,originalString},
 
 
 
+TimeString[]:=StringRiffle[#[[1;;3]],"."]<>" "<>StringRiffle[#[[4;;6]],":"]&[(ToString[Floor[#]]&/@FromAbsoluteTime[AbsoluteTime[]][[1,1;;6]])]
+
+
 timer=AbsoluteTime[];
 
 
@@ -131,6 +134,7 @@ If[sectorID=!=-1,
 ]
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[LogPath]
 PrintAndLog["===================================="]
+If[sectorID=!=-1,PrintAndLog["Sector ",sectorID," starting at ",TimeString[],"."]]
 
 
 missionStatusFolder=outputPath<>"tmp/mission_status/"
@@ -343,7 +347,7 @@ Export[
 
 
 
-If[sectorID=!=-1,PrintAndLog["Sector ",sectorID," finished."]]
+If[sectorID=!=-1,PrintAndLog["Sector ",sectorID," finished at ",TimeString[],"."]]
 
 
 Run["echo "<>ToString[sectorID]<>":\tFinished\t"<>ToString[InputForm[FromUnixTime[UnixTime[]]]]<>" >> "<>outputPath<>"tmp/log2.txt"]

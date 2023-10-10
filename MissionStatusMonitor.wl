@@ -132,27 +132,190 @@ PrintWaitInitialization[]:=Module[{},
 ]
 
 
-ActuallyRunningMissions[]:=Module[{ps,ASps,currentMissions},
+(*ActuallyRunningMissions[]:=Module[{ps,ASps,currentMissions},
 	ps=Select[StringSplit[RunProcess[StringSplit["ps -ef"]]["StandardOutput"],"\n"],StringContainsQ[#,"Analyze_Sector.wl"]&];
 	ASps=StringSplit[#," "][[-2;;-1]]&/@ps;
 	currentMissions=Select[ASps,#[[2]]===outputPath&];
 	ToExpression/@(currentMissions[[All,1]])
 	(*Maybe the user runs 2 different diagrams at a time... *)
+]*)
+ActuallyRunningMissions[path_]:=Module[{ps,ASps,currentMissions},
+	ps=Select[StringSplit[RunProcess[StringSplit["ps -ef"]]["StandardOutput"],"\n"],StringContainsQ[#,"Analyze_Sector.wl"]&];
+	ASps=StringSplit[#," "][[-2;;-1]]&/@ps;
+	currentMissions=Select[ASps,#[[2]]===path&];
+	ToExpression/@(currentMissions[[All,1]])
+	(*Maybe the user runs 2 different diagrams at a time... *)
+]
+ActuallyRunningMissions[]:=ActuallyRunningMissions[outputPath]
+
+
+
+
+
+(* ::Section:: *)
+(*Spanning Cuts monitor*)
+
+
+MissionStatusInfo[path_]:=Module[
+{missionStatusPath,missionStatus,missionWaitingSupersectors,missionReadyToCompute,
+missionComputing,missionComputationFinished,actuallyRunningMissions,missionLost,
+runningMissionUnregistered},
+	actuallyRunningMissions=ActuallyRunningMissions[path];
+	missionStatusPath=path<>"/tmp/mission_status/";
+	missionStatus={ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex,Get[#]}&/@FileNames[All,missionStatusPath]
+	missionWaitingSupersectors=(
+			SortBy[Select[missionStatus,#[[2]]==="WaitingSupersectors"&],SectorOrdering[#[[1]]]&]//Reverse
+	)[[All,1]];
+	missionReadyToCompute=(
+			SortBy[Select[missionStatus,#[[2]]==="ReadyToCompute"&],SectorOrdering[#[[1]]]&]//Reverse
+	)[[All,1]];
+	missionComputing=(
+			SortBy[Select[missionStatus,#[[2]]==="Computing"&],SectorOrdering[#[[1]]]&]//Reverse
+	)[[All,1]];
+	missionComputationFinished=(
+			SortBy[Select[missionStatus,#[[2]]==="ComputationFinished"&],SectorOrdering[#[[1]]]&]//Reverse
+	)[[All,1]];
+	missionLost=Complement[SectorNumber/@missionComputing,actuallyRunningMissions];
+	runningMissionUnregistered=Complement[actuallyRunningMissions,SectorNumber/@missionComputing];
+	MapThread[#1->#2&,{
+		{
+			"waiting",
+			"computable",
+			"computing",
+			"finished",
+			"*lost",
+			"*unlabelled"
+		},
+		Length/@{
+			missionWaitingSupersectors\:ff0c
+			missionReadyToCompute\:ff0c
+			missionComputing\:ff0c
+			missionComputationFinished\:ff0c
+			missionLost\:ff0c
+			runningMissionUnregistered
+		}
+	}]
 ]
 
 
-ActuallyRunningMissions[]
+
+CutMissionInfo[cut_]:=Module[{cutString,path,status},
+	cutString=StringRiffle[ToString/@cut,"_"];
+	path=outputPath<>"/tmp/spanning_cuts_missions/cut_"<>cutString<>"/outputs/"<>ReductionOutputName<>"/";
+	status=MissionStatusInfo[path];
+	Join[{"cut"->cut},status]
+]
 
 
+CutStringToCutIndex[cutString_]:=ToExpression/@StringSplit[StringReplace[cutString,"cut_"->""],"_"]
+
+
+ReadCuts[]:=Module[{dirs,cutStrings},
+	dirs=Select[FileNames[All,outputName<>"/tmp/spanning_cuts_missions/"],DirectoryQ];
+	cutStrings=FileNameSplit[#][[-1]]&/@dirs;
+	CutStringToCutIndex/@cutStrings
+]
+
+
+CutMissionsInfoTable[]:=Module[{cuts,infos,heads},
+	cuts=ReadCuts[];
+	infos=CutMissionInfo/@cuts;
+	heads={
+		"cut",
+		"waiting",
+		"computable",
+		"computing",
+		"finished",
+		"*lost",
+		"*unlabelled"
+	};
+	(ToString/@(heads/.#))&/@Join[{{}},infos]
+]
+
+
+CompensateSpace[string_,length_]:=string<>StringRiffle[Table[" ",length],""]
+
+
+
+
+
+FineTableDisplay[table_]:=Module[{rows,columns,r,c,maxLengths,fineTable,entry,finalString},
+	fineTable=table;
+	{rows,columns}=Dimensions[table];
+	maxLengths=(Max@@(StringLength/@#))&/@Transpose[table];(*max string length of each column*)
+	For[r=1,r<=rows,r++,
+		For[c=1,r<=columns,c++,
+			entry=table[[r,c]];
+			fineTable[[r,c]]=CompensateSpace[entry,maxLengths[[c]]-StringLength[entry]]
+		];
+	];
+	finalString=StringRiffle[StringRiffle[#,"\t"]&/@fineTable,"\n"];
+	Print[finalString]
+]
+
+
+PrintCutsMissions[]:=Module[{},
+	Print["----------------------------------------------"];
+	Print[TimeString[]];
+	Print["----------------------------------------------"];
+	FineTableDisplay[CutMissionsInfoTable[]]
+]
+
+
+CutFinishedQ[cut_]:=Module[{info},
+	info=CutMissionsInfoTable[cut];
+	And[
+		({
+			"waiting",
+			"computable",
+			"computing",
+			"*lost",
+			"*unlabelled"
+		}/.info)===(ToString/@{0,0,0,0,0}),
+		ToExpression["finished"/.info]>0
+	]
+]
+
+
+AllCutsFinishedQ[]:=Module[{cuts},
+	cuts=ReadCuts[];
+	And@@(CutFinishedQ/@cuts)
+]
+
+
+(* ::Section:: *)
+(*Run monitor*)
+
+
+mode="normal"
 While[True,
-	If[!DirectoryQ[outputPath//ToString],Print["outputPath "<>ToString[outputPath]<>" does not exist."];Break[]];
-	missionStatus={ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex,Get[#]}&/@FileNames[All,missionStatusFolder];
-	initializationStatus=InitializationStatus[];
-	If[initializationStatus==="finished",PrintStatus[]];
-	If[initializationStatus==="in progress",PrintWaitInitialization[]];
-	If[initializationStatus==="failed",Print["==============================================\nInitialization Failed."];Break[]];
-	If[DeleteCases[missionStatus[[All,2]],"ComputationFinished"]==={}&&missionStatus=!={}&&initializationStatus==="finished",Print["==============================================\nAll sectors finished."];Break[]];
-	Pause[1]
+	If[FileExistsQ[outputPath<>"tmp/spanning_cuts_mode.txt"]&&FileExistsQ[outputPath<>"tmp/run_all_cuts.sh"],
+		mode="spanning cuts";
+		Print["----------------------------------------------"];
+		Print[TimeString[]];
+		Print["Entering spanning cuts mode"];
+		Pause[3]
+	];
+	If[mode==="normal",
+		If[!DirectoryQ[outputPath//ToString],Print["outputPath "<>ToString[outputPath]<>" does not exist."];Break[]];
+		missionStatus={ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex,Get[#]}&/@FileNames[All,missionStatusFolder];
+		initializationStatus=InitializationStatus[];
+		If[initializationStatus==="finished",PrintStatus[]];
+		If[initializationStatus==="in progress",PrintWaitInitialization[]];
+		If[initializationStatus==="failed",Print["==============================================\nInitialization Failed."];Break[]];
+		If[DeleteCases[missionStatus[[All,2]],"ComputationFinished"]==={}&&missionStatus=!={}&&initializationStatus==="finished",Print["==============================================\nAll sectors finished."];Break[]];
+		Pause[1]
+	];
+	If[mode==="spanning cuts",
+		If[!DirectoryQ[outputPath//ToString],Print["outputPath "<>ToString[outputPath]<>" does not exist."];Break[]];
+		initializationStatus=InitializationStatus[];
+		If[initializationStatus==="finished",PrintCutsMissions[]];
+		If[initializationStatus==="in progress",PrintWaitInitialization[]];
+		If[initializationStatus==="failed",Print["==============================================\nInitialization Failed."];Break[]];
+		If[AllCutsFinishedQ[]&&initializationStatus==="finished",Print["==============================================\nAll cuts finished."];Break[]];
+		Pause[3]
+	];
+	
 ]
 
 

@@ -104,7 +104,7 @@ If[TargetIntegrals===$Failed,Print["****  Unable to open target intergals file "
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Setting outputPath*)
 
 
@@ -195,7 +195,7 @@ PrintAndLog["start initialization steps."]
 Export[TemporaryDirectory<>"start_abs_time.txt",AbsoluteTime[]//InputForm//ToString]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Validating Inputs*)
 
 
@@ -208,7 +208,8 @@ ProtectedNames=
 ScalarExtendedTangentSet,BaikovKernelScalar,BaikovRevRep,BaikovRep,BaikovKernel,Parameters,TangentSet,ExtendedTangentSet,
 ForwardRep,BackwardRep,Scalar2sp,sp2Scalar,sp,PolynomialU,PolynomialF,PolynomialG,numericPolynomialG,gen,varOrder,ss,(*in SyzygyRed.wl, IntegerPartition function. I think this variable, ss, can be set as local*)
 ZeroSectors,NonZeroSectors,ZeroTargets,ReductionTargets,ReductionTasks,ZeroSectorRemoval,IBPList,MIList,SectorAnalyzeTiming,IntegralR,FI,BasicRawIBPs,FI0,ZM0,secNum,SelfSymmetryR,ZM,RelavantIntegrals,
-groupMomentumU,groupMomentumV,StdL,i
+groupMomentumU,groupMomentumV,StdL,i,spanningCuts,bottomSectors,topSectors,spanningCutsMissionMainPath,TemporaryDirectory,
+Prepare
 
 }//DeleteDuplicates
 CheckRange={"TargetIntegrals","LoopMomenta","ExternalMomenta","Propagators","Kinematics","GenericPoint","GenericD"
@@ -258,11 +259,29 @@ If[Variables[d/.GenericD]=!={},
 
 
 
+If[Head[CutIndices]=!=List&&!MemberQ[{"spanning cuts"},CutIndices],
+	PrintAndLog["****  Unexpected cut indices. Exiting..."];
+	Exit[0]
+]
+
+
+If[And[MemberQ[{"spanning cuts"},CutIndices],Not[debugMode===True]],
+	PrintAndLog["****  In current version, spanning cuts mode is under developement. There may lurks unknown bugs. Please set debugMode=True if you want to try. Exiting..."];
+	Exit[0]
+]
+
+
 If[CutIndices=!={}&&NeedSymmetry,
 	PrintAndLog["****  Please turn off symmetry if there is any cut indices. Exiting..."];
 	Exit[0]
 ]
 
+
+
+If[(CutIndices==="spanning cuts")&&(automaticOutputPath===False),
+	PrintAndLog["****  In spanning cuts mode, outputPath must be set to be Automatic. Exiting..."];
+	Exit[0]
+]
 
 
 If[IntegralOrder =!= "MultiplePropagatorElimination"&&MIFromAzuritino,
@@ -301,10 +320,15 @@ CutableQ[integral_,cut_]:=!MemberQ[Union[Sign/@((List@@integral[[cut]])-1)],1](*
 CuttedQ[integral_,cut_]:=MemberQ[Union[Sign/@((List@@integral[[cut]])-1)],-1](* index that are cut <1 then return True*)
 
 
-If[MemberQ[CutableQ[#,CutIndices]&/@TargetIntegrals,False],
-	PrintAndLog["****  Sorry, this version dose not support cutting indices larger than 1. Please remove corresponding target integrals with such multiple propagators.\nExiting..."];
-	Exit[0];
+If[CutIndices=!="spanning cuts",
+	If[MemberQ[CutableQ[#,CutIndices]&/@TargetIntegrals,False],
+		PrintAndLog["****  Sorry, this version dose not support cutting indices larger than 1. Please remove corresponding target integrals with such multiple propagators.\nExiting..."];
+		Exit[0];
+	]
 ]
+
+
+
 
 
 
@@ -327,7 +351,7 @@ If[Union[(Length[Propagators]===Length[#])&/@TargetIntegrals]=!={True},
 ]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Other file read and writes*)
 
 
@@ -368,7 +392,8 @@ If[!DirectoryQ[#],Run["mkdir "<>#]]&[reductionTasksFolder]
 (*The rest steps*)
 
 
-If[CutIndices=!={},
+If[CutIndices=!={}&&CutIndices=!="spanning cuts",
+	
 	PrintAndLog["Removing target integrals vanishing on cut "<>ToString[InputForm[CutIndices]]];
 	timer=AbsoluteTime[];
 	cuttedTargets=Select[TargetIntegrals,CuttedQ[#,CutIndices]&];
@@ -385,13 +410,16 @@ If[CutIndices=!={},
 ]
 
 
+
+
+
 PrintAndLog["Finding nonzero sectors..."]
 timer=AbsoluteTime[];
 Sectors=SortBy[Union[Sector/@TargetIntegrals],SectorOrdering]//Reverse;
 
 RelavantSectors=SubsectorAllFinder[Sectors];
 
-If[CutIndices=!={},
+If[CutIndices=!={}&&CutIndices=!="spanning cuts",
 	RelavantSectors=Select[RelavantSectors,!CuttedQ[#,CutIndices]&]
 ];
 
@@ -483,6 +511,7 @@ mapAndSubRelationMatrix=Table[0,Length[uniqueSectors],Length[uniqueSectors]]
 
 
 
+PrintAndLog["\t Building mapAndSubRelationMatrix..."];
 For[indexI=1,indexI<=Length[uniqueSectors],indexI++,
 	mappedAndSubSectorsAll=MappedAndSubSectorsAllFinder[sectorMaps,{uniqueSectors[[indexI]]}];
 	
@@ -493,6 +522,23 @@ For[indexI=1,indexI<=Length[uniqueSectors],indexI++,
 	]
 ]
 
+
+PrintAndLog["\t Finding top and bottom sectors..."];
+topSectors=uniqueSectors[[
+	Select[Range[Length[uniqueSectors]],Union[mapAndSubRelationMatrix[[All,#]]]==={0}&]
+]]
+bottomSectors=uniqueSectors[[
+	Select[Range[Length[uniqueSectors]],Union[mapAndSubRelationMatrix[[#,All]]]==={0}&]
+]]
+topSectors=SortBy[topSectors,SectorOrdering]
+bottomSectors=SortBy[bottomSectors,SectorOrdering]
+Export[outputPath<>"tmp/topSectors.txt",topSectors//InputForm//ToString]
+Export[outputPath<>"tmp/bottomSectors.txt",bottomSectors//InputForm//ToString]
+spanningCuts=SectorIndex/@bottomSectors
+Export[outputPath<>"tmp/spanningCuts.txt",spanningCuts//InputForm//ToString]
+
+
+PrintAndLog["\t Building trees..."];
 
 superOrSourceSectors={}
 For[indexK=1,indexK<=Length[uniqueSectors],indexK++,
@@ -572,5 +618,9 @@ SimpleIBP[Verbosity->1,SeedingMethod->"Direct"]//AbsoluteTiming*)
 
 tmpPath=outputPath<>"tmp/";
 If[!DirectoryQ[#],Run["mkdir -p "<>#]]&[tmpPath];
+
+
+If[CutIndices==="spanning cuts",Export[tmpPath<>"spanning_cuts_mode.txt",""]]
+
 Export[tmpPath<>"initialized.txt",""]
 PrintAndLog["Initialization Finished."]

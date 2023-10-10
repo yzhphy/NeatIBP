@@ -111,4 +111,9 @@ No need to change, but better to change.
 *)
 Can be improved.
 
+=================version 2 comment================
+can we avoid vector->FIBP->IBP? it is slow, can we do vector->IBP?
+
+in version 1, the parameter/option transmission way is really a mess. some are defined variables, some are options in the defined functions... improve this. 
+
 

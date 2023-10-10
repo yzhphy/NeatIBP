@@ -60,7 +60,7 @@ If[!FileExistsQ[tmpPath<>"initialized.txt"],
 ]
 
 
-StringSplit["asjias",""][[-1]]=="s"
+
 
 
 missionStatusFolder=outputPath<>"tmp/mission_status/"
@@ -73,10 +73,18 @@ SectorNumberToSectorIndex[num_]:=IntegerDigits[num,2,Length[Propagators]]//Rever
 missionStatus={ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex,Get[#]}&/@FileNames[All,missionStatusFolder]
 
 
-If[DeleteCases[Union[missionStatus[[All,2]]],"ComputationFinished"]==={},
-	script="echo \"All mission finished!\"\n"
-	,
-	script="math -script "<>packagePath<>"MissionStatusChecker.wl "<>missionInput<>" | sh"
+
+
+
+If[!FileExistsQ[tmpPath<>"spanning_cuts_mode.txt"],
+	If[DeleteCases[Union[missionStatus[[All,2]]],"ComputationFinished"]==={},
+		script="echo \"All mission finished!\"\n"
+		,
+		script="math -script "<>packagePath<>"MissionStatusChecker.wl "<>missionInput<>" | sh"
+	]
+,
+	script="math -script "<>packagePath<>"PrepareForSpanningCuts.wl "<>missionInput<>" \n"<>
+			tmpPath<>"run_all_cuts.sh"
 ]
 
 Print[script]

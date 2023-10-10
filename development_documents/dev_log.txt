@@ -917,3 +917,27 @@ added allowing additional outputs
 
 [III]
 new version 1.0.2.4
+
+---------------------------------
+2023.9.4
+[I]
+ in SectorAnalyze:
+I made plenty modifications, to cut nIBPs once new ones generated, rather than cut them together. This makes the computation faster. (not doing this in FindIBP because already did... but name of the vars are different)
+Meanwhile, do the same to SectorIntegrals
+
+in FindIBPs:
+.../.sectorCut -> (#/.sectorCut)&/@...
+not faster, but less memory used
+
+[II]
+added FlexibleNeatIBPIntersectionDegreeBound
+
+---------
+2023.09.12
+[I]
+added spanning cuts but not finished
+
+[II]
+in the past few days (a week or so), I added SimplifyByCut (not recorded), but this makes the vectors larger (even less the number). I turned it off in the default settings.
+
+

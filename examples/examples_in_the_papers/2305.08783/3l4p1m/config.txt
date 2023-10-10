@@ -1,0 +1,46 @@
+(*
+This config file will be included into several mathematica scripts using Get.
+Please make sure the paths are absolute paths.
+*)
+
+(*------------input files----------------*)
+kinematicsFile = workingPath<>"kinematics.txt";(*workingPath will be set as the current working path*)
+targetIntegralsFile = workingPath<>"targetIntegrals.txt";
+
+(*-----------dependency settings---------*)
+SingularApp = "/usr/bin/Singular";
+
+(*-----------directory settings----------*)
+ReductionOutputName="3loop_34";(*do not use special characters, including space*)
+outputPath=Automatic;(*recommended*)
+
+(*outputPath=workingPath<>"test/";*)(*alternative*)
+
+
+(*-----------math settings---------------*)
+IntegralOrder = "MultiplePropagatorElimination"
+SubsectorIntegralPreference = "NumeratorDegree"
+OptionSimplification = 34;
+NeatIBPIntersectionDegreeBound=5;
+NeedSymmetry=True;
+CutIndices={};
+GenericD = d -> 137/3;
+
+
+(*-----------usage settings--------------*)
+MemoryUsedLimit=1250000;(*MB*)
+ThreadUsedLimit=50;
+
+
+(*-----------method settings--------------*)
+MIFromAzuritino=True;
+CriticalPointInAzuritino=True;
+
+(*-----------usage settings--------------*)
+MemoryUsedLimit=Infinity;(*MB*)
+ThreadUsedLimit=Infinity;
+
+(*--------developer settings-------------*)
+debugMode=True;
+DeleteSingularResultFiles=True;
+

@@ -93,6 +93,10 @@ If[!FileExistsQ[tmpPath<>"initialized.txt"],
 	Print["Initialization failed, cannot summarize."];
 	Exit[0];
 ]
+If[FileExistsQ[tmpPath<>"spanning_cuts_mode.txt"],
+	Print["Spanning cuts mode, skip summarizing."];
+	Exit[0];
+]
 TemporaryDirectory=tmpPath
 
 

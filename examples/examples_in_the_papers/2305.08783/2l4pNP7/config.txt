@@ -1,0 +1,50 @@
+(*
+This config file will be included into several mathematica scripts using Get.
+Please make sure the paths are absolute paths.
+*)
+
+(*------------input files----------------*)
+kinematicsFile = workingPath<>"kinematics.txt";(*workingPath will be set as the current working path*)
+targetIntegralsFile = workingPath<>"targetIntegrals.txt";
+
+(*-----------dependency settings---------*)
+
+
+(*-----------directory settings----------*)
+ReductionOutputName="2l4pNP7";
+outputPath=Automatic;(*recommended*)
+
+(*outputPath=workingPath<>"test/";*)(*alternative*)
+
+
+(*-----------math settings---------------*)
+
+IntegralOrder="MultiplePropagatorElimination";
+SubsectorIntegralPreference = "NumeratorDegree";
+OptionSimplification = 12;
+NeatIBPIntersectionDegreeBound=5;
+NeedSymmetry=True;
+CutIndices={};
+GenericD = d -> 137/3;
+SeedingAdditionalDegree=3;
+
+(*-----------usage settings--------------*)
+MemoryUsedLimit=1000000;(*MB*)
+ThreadUsedLimit=50;
+
+
+(*-----------method settings--------------*)
+MIFromAzuritino=True;
+CriticalPointInAzuritino=False;
+StrictDenominatorPowerIndices=False;
+AllowedDenominatorPowerLift=2;
+
+(*-----------usage settings--------------*)
+MemoryUsedLimit=Infinity;(*MB*)
+ThreadUsedLimit=Infinity;
+
+
+(*--------developer settings-------------*)
+
+
+
