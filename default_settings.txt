@@ -57,7 +57,7 @@ SpanningCutsEvaluationMode="Parallel";
 
 
 (*--------developer settings-------------*)
-SimplifySyzygyVectorsByCut=False;
+SimplifySyzygyVectorsByCut=False;(*this is an experimental function, leave it False!*)
 debugMode=False;
 seedingViaFIBPFunction=True;
 SowAndReap=True;(*of the Zuirch seeding in the main body of NeatIBP*)
