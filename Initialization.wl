@@ -244,6 +244,9 @@ If[allProtectedNamesDisappearQ===False,
 (*Other Validations*)
 
 
+
+
+
 If[!SubsetQ[GenericPoint[[All,1]],Complement[Variables[{Propagators,Kinematics[[All,2]]}],LoopMomenta,ExternalMomenta]],
 	PrintAndLog["****  GenericPoint dose not cover all scalar variables. Exiting..."];
 	Exit[0];
@@ -257,6 +260,12 @@ If[Variables[d/.GenericD]=!={},
 	Exit[0];
 ]
 
+
+
+If[Variables[TensorProduct[ExternalMomenta,ExternalMomenta]/.Kinematics/.GenericPoint]=!={},
+	PrintAndLog["****  Kinematics replacement ",Kinematics," is not enough for external momenta ",ExternalMomenta,". Exiting..."];
+	Exit[0];
+]
 
 
 If[Head[CutIndices]=!=List&&!MemberQ[{"spanning cuts"},CutIndices],
