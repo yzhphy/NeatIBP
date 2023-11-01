@@ -25,6 +25,8 @@ This section shows how to install NeatIBP itself and its depencencies. You can u
 ```
 git clone https://github.com/yzhphy/NeatIBP.git
 ```
+Be advised, NeatIBP currently support only Mathematica 12.0 and up. If you are using some old version of Mathematica, please update to the new version.
+
 Then, if you do not have **Singular** installed on your computer, please install this dependency from its [home page](https://www.singular.uni-kl.de/).
 
 If you do not have **SpaSM** installed on your computer, you need to install this dependency. At first, you should check that if your system has the dependency package **libtool** installed. If not, one can run: (debian-based system, for example)
@@ -34,7 +36,7 @@ you can install this dependency from
 sudo apt-get install libtool
 ```
 
-Then, to install **SpaSM** itself, considering some installation compatibility issues discovered in some operating systems (including Ubuntu 22.04 and CentOS), we recommend that you install **SpaSM** using the script provided in our repo. To do so, change to the **NeatIBP/SparseRREF** folder and run the script by the following command
+Then, to install **SpaSM** itself, considering some version compatibility issues, we strongly suggest that you install **SpaSM** using the script provided in our repo. To do so, change to the **NeatIBP/SparseRREF** folder and run the script by the following command
 ```
 sudo bash spasm_mod_script.sh
 ```
