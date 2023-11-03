@@ -940,4 +940,13 @@ added spanning cuts but not finished
 [II]
 in the past few days (a week or so), I added SimplifyByCut (not recorded), but this makes the vectors larger (even less the number). I turned it off in the default settings.
 
+---------
+2023.11.02
+debugModification20231102:
+In Azuritino, the criticle point method:
+in the older version, we take MaxISPD=MinISPD+2, but some example shows that this is not enough. We modified it to:
+MaxISPD=MinISPD*2+3 (to be conservative.)
+However, this sometimes makes the max degree too high, we add an additional Break[] condition: if the MI unchange for continuous 2 steps, we break. (Previously we do not have this condition, just stupidly seed to the max degree.)
+
+
 

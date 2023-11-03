@@ -87,6 +87,13 @@ Date: 2023.5.14
 [NeatIBP 1.0.2.5]
 Date: 2023.10.11
 	1. Some new developement since last version. 
+	2. Modified SpaSM auto installation script, to fix the installed version of SpaSM to commit 59135cc.
+
+
+[NeatIBP 1.0.2.6]
+Date: 2023.11.03
+	1. Refined the seeding strategy in Azuritino while using criticle point.
+	2. Some other minor refinements.
 
 
 

@@ -5,7 +5,7 @@ LogFile="";
 
 RowReduceFunction=SRSparseRowReduce
 debugModification20230314=True;
-
+debugModification20231102=True;
 
 
 ReportIndent[n_]:=StringRiffle[Table["\t",n],""]
@@ -1395,7 +1395,7 @@ LPSymmetryQ[integral1_,integral2_]:=Module[
 ]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Azuritino*)
 
 
@@ -1457,7 +1457,7 @@ selfSymmetryZMaps->{}
 };
 AzuritinoMIFind[sector_,OptionsPattern[]]:=Module[{P,secNo,Indices,ISPIndices,ISPlen,timer=AbsoluteTime[],tt=AbsoluteTime[],vectorList,FIBPs,FIBPISPdegree,IBPFunctions
 ,Pool,IBPs,i,j,NewIBPs,IntList,M,MI,irreducibleInts,LeeCounting,MaxISPD=OptionValue[MaxISPDegree],sectorCut,
-MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries,LeeExpectedMICandidates},
+MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries,LeeExpectedMICandidates,oldMI,MIKeepSameStepsCount},
 		secNo=SectorNumber[sector];
 		Indices=SectorIndex[sector];
 		sectorCut=SectorCut[sector];	
@@ -1481,7 +1481,11 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries,L
 					i++;
 				];
 				MinISPD=i+1;
-				MaxISPD=MinISPD+2;
+				If[debugModification20231102===True,
+					MaxISPD=MinISPD*2+3;
+				,
+					MaxISPD=MinISPD+2;
+				];
 				LeeExpectedMICandidates=Flatten[SeedMerge[NumeratorShifts[sector,#],{sector}]&/@Range[0,MinISPD],1];
 				LeeExpectedMICandidates=(G@@#)&/@LeeExpectedMICandidates;
 			]
@@ -1549,9 +1553,13 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries,L
 			IntList=IntegralList[IBPs];
 			If[LeeExpectedMICandidates=!="not defined",
 				If[!SubsetQ[IntList,LeeExpectedMICandidates]&&i==MinISPD,
-					PrintAndLog["#",secNo,"\t\t","[Azuritino Notice]: Seeding in step "<>ToString[i]<>" dose not cover all MI candidates in estimated by critical point." ," Rearranging seeding range from degree ",MinISPD," to degree ",MaxISPD,"." ];
+					PrintAndLog["#",secNo,"\t\t","[Azuritino Notice]: Seeding in step "<>ToString[i]<>" dose not cover all MI candidates in estimated by critical point." ," Rearranging seeding range from degree ",MinISPD+1," to degree ",MaxISPD+1,"." ];
 					MinISPD+=1;
-					MaxISPD+=1;
+					If[debugModification20231102===True,
+						MaxISPD+=2;
+					,
+						MaxISPD+=1;
+					];
 				]				
 			];
 			If[i>=MinISPD,
@@ -1562,11 +1570,21 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries,L
 				
 				If[i==MinISPD,
 					MI=irreducibleInts;
+					MIKeepSameStepsCount=0;
 					,
+					oldMI=MI;
 					MI=Intersection[MI,irreducibleInts];
+					If[Sort[MI]===Sort[oldMI],MIKeepSameStepsCount+=1,MIKeepSameStepsCount=0];
+					
 				];
 				PrintAndLog["#",secNo,"\t\t","Azuritino: Step "<>ToString[i]<>" :        test IBPs reduced over the finite field ... ",AbsoluteTime[]-tt];
-				
+				PrintAndLog["#",secNo,"\t\t","Azuritino: Step "<>ToString[i]<>" :        MI length:",Length[MI]];
+				If[debugModification20231102===True,
+						If[MIKeepSameStepsCount===2&&i<MaxISPD,
+							PrintAndLog["#",secNo,"\t\t","Azuritino: MIs has been unchanging for continuous 2 steps. Skiping the rest steps."];
+							Break[];
+						];
+				]
 			];
 			tt=AbsoluteTime[];
 		];
@@ -2013,7 +2031,9 @@ FullForm]\);(*?*)
 
 
 
-(* ::Subsection:: *)
+
+
+(* ::Subsection::Closed:: *)
 (*SectorAnalyze (main)*)
 
 
@@ -3013,6 +3033,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 
