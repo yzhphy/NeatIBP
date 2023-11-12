@@ -948,5 +948,46 @@ in the older version, we take MaxISPD=MinISPD+2, but some example shows that thi
 MaxISPD=MinISPD*2+3 (to be conservative.)
 However, this sometimes makes the max degree too high, we add an additional Break[] condition: if the MI unchange for continuous 2 steps, we break. (Previously we do not have this condition, just stupidly seed to the max degree.)
 
+version 1.0.2.6
+
+---------
+2023.11.08
+[I]
+found a deeply lurking bug
+In SectorAnalyze[], ini steps, if there are no sector targets, in the previous version, it does not Return[], although I wrote this
+the reason could be, the Return[] is inside a MaxMemoryUsed[], so it just skip the rest steps in this MaxMemoryUsed, rather than Module[{},...]
+now this has beed fixed
+
+[II]
+fixed incorrect timing and memory reports
+
+[III]
+in SyzygyRed.wl, SectorAnalyze[], removing zero sectors step, modified 
+rawIBPs=Factor[CoefficientArrays[rawIBPs,integrals][[2]]] . integrals; 
+to
+rawIBPs=IBPCoefficientForm[CoefficientArrays[rawIBPs,integrals][[2]]] . integrals; 
+where
+IBPCoefficientForm is a option setting in default_settings.txt, defaultly, IBPCoefficientForm=Expand;
+reason:
+Factor some times is too slow
 
 
+---------
+2023.11.11
+[I]
+now, user can specify sectorwise settings in config.txt
+
+[II]
+added Lift selection and Further selection in SimplifyByCut
+
+
+---------
+2023.11.12
+[I]
+implemented Yang Zhang's SyzygyShorten into SyzygyRed.wl, SimplifyByCut[]
+also, when using this function, I make CornerOnly->(DenominatorTypes==={sector}), if there are only corner target integrals, CornerOnly will on and the syzygy vectors will be less than CornerOnly->False.
+and alalso, allow a setting of stricty while selecting syzygies
+
+[II]
+new version
+1.0.2.7

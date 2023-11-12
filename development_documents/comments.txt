@@ -1,4 +1,9 @@
 ==========Urgent===================
+what if the targets are all MI (or on a sector all MI)? There will be IBPs={} and OrderedIntegrals={}
+
+spanning cut
+kill zombie process 
+^C while SpaSM will cause zombies
 
 
 

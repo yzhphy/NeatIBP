@@ -104,7 +104,7 @@ If[TargetIntegrals===$Failed,Print["****  Unable to open target intergals file "
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Setting outputPath*)
 
 
@@ -172,7 +172,7 @@ Run["cp "<>kinematicsFile<>" "inputBackupPath]
 Run["cp "<>targetIntegralsFile<>" "inputBackupPath]
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Some file or folders*)
 
 
@@ -209,7 +209,7 @@ ScalarExtendedTangentSet,BaikovKernelScalar,BaikovRevRep,BaikovRep,BaikovKernel,
 ForwardRep,BackwardRep,Scalar2sp,sp2Scalar,sp,PolynomialU,PolynomialF,PolynomialG,numericPolynomialG,gen,varOrder,ss,(*in SyzygyRed.wl, IntegerPartition function. I think this variable, ss, can be set as local*)
 ZeroSectors,NonZeroSectors,ZeroTargets,ReductionTargets,ReductionTasks,ZeroSectorRemoval,IBPList,MIList,SectorAnalyzeTiming,IntegralR,FI,BasicRawIBPs,FI0,ZM0,secNum,SelfSymmetryR,ZM,RelavantIntegrals,
 groupMomentumU,groupMomentumV,StdL,i,spanningCuts,bottomSectors,topSectors,spanningCutsMissionMainPath,TemporaryDirectory,
-Prepare
+Prepare,SectorwiseSettingListForCurrentSector
 
 }//DeleteDuplicates
 CheckRange={"TargetIntegrals","LoopMomenta","ExternalMomenta","Propagators","Kinematics","GenericPoint","GenericD"
@@ -244,9 +244,6 @@ If[allProtectedNamesDisappearQ===False,
 (*Other Validations*)
 
 
-
-
-
 If[!SubsetQ[GenericPoint[[All,1]],Complement[Variables[{Propagators,Kinematics[[All,2]]}],LoopMomenta,ExternalMomenta]],
 	PrintAndLog["****  GenericPoint dose not cover all scalar variables. Exiting..."];
 	Exit[0];
@@ -275,7 +272,7 @@ If[Head[CutIndices]=!=List&&!MemberQ[{"spanning cuts"},CutIndices],
 
 
 If[And[MemberQ[{"spanning cuts"},CutIndices],Not[debugMode===True]],
-	PrintAndLog["****  In current version, spanning cuts mode is under developement. There may lurks unknown bugs. Please set debugMode=True if you want to try. Exiting..."];
+	PrintAndLog["****  In the current version, spanning cuts mode is under developement. There may lurks unknown bugs. Please set debugMode=True if you want to try. Exiting..."];
 	Exit[0]
 ]
 If[And[SimplifySyzygyVectorsByCut,Not[debugMode===True]],
@@ -422,7 +419,7 @@ If[CutIndices=!={}&&CutIndices=!="spanning cuts",
 		Export[resultMIFolder<>ToString[cuttedSectorID]<>".txt",{}//InputForm//ToString];
 		Export[resultIBPFolder<>ToString[cuttedSectorID]<>".txt",gatheredCuttedTargetsOnASector//InputForm//ToString]
 	];
-	PrintAndLog["\t"<>ToString[Length[cuttedTargets]]<>"vanishing targets removed. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+	PrintAndLog["\t"<>ToString[Length[cuttedTargets]]<>" vanishing targets removed. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 ]
 
 

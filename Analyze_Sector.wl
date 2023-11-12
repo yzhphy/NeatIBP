@@ -101,6 +101,13 @@ If[Get[workingPath<>missionInput]===$Failed,
 	(*Run["echo "<>ToString[sectorID]<>":\tExit[Unable to open "<>missionInput<>"]\t"<>ToString[InputForm[FromUnixTime[UnixTime[]]]]<>" >> tmp/log2.txt"];*)
 	Exit[]
 ];
+If[SectorwiseSettings=!={},
+	
+	SectorwiseSettingListForCurrentSector=Flatten[Select[SectorwiseSettings,#[[1]]===sectorID&][[All,2]]];
+	
+	ToExpression/@SectorwiseSettingListForCurrentSector;
+	
+]
 
 
 If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting.";Exit[]]]

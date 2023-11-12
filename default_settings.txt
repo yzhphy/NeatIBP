@@ -25,6 +25,8 @@ NeatIBPIntersectionDegreeBound=5;
 FlexibleNeatIBPIntersectionDegreeBound=False;(*Something wrong... do not use True*)
 NeatIBPIntersectionTimeConstrain=3600;(*seconds*)
 NeatIBPIntersectionDegreeBoundDecreaseLimit=2;
+IBPCoefficientForm=Expand;
+SimplifySyzygyVectorsByCut=False;(*Experimental, if it needs to be True, add debugMode=True in your config.txt*)
 
 (*-----------physics settings-------------*)
 IntegralOrder = "MultiplePropagatorElimination"
@@ -57,7 +59,7 @@ SpanningCutsEvaluationMode="Parallel";
 
 
 (*--------developer settings-------------*)
-SimplifySyzygyVectorsByCut=False;(*this is an experimental function, leave it False!*)
+
 debugMode=False;
 seedingViaFIBPFunction=True;
 SowAndReap=True;(*of the Zuirch seeding in the main body of NeatIBP*)
@@ -67,7 +69,7 @@ MomentumMapTimeConstrain=15;(*seconds*)
 UseNicePropagatorsInMomentumMap=True;(*must turn off this if one or more propagators are not quadratic*)
 ReportNoticeInDeepMomentumMap=False;
 ReportWarningInMomentumMap=False;
-PreferedExternalExtendedRotationMethod="Orthogonalization";(*or "DeltaPlainProjection"*)
+PreferedExternalExtendedRotationMethod="Orthogonalization";(*"Orthogonalization" or "DeltaPlainProjection"*)
 moduleIntersectionMethod = "Singular";
 AzuritinoDefaultStartDegree=3;(*Irrelavant if CriticalPointInAzuritino==True*)
 AzuritinoDefaultMaxDegree=5;(*Irrelavant if CriticalPointInAzuritino==True*)
@@ -75,6 +77,24 @@ DenominatorTypeLiftIndexLists={};(*data structure: a list of index lists. This i
 LinearSyzDegree=3;
 NumericIBP=False;
 ReportIrreducibleIntegralsAfterIBPAnalyze=False;
+SimplifyByCutMethod="LiftSelection";(*"LiftResubstitution" or "LiftSelection", "LiftSelection" recommended*)
+FurtherSyzygyVectorsSelection=True;(*deleting vectors to test if cut GB unchange, only valid for "LiftSelection"*)
+FiniteFieldModulus2=117763;(*for FurtherSyzygyVectorsSelection*)
+FurtherSyzygyVectorsSelectionStricty=10;(*the propability to delete a syzygy vector which should be deleted, >1 means 1, <0 means 0*)
+
+(*--------sectorwise settings-------------*)
+SectorwiseSettings={};
+
+(*
+gramma:
+
+SectorwiseSettings={
+	{127,{"NeatIBPIntersectionDegreeBound=4","SeedingAdditionalDegree=3"}},
+	{126,{"NeatIBPIntersectionDegreeBound=4"}},
+	...
+};
+
+*)
 
 
 (*-------other default settings----------*)

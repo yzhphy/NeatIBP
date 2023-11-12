@@ -95,7 +95,11 @@ Date: 2023.11.03
 	1. Refined the seeding strategy in Azuritino while using criticle point.
 	2. Some other minor refinements.
 
-
+[NeatIBP 1.0.2.7]
+Date: 2023.11.12
+	1. Allowing sectorwise setting. User can specify their special settings for certain sectors. 
+	2. Added an experimental function, to shorten the syzygy vectors by maximal cut methods.
+	3. Some other refinements and bug fixings.
 
 
 

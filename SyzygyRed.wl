@@ -306,7 +306,7 @@ SectorElimination[sector_]:=(G@@Table[If[sector[[i]]>0,PatternTest[Pattern[ToExp
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Integral Ordering*)
 
 
@@ -429,8 +429,126 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 ];*)
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Singular Interface*)
+
+
+(* ::Subsection::Closed:: *)
+(*Singular GB*)
+
+
+SingularGBText="LIB \"matrix.lib\";
+ring R = (MODULUS), (VAR, PARAMETERS), (dp(LEN1),dp(LEN2));
+option(prot);
+degBound=DEGBOUND;
+module m = MODULE;
+module gb=std(m);
+write(\"OUTPUTFILE\",string(gb));
+exit;
+"
+
+
+Options[SingularGBMaker]={Modulus->0,SimplificationRules->Global`OptionSimplification,ScriptFile->TemporaryDirectory<>"GB.sing",
+OutputFile->TemporaryDirectory<>"GB_result.txt",ScriptOnly->False,degBound->0,Silence->True
+};
+SingularGBMaker[Minput_,varRedundant_,parameterRedundant_,OptionsPattern[]]:=Module[{M,SingularScript,forwardRep,backwardRep,var,parameters,varpara,len1,len2,
+varString,parameterString},
+	
+	
+	If[FileExistsQ[OptionValue[OutputFile]],DeleteFile[OptionValue[OutputFile]]];
+	(*M=ModuleSlash[Minput];*)
+	M=Minput;
+	varpara=Variables[M];
+	var=ListIntersect[varRedundant,varpara];  (* Delete the variables not in the modules *)
+	parameters=ListIntersect[parameterRedundant,varpara];   (* Delete the parameters not in the modules *)
+	If[parameters=={},parameters=parameterRedundant[[{1}]]];   (*  If there is no parameter, to fit in the Singular code, pick up one parameter *)
+	
+	varString=StringReplace[ToString[var/.ForwardRep[1]],{"{"->"","}"->""}];
+	parameterString=StringReplace[ToString[parameters/.ForwardRep[1]],{"{"->"","}"->""}];
+	
+	SingularScript=StringReplace[SingularGBText,{"VAR"->varString,"PARAMETERS"->parameterString}];
+	SingularScript=StringReplace[SingularScript,{"MODULUS"->ToString[Modulus//OptionValue],"LEN1"->ToString[Length[var]],"LEN2"->ToString[Length[parameters]]}];
+	SingularScript=StringReplace[SingularScript,{"MODULE"->Module2SingularForm[M,1]}];
+	SingularScript=StringReplace[SingularScript,"OUTPUTFILE"->OptionValue[OutputFile]];
+	SingularScript=StringReplace[SingularScript,{"SimplificationStrategy"->ToString[OptionValue[SimplificationRules]],"DEGBOUND"->ToString[OptionValue[degBound]]}];
+	If[OptionValue[Silence]===True,
+		SingularScript=StringReplace[SingularScript,"option(prot);\n"->""];
+	];
+	If[OptionValue[Silence]=!=True,
+		PrintAndLog[OptionValue[ScriptFile]]
+	];
+	
+	Export[OptionValue[ScriptFile],SingularScript,"Text"];
+	If[OptionValue[ScriptOnly], Return[]];
+];
+
+
+Options[GBRead]=Options[SingularGBMaker];
+GBRead[dim_,OptionsPattern[]]:=Module[{string,vectors},
+	
+	If[!FileExistsQ[OptionValue[OutputFile]],
+		(*Return[]*)
+		PrintAndLog["#",secNum,"  Singular result file ",OptionValue[OutputFile]," not found in GBRead."];
+		PrintAndLog["******** sector ",secNum," failed."];
+		Quit[];
+	];
+	string=StringReplace["{"<>Import[OptionValue[OutputFile]]<>"}","gen("~~Shortest[x__]~~")":>"gen["~~x~~"]"];
+	vectors=ToExpression[string];
+	
+	(*yan-er-dao-ling!*)
+	If[Count[vectors,0]>0,PrintAndLog["#",secNum,"  zero(s) in results encountored. They are deleted."];vectors=DeleteCases[vectors,0]];
+	
+	vectors=vectors/.gen[index_]:>UnitVector[dim,index]/.BackwardRep[1];
+	Return[vectors];
+];
+
+
+Options[SingularGB]={Modulus->0,SimplificationRules->Global`OptionSimplification,ScriptFile->TemporaryDirectory<>"GB.sing",
+OutputFile->TemporaryDirectory<>"GB_result.txt",TrashFile->TemporaryDirectory<>"GB_trash.txt",(*TestOnly->False,*)ScriptOnly->False,degBound->0,VariableOrder->var,(*Cut->{},ShortenTheModules->False,*)
+NumericMode->False,PrintDegBound->False,DeleteResultFiles->DeleteSingularResultFiles,DeleteScriptFiles->DeleteSingularScriptFiles,Silence->True};
+SingularGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,varsCutted,SingularCommand,timer,gb},
+	cut=Table[vars[[i]]->0,{i,cutIndex}];
+	M=vectorList/.cut;
+	If[OptionValue[NumericMode]===True,
+		M=M/.GenericPoint/.GenericD;
+	];
+	
+	(*varOrder=Join[Complement[var,Variables[M]]//Sort,Intersection[var,Variables[M]]//Sort];*)
+	(*varOrder=Intersection[vars,Variables[M]]//Sort;*)
+	(* PrintAndLog[varOrder]; *)
+	varsCutted=DeleteCases[vars/.cut,0];
+	SingularGBMaker[M,varsCutted,
+		Parameters,ScriptFile->OptionValue[ScriptFile],
+		OutputFile->OptionValue[OutputFile],
+		Modulus->OptionValue[Modulus],
+		SimplificationRules->OptionValue[SimplificationRules],
+		degBound->OptionValue[degBound],
+		Silence->OptionValue[Silence]
+	];
+	If[OptionValue[Silence]===True,
+		SingularCommand=SingularApp<>" --no-out "<>OptionValue[ScriptFile]<>" >> "<>OptionValue[TrashFile];
+	,
+		SingularCommand=SingularApp<>" "<>OptionValue[ScriptFile];
+	];
+	timer=AbsoluteTime[];
+	Run[SingularCommand];
+	If[OptionValue[Silence]=!=True,
+		PrintAndLog["Singular running time ... ",AbsoluteTime[]-timer];
+	];
+	gb=GBRead[Length[M[[1]]],OutputFile->OptionValue[OutputFile]];
+	
+	If[OptionValue[DeleteScriptFiles],
+		Run["rm "<>OptionValue[ScriptFile]];
+		If[(!OptionValue[Silence]),Print[OptionValue[ScriptFile]<>" deleted."]];
+	];
+	If[OptionValue[DeleteResultFiles],
+		Run["rm "<>OptionValue[OutputFile]];
+		If[(!OptionValue[Silence]),Print[OptionValue[OutputFile]<>" deleted."]];
+	];
+	If[OptionValue[PrintDegBound]&&(!OptionValue[Silence]),PrintAndLog["Degree bound:",OptionValue[degBound]]];
+	Run["rm "<>OptionValue[TrashFile]];
+	Return[gb];
+];
 
 
 (* ::Subsection::Closed:: *)
@@ -664,7 +782,7 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 (*Singular lift to GB*)
 
 
-SingularLiftToGBText="LIB \"matrix.lib\";
+(*SingularLiftToGBText="LIB \"matrix.lib\";
 ring R = (MODULUS), (VAR, PARAMETERS), (dp(LEN1),dp(LEN2));
 option(prot);
 degBound=DEGBOUND;
@@ -676,7 +794,19 @@ module reducedL=NF(l,s);
 module mResult=simplify(reducedL,SimplificationStrategy);
 write(\"OUTPUTFILE\",string(mResult));
 exit;
+";*)
+SingularLiftToGBText="LIB \"matrix.lib\";
+ring R = (MODULUS), (VAR, PARAMETERS), (dp(LEN1),dp(LEN2));
+option(prot);
+degBound=DEGBOUND;
+module m = MODULE;
+module gb=std(m);
+module l=lift(m,gb);
+module mResult=simplify(l,SimplificationStrategy);
+write(\"OUTPUTFILE\",string(mResult));
+exit;
 ";
+
 
 
 Options[SingularLiftToGBMaker]={Modulus->0,SimplificationRules->Global`OptionSimplification,ScriptFile->TemporaryDirectory<>"lift_to_GB.sing",
@@ -763,15 +893,17 @@ SingularLiftToGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,va
 ];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsection:: *)
 (*SimplifyByCut*)
 
 
-Options[SimplifyByCut]={sectorNumber->0,ReportLayer->2,CornerOnly->False};
+Options[SimplifyByCut]={sectorNumber->0,ReportLayer->2,CornerOnly->False,SimplifyMethod->SimplifyByCutMethod,FurtherSelection->FurtherSyzygyVectorsSelection,Modulus->0};
 SimplifyByCut[vectorsInput_,cutIndices_,OptionsPattern[]]:=Module[
-{vectors,vectorsCutted,sortedVectorIndices,vectorsSorted,vectorsCuttedSorted,vectorsInputSorted,
-tmp,syzygyVectorDegrees,memoryUsed,timer,
-secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix},
+{vectors,vectorsCutted,sortedVectorIndices,vectorsSorted,vectorsCuttedSorted,vectorsInputSorted,i,
+tmp,syzygyVectorAbsDegrees,syzygyVectorISPDegrees,syzygyVectorPropDegrees,
+memoryUsed,timer,selectedIndices,selectedIndices2,selectedIndices2New,
+vectorsCuttedSortedSelectedGB,vectorsCuttedSortedSelected,
+secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,timer3,memoryUsed3,timeForAGBComputation},
 	secNo=OptionValue[sectorNumber];
 	reportLayer=OptionValue[ReportLayer];
 	
@@ -807,10 +939,18 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix},
 	PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Finished. Time Used: ", Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB." ];
 	
 	timer=AbsoluteTime[];
-	PrintAndLog["#",secNo,ReportIndent[reportLayer],"Deriving syzygyVectorDegrees..."];
+	PrintAndLog["#",secNo,ReportIndent[reportLayer],"Deriving syzygy vector degrees..."];
 	memoryUsed=MaxMemoryUsed[
-	syzygyVectorDegrees=Table[
+	syzygyVectorPropDegrees=Table[
 		Exponent[vectors[[i]]/.GenericD/.GenericPoint/.Table[z[j]->tmp,{j,cutIndices}],tmp],
+		{i,Length[vectors]}
+	];
+	syzygyVectorISPDegrees=Table[
+		Exponent[vectors[[i]]/.GenericD/.GenericPoint/.Table[z[j]->tmp,{j,Complement[Range[SDim],cutIndices]}],tmp],
+		{i,Length[vectors]}
+	];
+	syzygyVectorAbsDegrees=Table[
+		Exponent[vectors[[i]]/.GenericD/.GenericPoint/.Table[z[j]->tmp,{j,Range[SDim]}],tmp],
 		{i,Length[vectors]}
 	];
 	(*end of MaxMemoryUsed*)];
@@ -820,7 +960,9 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix},
 	PrintAndLog["#",secNo,ReportIndent[reportLayer],"Sorting vector lists..."];
 	memoryUsed=MaxMemoryUsed[
 	sortedVectorIndices=SortBy[Range[Length[vectors]],{
-		syzygyVectorDegrees[[#]],
+		syzygyVectorISPDegrees[[#]],
+		syzygyVectorAbsDegrees[[#]],
+		syzygyVectorPropDegrees[[#]],
 		LeafCount[vectors[[#]]],
 		ByteCount[vectors[[#]]]
 		
@@ -837,7 +979,7 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix},
 	PrintAndLog["#",secNo,ReportIndent[reportLayer],"Computing lift matrix..."];
 	memoryUsed=MaxMemoryUsed[
 	
-	liftMatrix=SingularLiftToGB[vectorsCuttedSorted,var,cutIndices];
+	liftMatrix=SingularLiftToGB[vectorsCuttedSorted,var,cutIndices,Modulus->OptionValue[Modulus]];
 	
 	(*end of MaxMemoryUsed*)];
 	PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Finished. Time Used: ", Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB." ];
@@ -845,7 +987,66 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix},
 	timer=AbsoluteTime[];
 	PrintAndLog["#",secNo,ReportIndent[reportLayer],"Making simplified vector list..."];
 	memoryUsed=MaxMemoryUsed[
-	result=(#.vectorsInputSorted)&/@liftMatrix;
+	Switch[OptionValue[SimplifyMethod]
+	,"LiftResubstitution",
+		timer2=AbsoluteTime[];
+		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Lift resubstituting..."];
+		memoryUsed2=MaxMemoryUsed[
+		result=(#.vectorsInputSorted)&/@liftMatrix;
+		(*end of MaxMemoryUsed*)];
+		PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB." ];
+		
+	,_,
+		timer2=AbsoluteTime[];
+		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Lift selecting..."];
+		memoryUsed2=MaxMemoryUsed[
+		If[SimplifyByCutMethod=!="LiftSelection",PrintAndLog["#",secNo,"\t","SimplifyByCut: Unknown SimplifyByCutMethod, switching to LiftSelection"]];
+		selectedIndices=Select[Range[Length[vectorsInputSorted]],Union[liftMatrix[[All,#]]]=!=0&];
+		result=vectorsInputSorted[[selectedIndices]];
+		(*end of MaxMemoryUsed*)];
+		PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB." ];
+		
+		If[OptionValue[FurtherSelection]===True,
+			timer2=AbsoluteTime[];
+			PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Further selecting syzygy vectors..."];
+			memoryUsed2=MaxMemoryUsed[
+			vectorsCuttedSortedSelected=vectorsCuttedSorted[[selectedIndices]];
+			timer3=AbsoluteTime[];
+			PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Computing cut GB..."];
+			memoryUsed3=MaxMemoryUsed[
+			vectorsCuttedSortedSelectedGB=SingularGB[vectorsCuttedSortedSelected,var,{},Modulus->OptionValue[Modulus]];
+			(*end of MaxMemoryUsed*)];
+			timeForAGBComputation=AbsoluteTime[]-timer3;
+			PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"Finished. Time Used: ",Round[timeForAGBComputation], " second(s). Memory used: ",Round[memoryUsed3/(1024^2)]," MB." ];
+		
+			timer3=AbsoluteTime[];
+			PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Testing each vector [stricty=",Max[Min[FurtherSyzygyVectorsSelectionStricty,1],0],
+				"]. Estimated time cost: ",
+				Round[Max[Min[FurtherSyzygyVectorsSelectionStricty,1],0]*timeForAGBComputation*Length[vectorsCuttedSortedSelected]],
+				" second(s)."];
+			memoryUsed3=MaxMemoryUsed[
+			selectedIndices2=Range[Length[vectorsCuttedSortedSelected]];
+			For[i=Length[selectedIndices2],i>=1,i--,
+				selectedIndices2New=DeleteCases[selectedIndices2,i];
+				If[RandomReal[]<FurtherSyzygyVectorsSelectionStricty,
+					If[vectorsCuttedSortedSelectedGB===SingularGB[vectorsCuttedSortedSelected[[selectedIndices2New]],var,{},Modulus->OptionValue[Modulus]],
+						selectedIndices2=selectedIndices2New;
+					,
+						PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"vector No.",i," selected."]
+					]
+				,
+					PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"vector No.",i," selected (without testing)."]
+				];
+			];
+			(*end of MaxMemoryUsed*)];
+			PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"Finished. Time Used: ",Round[AbsoluteTime[]-timer3], " second(s). Memory used: ",Round[memoryUsed3/(1024^2)]," MB." ];
+			
+			result=result[[selectedIndices2]];
+			(*end of MaxMemoryUsed*)];
+			PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB." ];
+		
+		]
+	];
 	(*end of MaxMemoryUsed*)];
 	PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Finished. Time Used: ", Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB." ];
 	PrintAndLog["#",secNo,ReportIndent[reportLayer],"Length of the simplified vector list: ",Length[result]];
@@ -1395,7 +1596,7 @@ LPSymmetryQ[integral1_,integral2_]:=Module[
 ]
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Azuritino*)
 
 
@@ -2033,6 +2234,16 @@ FullForm]\);(*?*)
 
 
 
+
+
+
+
+
+
+
+
+
+
 (* ::Subsection::Closed:: *)
 (*SectorAnalyze (main)*)
 
@@ -2089,6 +2300,21 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 	s=Max[IntegralISPDegree/@LocalTargets];
 	(*end of MaxMemoryUsed*)];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Initialized. Time Used: ", Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB." ]];
+	
+	timer=AbsoluteTime[];
+	memoryUsed=MaxMemoryUsed[
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Driving DenominatorTypes..."]];
+	DenominatorTypes=Union[Append[IntegralPropagatorType/@LocalTargets,sector]];
+	If[debugModification20230314,DenominatorTypes=DenominatorTypeCompleting[DenominatorTypes]];
+	If[DenominatorTypeLiftIndexLists=!={},
+		DenominatorTypes=DenominatorTypeLift[DenominatorTypes,DenominatorTypeLiftIndexLists,sector];
+	];
+	(*end of MaxMemoryUsed*)];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  DenominatorTypes derived. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+	If[OptionValue[Verbosity]==1,
+		PrintAndLog["#",secNo,"\tTarget Info:  MaxNumDeg=",s,";  DenominatorTypes=", DenominatorTypes];
+	];
+	
 	
 	If[Not[NeedSymmetry===False],
 		timer=AbsoluteTime[];
@@ -2220,7 +2446,11 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 		timer=AbsoluteTime[];
 		memoryUsed=MaxMemoryUsed[
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Simplifying vector list by cut..."]];
-		VectorListSimplifiedByCut=SimplifyByCut[VectorList,secindex,CornerOnly->False,sectorNumber->secNo];
+		VectorListSimplifiedByCut=SimplifyByCut[VectorList,secindex,
+			CornerOnly->(DenominatorTypes==={sector}),
+			sectorNumber->secNo,
+			Modulus->FiniteFieldModulus2
+		];
 		VectorList=VectorListSimplifiedByCut;
 		If[!StrictDenominatorPowerIndices,FIBPs0=FIBPs];
 		(*end of MaxMemoryUsed*)];
@@ -2242,16 +2472,6 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 	
 	(*ProbeIntermediateResult["FIBPs",secNo,FIBPs];*)
 	
-	timer=AbsoluteTime[];
-	memoryUsed=MaxMemoryUsed[
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Driving DenominatorTypes..."]];
-	DenominatorTypes=Union[Append[IntegralPropagatorType/@LocalTargets,sector]];
-	If[debugModification20230314,DenominatorTypes=DenominatorTypeCompleting[DenominatorTypes]];
-	If[DenominatorTypeLiftIndexLists=!={},
-		DenominatorTypes=DenominatorTypeLift[DenominatorTypes,DenominatorTypeLiftIndexLists,sector];
-	];
-	(*end of MaxMemoryUsed*)];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  DenominatorTypes derived. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 	(* Remove IBPs for lower sectors *)
 	(* But this will wrongly kill some IBPs that generates IBPs not for lower sectors at non-corner seed*)
@@ -2574,7 +2794,7 @@ FullForm]\);(*?*)
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","IBPAnalyze finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 		
 		(*end of MaxMemoryUsed*)];
-		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Seeding in step 0 finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Seeding in step 0 finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 		
 		For[step=OptionValue[ZurichInitialSteps]+1,step<=s+OptionValue[AdditionalDegree],step++,
 			timer=AbsoluteTime[];
@@ -2717,7 +2937,7 @@ FullForm]\);(*?*)
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","Step",step," finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 			
 			(*end of MaxMemoryUsed*)];
-			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Seeding in step ",step," finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Seeding in step ",step," finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 			If[SubsetQ[WellAddressedIntegrals,LocalTargets],Break[]];
 			If[step==s+OptionValue[AdditionalDegree],
 				If[And[StrictDenominatorPowerIndices===False,AllowedDenominatorPowerLift>0],
@@ -2904,7 +3124,7 @@ FullForm]\);(*?*)
 	
 	(*|||||||||*)(*ProbeIntermediateResult["nIBPs_sorted",secNo,nIBPs];*)
 	(*end of MaxMemoryUsed*)];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  nFIBPs sorted. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  nFIBPs sorted. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
@@ -2926,7 +3146,7 @@ FullForm]\);(*?*)
 	
 	(*|||||||||*)(*ProbeIntermediateResult["nIBPs_independent",secNo,nIBPs];*)
 	(*end of MaxMemoryUsed*)];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Independent IBPs selected. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Independent IBPs selected. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs are selected with ",Length[IntegralList[nIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
 	
 	(*ProbeIntermediateResult["nIBPs2",secNo,nIBPs];*)
@@ -2964,7 +3184,7 @@ FullForm]\);(*?*)
 	
 	(*|||||||||*)(*ProbeIntermediateResult["nIBPs_used",secNo,nIBPs];*)
 	(*end of MaxMemoryUsed*)];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Unneeded IBPs removed. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Unneeded IBPs removed. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs remaining with ",Length[IntegralList[nIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
 	
 	timer=AbsoluteTime[];
@@ -2975,7 +3195,7 @@ FullForm]\);(*?*)
 		rawIBPs=rawIBPs/.ZM0->ZM/.ZM[i_]:>(zMaps[[i]])/.SelfSymmetryR->SelfSymmetryRealization;
 	];
 	(*end of MaxMemoryUsed*)];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Raw IBP realized. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Raw IBP realized. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 	
 	
@@ -3000,18 +3220,39 @@ FullForm]\);(*?*)
 			rawIBPs=SymmetryMap[sectorMaps,rawIBPs];
 		];
 		(*end of MaxMemoryUsed*)];
-		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Sector mapping finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Sector mapping finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 		
 	];
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	(*	 Remove zero-sector integrals *)
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing zero-sector integrals..."]];
 	
-    integrals=Select[IntegralList[rawIBPs],!MemberQ[Global`ZeroSectors,Sector[#]]&];
-	rawIBPs=Factor[CoefficientArrays[rawIBPs,integrals][[2]]] . integrals; (*Do I need to factor these coefficients?...OH yes, very important*)
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing zero-sector integrals..."]];
+	timer2=AbsoluteTime[];
+	memoryUsed2=MaxMemoryUsed[
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Deriving integral list..."]];
+    integrals=Select[IntegralList[rawIBPs,SortTheIntegrals->False],!MemberQ[Global`ZeroSectors,Sector[#]]&];
+    (*end of MaxMemoryUsed*)];
+    If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+	
+	timer2=AbsoluteTime[];
+	memoryUsed2=MaxMemoryUsed[
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  removing zero integrals..."]];
+	rawIBPs=IBPCoefficientForm[CoefficientArrays[rawIBPs,integrals][[2]]] . integrals; 
+	(*Do I need to factor these coefficients?...OH yes, very important
+	(2023.11.08)well, but, Factor is really too slow for some hard problems,
+	I would like to make it an option, defaultly Expand
+	*)
+	 (*end of MaxMemoryUsed*)];
+    If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  Sector mapping finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+	
+	
+	
 	(*end of MaxMemoryUsed*)];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Zero-sector integrals removed. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+	
+	
+	
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Zero-sector integrals removed. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs remaining with ",Length[IntegralList[rawIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
@@ -3030,7 +3271,7 @@ FullForm]\);(*?*)
 		
 	];
 	(*end of MaxMemoryUsed*)];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
 
@@ -3079,7 +3320,17 @@ FullForm]\);(*?*)
 
 
 
-(* ::Subsection:: *)
+
+
+
+
+
+
+
+
+
+
+(* ::Subsection::Closed:: *)
 (*Row Reduce Modules*)
 
 
