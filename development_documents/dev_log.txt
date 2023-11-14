@@ -991,3 +991,10 @@ and alalso, allow a setting of stricty while selecting syzygies
 [II]
 new version
 1.0.2.7
+
+-------------
+2023.11.14
+
+[NeatIBP 1.0.2.7]
+Date: 2023.11.14
+	1. Allowing setting Singular ordering through config.txt

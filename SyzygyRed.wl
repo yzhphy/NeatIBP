@@ -433,12 +433,21 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 (*Singular Interface*)
 
 
-(* ::Subsection::Closed:: *)
+SingularOrderingString[lens__]:=StringRiffle[(SingularMonomialOrdering<>"("<>ToString[#]<>")")&/@DeleteCases[{lens},0],","]
+
+
+
+
+
+
+
+
+(* ::Subsection:: *)
 (*Singular GB*)
 
 
 SingularGBText="LIB \"matrix.lib\";
-ring R = (MODULUS), (VAR, PARAMETERS), (dp(LEN1),dp(LEN2));
+ring R = (MODULUS), (VAR, PARAMETERS), (ORDERINGSTRING);
 option(prot);
 degBound=DEGBOUND;
 module m = MODULE;
@@ -449,10 +458,10 @@ exit;
 
 
 Options[SingularGBMaker]={Modulus->0,SimplificationRules->Global`OptionSimplification,ScriptFile->TemporaryDirectory<>"GB.sing",
-OutputFile->TemporaryDirectory<>"GB_result.txt",ScriptOnly->False,degBound->0,Silence->True
+OutputFile->TemporaryDirectory<>"GB_result.txt",ScriptOnly->False,degBound->0,Silence->True,BlockPrioryVars->{}
 };
 SingularGBMaker[Minput_,varRedundant_,parameterRedundant_,OptionsPattern[]]:=Module[{M,SingularScript,forwardRep,backwardRep,var,parameters,varpara,len1,len2,
-varString,parameterString},
+varString,parameterString,varBlockPriory,varBlockNotPriory,orderString},
 	
 	
 	If[FileExistsQ[OptionValue[OutputFile]],DeleteFile[OptionValue[OutputFile]]];
@@ -462,12 +471,19 @@ varString,parameterString},
 	var=ListIntersect[varRedundant,varpara];  (* Delete the variables not in the modules *)
 	parameters=ListIntersect[parameterRedundant,varpara];   (* Delete the parameters not in the modules *)
 	If[parameters=={},parameters=parameterRedundant[[{1}]]];   (*  If there is no parameter, to fit in the Singular code, pick up one parameter *)
-	
+	If[OptionValue[BlockPrioryVars]=!={},
+		varBlockPriory=Intersection[var,OptionValue[BlockPrioryVars]]//Sort;
+		varBlockNotPriory=Complement[var,OptionValue[BlockPrioryVars]]//Sort;
+		var=Join[varBlockPriory,varBlockNotPriory];
+		orderString=SingularOrderingString[Length[varBlockPriory],Length[varBlockNotPriory],Length[parameters]];
+	,
+		orderString=SingularOrderingString[Length[var],Length[parameters]]
+	];
 	varString=StringReplace[ToString[var/.ForwardRep[1]],{"{"->"","}"->""}];
 	parameterString=StringReplace[ToString[parameters/.ForwardRep[1]],{"{"->"","}"->""}];
 	
 	SingularScript=StringReplace[SingularGBText,{"VAR"->varString,"PARAMETERS"->parameterString}];
-	SingularScript=StringReplace[SingularScript,{"MODULUS"->ToString[Modulus//OptionValue],"LEN1"->ToString[Length[var]],"LEN2"->ToString[Length[parameters]]}];
+	SingularScript=StringReplace[SingularScript,{"MODULUS"->ToString[Modulus//OptionValue],"ORDERINGSTRING"->orderString}];
 	SingularScript=StringReplace[SingularScript,{"MODULE"->Module2SingularForm[M,1]}];
 	SingularScript=StringReplace[SingularScript,"OUTPUTFILE"->OptionValue[OutputFile]];
 	SingularScript=StringReplace[SingularScript,{"SimplificationStrategy"->ToString[OptionValue[SimplificationRules]],"DEGBOUND"->ToString[OptionValue[degBound]]}];
@@ -551,7 +567,7 @@ SingularGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,varsCutt
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Singular intersection*)
 
 
@@ -567,7 +583,7 @@ Module2SingularForm[m_,mode_]:=StringReplace[ToString[Vector2SingularForm[#,mode
 
 
 SingularIntersectionText="LIB \"matrix.lib\";
-ring R = (MODULUS), (VAR, PARAMETERS), (dp(LEN1),dp(LEN2));
+ring R = (MODULUS), (VAR, PARAMETERS), (ORDERINGSTRING);
 option(prot);
 degBound=DEGBOUND;
 module m1 = MODULE1;
@@ -579,7 +595,7 @@ matrix matrixa=a;
 matrix matrixa1=submat(matrixa,1..M1SIZE,1..size(a));
 matrix matrixm1ext=m1ext;
 module m12old=module(matrixm1ext*matrixa1);
-ring R2 = (MODULUS,PARAMETERS), (VAR), dp(LEN1);
+ring R2 = (MODULUS,PARAMETERS), (VAR), (ORDERING_STRING_2);
 module m12=imap(R,m12old);
 module mInt=simplify(m12,SimplificationStrategy);
 write(\"OUTPUTFILE\",string(mInt));
@@ -598,7 +614,7 @@ matrix matrixa=a;
 matrix matrixa1=submat(matrixa,1..M1SIZE,1..size(a));
 matrix matrixm1ext=m1ext;
 module m12old=module(matrixm1ext*matrixa1);
-ring R2 = (MODULUS,PARAMETERS), (VAR), dp(LEN1);
+ring R2 = (MODULUS,PARAMETERS), (VAR), (ORDERING_STRING_2);
 module m12=imap(R,m12old);
 module mInt=simplify(m12,SimplificationStrategy);
 write(\"OUTPUTFILE\",string(mInt));
@@ -607,12 +623,12 @@ exit;
 
 
 SingularSyzText="LIB \"matrix.lib\";
-ring R = (MODULUS), (VAR, PARAMETERS), (dp(LEN1),dp(LEN2));
+ring R = (MODULUS), (VAR, PARAMETERS), (ORDERINGSTRING);
 option(prot);
 degBound=DEGBOUND;
 module m1 = MODULE1;
 module a=syz(m1);
-ring R2 = (MODULUS,PARAMETERS), (VAR), dp(LEN1);
+ring R2 = (MODULUS,PARAMETERS), (VAR), (ORDERING_STRING_2);
 module a2=imap(R,a);
 module a3=simplify(a2,SimplificationStrategy);
 write(\"OUTPUTFILE\",string(a3));
@@ -625,7 +641,7 @@ SingularIntersectionTextForFlexibleDegBound="LIB \"matrix.lib\";
 LIB \"tasks.lib\";
 timer = 0; //initialization of timer
 system(\"--ticks-per-sec\",1000); 
-ring R = (MODULUS), (VAR, PARAMETERS), (dp(LEN1),dp(LEN2));
+ring R = (MODULUS), (VAR, PARAMETERS), (ORDERINGSTRING);
 option(prot);
 degBound=DEGBOUND;
 module m1 = MODULE1;
@@ -671,7 +687,7 @@ matrix matrixa=a;
 matrix matrixa1=submat(matrixa,1..M1SIZE,1..size(a));
 matrix matrixm1ext=m1ext;
 module m12old=module(matrixm1ext*matrixa1);
-ring R2 = (MODULUS,PARAMETERS), (VAR), dp(LEN1);
+ring R2 = (MODULUS,PARAMETERS), (VAR), (ORDERING_STRING_2);
 module m12=imap(R,m12old);
 module mInt=simplify(m12,SimplificationStrategy);
 write(\"OUTPUTFILE\",string(mInt));
@@ -680,10 +696,10 @@ exit;
 
 
 Options[SingularIntersectionMaker]={Modulus->0,SimplificationRules->Global`OptionSimplification,ScriptFile->TemporaryDirectory<>"intersection.sing",
-OutputFile->TemporaryDirectory<>"intersection_result.txt",ScriptOnly->False,degBound->0
+OutputFile->TemporaryDirectory<>"intersection_result.txt",ScriptOnly->False,degBound->0,BlockPrioryVars->{}
 };
 SingularIntersectionMaker[M1input_,M1extinput_,M2input_,varRedundant_,parameterRedundant_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularScript,forwardRep,backwardRep,var,parameters,varpara,len1,len2,
-varString,parameterString},
+varString,parameterString,varBlockPriory,varBlockNotPriory,orderString,orderString2},
 	
 	
 	If[FileExistsQ[OptionValue[OutputFile]],DeleteFile[OptionValue[OutputFile]]];
@@ -694,12 +710,21 @@ varString,parameterString},
 	var=ListIntersect[varRedundant,varpara];  (* Delete the variables not in the modules *)
 	parameters=ListIntersect[parameterRedundant,varpara];   (* Delete the parameters not in the modules *)
 	If[parameters=={},parameters=parameterRedundant[[{1}]]];   (*  If there is no parameter, to fit in the Singular code, pick up one parameter *)
-	
+	If[OptionValue[BlockPrioryVars]=!={},
+		varBlockPriory=Intersection[var,OptionValue[BlockPrioryVars]]//Sort;
+		varBlockNotPriory=Complement[var,OptionValue[BlockPrioryVars]]//Sort;
+		var=Join[varBlockPriory,varBlockNotPriory];
+		orderString=SingularOrderingString[Length[varBlockPriory],Length[varBlockNotPriory],Length[parameters]];
+		orderString2=SingularOrderingString[Length[varBlockPriory],Length[varBlockNotPriory]];
+	,
+		orderString=SingularOrderingString[Length[var],Length[parameters]];
+		orderString2=SingularOrderingString[Length[var]]
+	];
 	varString=StringReplace[ToString[var/.ForwardRep[1]],{"{"->"","}"->""}];
 	parameterString=StringReplace[ToString[parameters/.ForwardRep[1]],{"{"->"","}"->""}];
 	
 	SingularScript=StringReplace[SingularIntersectionText,{"VAR"->varString,"PARAMETERS"->parameterString}];
-	SingularScript=StringReplace[SingularScript,{"MODULUS"->ToString[Modulus//OptionValue],"LEN1"->ToString[Length[var]],"LEN2"->ToString[Length[parameters]]}];
+	SingularScript=StringReplace[SingularScript,{"MODULUS"->ToString[Modulus//OptionValue],"ORDERINGSTRING"->orderString,"ORDERING_STRING_2"->orderString2}];
 	SingularScript=StringReplace[SingularScript,{"MODULE1"->Module2SingularForm[M1,1],"M1ext"->Module2SingularForm[M1ext,1],"MODULE2"->Module2SingularForm[M2,1],"M1SIZE"->ToString[Length[M1]]}];
 	SingularScript=StringReplace[SingularScript,"OUTPUTFILE"->OptionValue[OutputFile]];
 	SingularScript=StringReplace[SingularScript,{"SimplificationStrategy"->ToString[OptionValue[SimplificationRules]],"DEGBOUND"->ToString[OptionValue[degBound]]}];
@@ -741,7 +766,7 @@ ShortenedModule[M1ext_,restrictedIndices_]:=Module[{shortenedM1,shortenedM2},
 Options[SingularIntersection]={Modulus->0,SimplificationRules->Global`OptionSimplification,ScriptFile->TemporaryDirectory<>"intersection.sing",
 OutputFile->TemporaryDirectory<>"intersection_result.txt",TestOnly->False,ScriptOnly->False,degBound->0,VariableOrder->var,Cut->{},ShortenTheModules->False,
 NumericMode->False,PrintDegBound->False,DeleteResultFiles->DeleteSingularResultFiles,DeleteScriptFiles->DeleteSingularScriptFiles};
-SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCommand,timer,vectors,cutIndex},
+SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCommand,timer,vectors,cutIndex,blockPrioryVars},
 	cutIndex=OptionValue[Cut];
 	If[!SubsetQ[resIndex,cutIndex],PrintAndLog["Sorry... This version does not support the case with a cut propagator index UNrestricted ..."]; Return[];];
 	{M1,M1ext,M2}=TangentModules[resIndex,cutIndex];
@@ -755,9 +780,36 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 		If[M2==={},Return[M1ext]](*No restrictions on any of the indices*)
 	];
 	If[OptionValue[TestOnly],PrintAndLog[resIndex];Return[{M1,M2}]];
-	varOrder=Join[Complement[var,Variables[M2]]//Sort,Intersection[var,Variables[M2]]//Sort];
+	Switch[SingularVariableOrdering,
+	"DenominatorFirst",
+		
+		varOrder=Join[Intersection[var,Variables[M2]]//Sort,Complement[var,Variables[M2]]//Sort];
+		If[SingularVariableBlockOrdering===True,
+			blockPrioryVars=Intersection[var,Variables[M2]]//Sort
+		,
+			blockPrioryVars={}
+		];
+	,
+	_,
+		If[SingularVariableOrdering=!="NumeratorFirst",PrintAndLog["SingularIntersection: unkown SingularVariableOrdering ",SingularVariableOrdering,", switching to NumeratorFirst"]];
+		varOrder=Join[Complement[var,Variables[M2]]//Sort,Intersection[var,Variables[M2]]//Sort];
+		If[SingularVariableBlockOrdering===True,
+			blockPrioryVars=Complement[var,Variables[M2]]//Sort
+		,
+			blockPrioryVars={}
+		];
+		
+	];
+	
 	(* PrintAndLog[varOrder]; *)
-	SingularIntersectionMaker[M1,M1ext,M2,varOrder,Parameters,ScriptFile->OptionValue[ScriptFile],OutputFile->OptionValue[OutputFile],Modulus->OptionValue[Modulus],SimplificationRules->OptionValue[SimplificationRules],degBound->OptionValue[degBound]];
+	SingularIntersectionMaker[M1,M1ext,M2,varOrder,Parameters,
+		ScriptFile->OptionValue[ScriptFile],
+		OutputFile->OptionValue[OutputFile],
+		Modulus->OptionValue[Modulus],
+		SimplificationRules->OptionValue[SimplificationRules],
+		degBound->OptionValue[degBound],
+		BlockPrioryVars->blockPrioryVars
+	];
 	SingularCommand=SingularApp<>" "<>OptionValue[ScriptFile];
 	timer=AbsoluteTime[];
 	Run[SingularCommand];
@@ -783,7 +835,7 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 
 
 (*SingularLiftToGBText="LIB \"matrix.lib\";
-ring R = (MODULUS), (VAR, PARAMETERS), (dp(LEN1),dp(LEN2));
+ring R = (MODULUS), (VAR, PARAMETERS), (ORDERINGSTRING);
 option(prot);
 degBound=DEGBOUND;
 module m = MODULE;
@@ -796,7 +848,7 @@ write(\"OUTPUTFILE\",string(mResult));
 exit;
 ";*)
 SingularLiftToGBText="LIB \"matrix.lib\";
-ring R = (MODULUS), (VAR, PARAMETERS), (dp(LEN1),dp(LEN2));
+ring R = (MODULUS), (VAR, PARAMETERS), (ORDERINGSTRING);
 option(prot);
 degBound=DEGBOUND;
 module m = MODULE;
@@ -810,10 +862,10 @@ exit;
 
 
 Options[SingularLiftToGBMaker]={Modulus->0,SimplificationRules->Global`OptionSimplification,ScriptFile->TemporaryDirectory<>"lift_to_GB.sing",
-OutputFile->TemporaryDirectory<>"lift_to_GB_result.txt",ScriptOnly->False,degBound->0
+OutputFile->TemporaryDirectory<>"lift_to_GB_result.txt",ScriptOnly->False,degBound->0,BlockPrioryVars->{}
 };
 SingularLiftToGBMaker[Minput_,varRedundant_,parameterRedundant_,OptionsPattern[]]:=Module[{M,SingularScript,forwardRep,backwardRep,var,parameters,varpara,len1,len2,
-varString,parameterString},
+varString,parameterString,varBlockPriory,varBlockNotPriory,orderString},
 	
 	
 	If[FileExistsQ[OptionValue[OutputFile]],DeleteFile[OptionValue[OutputFile]]];
@@ -823,12 +875,19 @@ varString,parameterString},
 	var=ListIntersect[varRedundant,varpara];  (* Delete the variables not in the modules *)
 	parameters=ListIntersect[parameterRedundant,varpara];   (* Delete the parameters not in the modules *)
 	If[parameters=={},parameters=parameterRedundant[[{1}]]];   (*  If there is no parameter, to fit in the Singular code, pick up one parameter *)
-	
+	If[OptionValue[BlockPrioryVars]=!={},
+		varBlockPriory=Intersection[var,OptionValue[BlockPrioryVars]]//Sort;
+		varBlockNotPriory=Complement[var,OptionValue[BlockPrioryVars]]//Sort;
+		var=Join[varBlockPriory,varBlockNotPriory];
+		orderString=SingularOrderingString[Length[varBlockPriory],Length[varBlockNotPriory],Length[parameters]];
+	,
+		orderString=SingularOrderingString[Length[var],Length[parameters]]
+	];
 	varString=StringReplace[ToString[var/.ForwardRep[1]],{"{"->"","}"->""}];
 	parameterString=StringReplace[ToString[parameters/.ForwardRep[1]],{"{"->"","}"->""}];
 	
 	SingularScript=StringReplace[SingularLiftToGBText,{"VAR"->varString,"PARAMETERS"->parameterString}];
-	SingularScript=StringReplace[SingularScript,{"MODULUS"->ToString[Modulus//OptionValue],"LEN1"->ToString[Length[var]],"LEN2"->ToString[Length[parameters]]}];
+	SingularScript=StringReplace[SingularScript,{"MODULUS"->ToString[Modulus//OptionValue],"ORDERINGSTRING"->orderString}];
 	SingularScript=StringReplace[SingularScript,{"MODULE"->Module2SingularForm[M,1]}];
 	SingularScript=StringReplace[SingularScript,"OUTPUTFILE"->OptionValue[OutputFile]];
 	SingularScript=StringReplace[SingularScript,{"SimplificationStrategy"->ToString[OptionValue[SimplificationRules]],"DEGBOUND"->ToString[OptionValue[degBound]]}];
@@ -893,7 +952,7 @@ SingularLiftToGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,va
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*SimplifyByCut*)
 
 
@@ -2244,6 +2303,8 @@ FullForm]\);(*?*)
 
 
 
+
+
 (* ::Subsection::Closed:: *)
 (*SectorAnalyze (main)*)
 
@@ -3274,6 +3335,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 

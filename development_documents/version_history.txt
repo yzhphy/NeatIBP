@@ -102,4 +102,6 @@ Date: 2023.11.12
 	3. Some other refinements and bug fixings.
 
 
-
+[NeatIBP 1.0.2.7]
+Date: 2023.11.14
+	1. Allowing setting Singular ordering through config.txt
