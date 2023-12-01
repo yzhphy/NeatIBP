@@ -294,7 +294,7 @@ ExtendedRotationByOrthogonalization[external_,vectors_,vectorsImage_,kinematics_
 	If[vectors===-vectorsImage,Return[-IdentityMatrix[d]]];
 	
 	gramdet1=Det[Expand[KroneckerProduct[vectors,vectors]]/.kinematics]//Factor;
-	gramdet2=Det[Expand[KroneckerProduct[vectorsImage,vectors]]/.kinematics]//Factor;
+	gramdet2=Det[Expand[KroneckerProduct[vectorsImage,vectorsImage]]/.kinematics]//Factor;
 	
 	If[Or[gramdet1===0,gramdet2===0],
 		Switch[OptionValue[BackupMethod],

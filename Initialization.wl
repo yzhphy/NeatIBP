@@ -320,7 +320,18 @@ If[!MemberQ[{"MultiplePropagatorElimination","ISPElimination","Global"},Integral
 ]
 
 
-
+If[!MemberQ[{"Zurich","Zurich+FIBPGrouping"},NeatIBPSeedingMethod],
+	PrintAndLog["****  Invalid IntegralOrder \""<>ToString[IntegralOrder]<>"\". Exiting..."];
+	Exit[0]
+]
+If[FIBPGroupingStartRatio>1||FIBPGroupingStartRatio<0,
+	PrintAndLog["****  FIBPGroupingStartRatio must be between 0 and 1. Exiting..."];
+	Exit[0]
+]
+If[FIBPGroupingRemainingGroups<1||Head[FIBPGroupingRemainingGroups]=!=Integer,
+	PrintAndLog["****  FIBPGroupingRemainingGroups must be a positive integer. Exiting..."];
+	Exit[0]
+]
 
 
 (*If[NeedSymmetry&&MIFromAzuritino,

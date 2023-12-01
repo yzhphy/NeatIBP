@@ -995,6 +995,26 @@ new version
 -------------
 2023.11.14
 
-[NeatIBP 1.0.2.7]
+[NeatIBP 1.0.2.8]
 Date: 2023.11.14
 	1. Allowing setting Singular ordering through config.txt
+
+-------------------
+2023.11.27
+fixed a typo/bug in Pak.wl
+gramdet2 typo gramdet2=Det[Expand[KroneckerProduct[vectorsImage,vectors]]/.kinematics]//Factor
+to
+gramdet2=Det[Expand[KroneckerProduct[vectorsImage,vectorsImage]]/.kinematics]//Factor
+
+------------------
+2023.11.30
+Fixed a fatal bug in SyzygyRed.wl, SimplifyByCut:
+selectedIndices=Select[Range[Length[vectorsInputSorted]],Union[liftMatrix[[All,#]]]=!=0&];
+->
+selectedIndices=Select[Range[Length[vectorsInputSorted]],Union[liftMatrix[[All,#]]]=!={0}&];
+
+[II]
+Added LiftSelectionStricty
+
+[III]
+added option AllowingCornerOnlyModeInSimplifyByCut in default_settings.txt

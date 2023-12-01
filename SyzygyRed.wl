@@ -306,7 +306,7 @@ SectorElimination[sector_]:=(G@@Table[If[sector[[i]]>0,PatternTest[Pattern[ToExp
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Integral Ordering*)
 
 
@@ -429,7 +429,7 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 ];*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Singular Interface*)
 
 
@@ -442,7 +442,7 @@ SingularOrderingString[lens__]:=StringRiffle[(SingularMonomialOrdering<>"("<>ToS
 
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Singular GB*)
 
 
@@ -567,7 +567,7 @@ SingularGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,varsCutt
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Singular intersection*)
 
 
@@ -830,7 +830,7 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Singular lift to GB*)
 
 
@@ -961,7 +961,7 @@ SimplifyByCut[vectorsInput_,cutIndices_,OptionsPattern[]]:=Module[
 {vectors,vectorsCutted,sortedVectorIndices,vectorsSorted,vectorsCuttedSorted,vectorsInputSorted,i,
 tmp,syzygyVectorAbsDegrees,syzygyVectorISPDegrees,syzygyVectorPropDegrees,
 memoryUsed,timer,selectedIndices,selectedIndices2,selectedIndices2New,
-vectorsCuttedSortedSelectedGB,vectorsCuttedSortedSelected,
+vectorsCuttedSortedSelectedGB,vectorsCuttedSortedSelected,recoveredIndices,
 secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,timer3,memoryUsed3,timeForAGBComputation},
 	secNo=OptionValue[sectorNumber];
 	reportLayer=OptionValue[ReportLayer];
@@ -971,7 +971,7 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 	memoryUsed=MaxMemoryUsed[
 	vectors=vectorsInput;
 	If[OptionValue[CornerOnly],
-		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"CornerOnly is on, skip."]
+		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"CornerOnly mode, skip."]
 	,
 		For[ind1=1,ind1<=Length[vectors],ind1++,
 			For[ind2=1,ind2<=Length[cutIndices],ind2++,
@@ -1056,11 +1056,25 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 		PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB." ];
 		
 	,_,
-		timer2=AbsoluteTime[];
-		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Lift selecting..."];
-		memoryUsed2=MaxMemoryUsed[
 		If[SimplifyByCutMethod=!="LiftSelection",PrintAndLog["#",secNo,"\t","SimplifyByCut: Unknown SimplifyByCutMethod, switching to LiftSelection"]];
-		selectedIndices=Select[Range[Length[vectorsInputSorted]],Union[liftMatrix[[All,#]]]=!=0&];
+		timer2=AbsoluteTime[];
+		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Lift selecting... [stricty=",Max[Min[LiftSelectionStricty,1],0],"]"];
+		memoryUsed2=MaxMemoryUsed[
+		selectedIndices=Select[Range[Length[vectorsInputSorted]],Union[liftMatrix[[All,#]]]=!={0}&];
+		PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Selected vectors: ",Length[selectedIndices],"."];
+		If[LiftSelectionStricty<1,
+			recoveredIndices={};
+			For[i=1,i<=Length[vectorsInputSorted],i++,
+				If[!MemberQ[selectedIndices,i],
+					If[RandomReal[]>LiftSelectionStricty,
+						recoveredIndices=Join[recoveredIndices,{i}]
+					]
+				]
+			];
+			PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Recovered unselected vectors: ",Length[recoveredIndices],"."];
+			selectedIndices=Join[selectedIndices,recoveredIndices]//Union//Sort;
+		];
+		PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Vectors: ",Length[selectedIndices],"."];
 		result=vectorsInputSorted[[selectedIndices]];
 		(*end of MaxMemoryUsed*)];
 		PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB." ];
@@ -1091,10 +1105,10 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 					If[vectorsCuttedSortedSelectedGB===SingularGB[vectorsCuttedSortedSelected[[selectedIndices2New]],var,{},Modulus->OptionValue[Modulus]],
 						selectedIndices2=selectedIndices2New;
 					,
-						PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"vector No.",i," selected."]
+						If[ReportFurtherSelectedSyzygyVectors===True,PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"vector No.",i," selected."]]
 					]
 				,
-					PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"vector No.",i," selected (without testing)."]
+					If[ReportFurtherSelectedSyzygyVectors===True,PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"vector No.",i," selected (without testing)."]]
 				];
 			];
 			(*end of MaxMemoryUsed*)];
@@ -2055,7 +2069,7 @@ ReduceTowards[rIBPs_,targets_,irredIntegrals_]:=Module[
 
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*FindIBPs (to seed by more denominator degrees)*)
 
 
@@ -2305,7 +2319,15 @@ FullForm]\);(*?*)
 
 
 
-(* ::Subsection::Closed:: *)
+
+
+
+
+
+
+
+
+(* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
 
@@ -2508,7 +2530,7 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 		memoryUsed=MaxMemoryUsed[
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Simplifying vector list by cut..."]];
 		VectorListSimplifiedByCut=SimplifyByCut[VectorList,secindex,
-			CornerOnly->(DenominatorTypes==={sector}),
+			CornerOnly->And[(DenominatorTypes==={sector}),AllowingCornerOnlyModeInSimplifyByCut],
 			sectorNumber->secNo,
 			Modulus->FiniteFieldModulus2
 		];
@@ -3305,7 +3327,7 @@ FullForm]\);(*?*)
 	I would like to make it an option, defaultly Expand
 	*)
 	 (*end of MaxMemoryUsed*)];
-    If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  Sector mapping finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+    If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  Finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
 	
 	
@@ -3335,6 +3357,14 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
+
+
+
+
+
+
 
 
 

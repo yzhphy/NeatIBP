@@ -80,10 +80,19 @@ DenominatorTypeLiftIndexLists={};(*data structure: a list of index lists. This i
 LinearSyzDegree=3;
 NumericIBP=False;
 ReportIrreducibleIntegralsAfterIBPAnalyze=False;
+AllowingCornerOnlyModeInSimplifyByCut=True;
 SimplifyByCutMethod="LiftSelection";(*"LiftResubstitution" or "LiftSelection", "LiftSelection" recommended*)
 FurtherSyzygyVectorsSelection=True;(*deleting vectors to test if cut GB unchange, only valid for "LiftSelection"*)
 FiniteFieldModulus2=117763;(*for FurtherSyzygyVectorsSelection*)
-FurtherSyzygyVectorsSelectionStricty=10;(*the propability to delete a syzygy vector which should be deleted, >1 means 1, <0 means 0*)
+LiftSelectionStricty=10;(*the propability to delete a syzygy vector which should be deleted in LiftSelection, >1 means 1, <0 means 0*)
+FurtherSyzygyVectorsSelectionStricty=10;(*the propability to delete a syzygy vector which should be deleted in Further selection, >1 means 1, <0 means 0*)
+ReportFurtherSelectedSyzygyVectors=False;
+NeatIBPSeedingMethod="Zurich";
+FIBPGroupingStartRatio=0.5;
+FIBPGroupingRemainingGroups=2;
+
+
+
 
 (*--------sectorwise settings-------------*)
 SectorwiseSettings={};

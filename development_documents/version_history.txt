@@ -102,6 +102,12 @@ Date: 2023.11.12
 	3. Some other refinements and bug fixings.
 
 
-[NeatIBP 1.0.2.7]
+[NeatIBP 1.0.2.8]
 Date: 2023.11.14
 	1. Allowing setting Singular ordering through config.txt
+
+
+[NeatIBP 1.0.2.9]
+Date: 2023.12.01
+	1. Bug fixing.
+        2. Allowing more stricty settings in syzygy vector selection steps.

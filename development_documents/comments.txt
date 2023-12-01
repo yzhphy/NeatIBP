@@ -4,7 +4,9 @@ what if the targets are all MI (or on a sector all MI)? There will be IBPs={} an
 spanning cut
 kill zombie process 
 ^C while SpaSM will cause zombies
+Theoretically, The syzygy shorthen with CornerOnly is inconsistent with AdditionalIBPs
 
+About the stricty selection, "random" recovering the deleted vectors is not so good, we need to pick up simple ones.
 
 
 ==========Important=================
