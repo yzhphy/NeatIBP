@@ -275,11 +275,11 @@ If[And[MemberQ[{"spanning cuts"},CutIndices],Not[debugMode===True]],
 	PrintAndLog["****  In the current version, spanning cuts mode is under developement. There may lurks unknown bugs. Please set debugMode=True if you want to try. Exiting..."];
 	Exit[0]
 ]
-If[And[SimplifySyzygyVectorsByCut,Not[debugMode===True]],
+(*If[And[SimplifySyzygyVectorsByCut,Not[debugMode===True]],
 	PrintAndLog["****  In current version, SimplifySyzygyVectorsByCut is under developement. There may lurks unknown bugs. Please set debugMode=True if you want to try. Exiting..."];
 	Exit[0]
 ]
-
+*)
 
 
 

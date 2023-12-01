@@ -26,7 +26,7 @@ FlexibleNeatIBPIntersectionDegreeBound=False;(*Something wrong... do not use Tru
 NeatIBPIntersectionTimeConstrain=3600;(*seconds*)
 NeatIBPIntersectionDegreeBoundDecreaseLimit=2;
 IBPCoefficientForm=Expand;
-SimplifySyzygyVectorsByCut=False;(*Experimental, if it needs to be True, add debugMode=True in your config.txt*)
+SimplifySyzygyVectorsByCut=False;
 SingularMonomialOrdering="dp"
 SingularVariableOrdering="NumeratorFirst";(*"NumeratorFirst" or "DenominatorFirst"*)
 SingularVariableBlockOrdering=False;
