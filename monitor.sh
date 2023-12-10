@@ -1,2 +1,4 @@
 packagePath=$(dirname $( realpath ${BASH_SOURCE}))
-math -script $packagePath/MissionStatusMonitor.wl config.txt
+MathematicaCommand=`cat $packagePath/preload/MathematicaCommand.txt`
+ShellProcessor=`cat $packagePath/preload/ShellProcessor.txt`
+$MathematicaCommand -script $packagePath/MissionStatusMonitor.wl config.txt

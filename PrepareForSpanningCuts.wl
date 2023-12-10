@@ -10,7 +10,8 @@ If[commandLineMode,
 	packagePath=DirectoryName[$InputFileName];
 	workingPath=Directory[]<>"/";
 	missionInput=$CommandLine[[-1]];
-
+	MathematicaCommand=Import[packagePath<>"/preload/MathematicaCommand.txt"];
+	ShellProcessor=Import[packagePath<>"/preload/ShellProcessor.txt"];
 	,
 	Print["WARNING: program is not running in command line mode!"];
 	workingPath=NotebookDirectory[];
@@ -127,6 +128,7 @@ ModifiedConfig[file_,cut_]:=Module[{string},
 	string=Import[file];
 	string=StringReplace[string,{"CutIndices="~~Shortest[x__]~~"\n"->"\n"}];
 	string=string<>"\n\n(*-----actual cuts-----*)\nCutIndices="<>ToString[InputForm[cut]]<>";\n";
+	(*string//Print;*)
 	string
 ]
 

@@ -1018,3 +1018,21 @@ Added LiftSelectionStricty
 
 [III]
 added option AllowingCornerOnlyModeInSimplifyByCut in default_settings.txt
+
+----------------
+2023.12.06
+commented out 
+(*ForwardRep[2]=Join[Table[ScalarVar[[i]]->ToExpression["z"<>ToString[i]],{i,1,SDim}],Table[Parameters[[i]]->ToExpression["c"<>ToString[i]],{i,1,Parameters//Length}]];
+	BackwardRep[2]=Reverse/@ForwardRep[2];*)
+in Prepare[] in SyzygyRed.wl
+which was incorrect, and not used.
+
+
+--------------------
+2023.12.10
+added preload subdir, let user set the mathematica command and shell processor. Now the shell prosessor is sh. We will later modify it to bash.
+
+version 1.0.2.10
+
+
+

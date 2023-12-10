@@ -10,7 +10,8 @@ If[commandLineMode,
 	packagePath=DirectoryName[$InputFileName];
 	workingPath=Directory[]<>"/";
 	checkPath=$CommandLine[[-1]];
-
+	MathematicaCommand=Import[packagePath<>"/preload/MathematicaCommand.txt"];
+	ShellProcessor=Import[packagePath<>"/preload/ShellProcessor.txt"];
 	,
 	Print["WARNING: program is not running in command line mode!"];
 	workingPath=NotebookDirectory[];

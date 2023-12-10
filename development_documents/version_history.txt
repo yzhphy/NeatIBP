@@ -111,3 +111,11 @@ Date: 2023.11.14
 Date: 2023.12.01
 	1. Bug fixing.
         2. Allowing more stricty settings in syzygy vector selection steps.
+
+[NeatIBP 1.0.2.10]
+Date: 2023.12.10
+	1. User can now specify the mathematica command they use on their devices, in preload folder, MathematicaCommand.txt.
+	2. Experimental spanning-cuts module progressed.
+	3. Some bug fixing.
+
+

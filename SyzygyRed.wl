@@ -87,7 +87,7 @@ positivity[list_]:=If[Union[#>0&/@list]==Head[list][True],True,False];
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Baikov Representation*)
 
 
@@ -166,8 +166,8 @@ Prepare[]:=Module[{Formula,MatrixA,VectorB,ScalarC,BList,AList,Vectorb,lambda},
 	
 	ForwardRep[1]=Join[Table[z[i]->ToExpression["z"<>ToString[i]],{i,1,SDim}],Table[Parameters[[i]]->ToExpression["c"<>ToString[i]],{i,1,Parameters//Length}]];
 	BackwardRep[1]=Reverse/@ForwardRep[1];
-	ForwardRep[2]=Join[Table[ScalarVar[[i]]->ToExpression["z"<>ToString[i]],{i,1,SDim}],Table[Parameters[[i]]->ToExpression["c"<>ToString[i]],{i,1,Parameters//Length}]];
-	BackwardRep[2]=Reverse/@ForwardRep[2];
+	(*ForwardRep[2]=Join[Table[ScalarVar[[i]]->ToExpression["z"<>ToString[i]],{i,1,SDim}],Table[Parameters[[i]]->ToExpression["c"<>ToString[i]],{i,1,Parameters//Length}]];
+	BackwardRep[2]=Reverse/@ForwardRep[2];*)
 
 	Scalar2sp=#[[2]]->(#[[1]]/.{x_ y_->sp[x,y],x_^2->sp[x,x]})&/@ScalarVarRep; 
 	sp2Scalar=Join[Reverse/@Scalar2sp,
@@ -2327,6 +2327,8 @@ FullForm]\);(*?*)
 
 
 
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -3357,6 +3359,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 

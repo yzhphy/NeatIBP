@@ -17,6 +17,8 @@ If[commandLineMode,
 	missionInput=$CommandLine[[-3]];
 	sectorID=$CommandLine[[-2]]//ToExpression;
 	(*outputPath=$CommandLine[[-1]];*)(*This is for MissionStatusMonitor to read, not needed here*)
+	MathematicaCommand=Import[packagePath<>"/preload/MathematicaCommand.txt"];
+	ShellProcessor=Import[packagePath<>"/preload/ShellProcessor.txt"];
 	,
 	Print["WARNING: program is not running in command line mode!"];
 	

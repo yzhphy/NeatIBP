@@ -7,6 +7,8 @@ If[commandLineMode,
 	packagePath=DirectoryName[$InputFileName];
 	workingPath=Directory[]<>"/";
 	missionInput=$CommandLine[[-1]];
+	MathematicaCommand=Import[packagePath<>"/preload/MathematicaCommand.txt"];
+	ShellProcessor=Import[packagePath<>"/preload/ShellProcessor.txt"];
 (*	AppendTo[$Path,workingPath];
 	Get[missionInput]*)
 	,
@@ -161,8 +163,9 @@ MissionStatusInfo[path_]:=Module[
 missionComputing,missionComputationFinished,actuallyRunningMissions,missionLost,
 runningMissionUnregistered},
 	actuallyRunningMissions=ActuallyRunningMissions[path];
+	
 	missionStatusPath=path<>"/tmp/mission_status/";
-	missionStatus={ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex,Get[#]}&/@FileNames[All,missionStatusPath]
+	missionStatus={ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex,Get[#]}&/@FileNames[All,missionStatusPath];
 	missionWaitingSupersectors=(
 			SortBy[Select[missionStatus,#[[2]]==="WaitingSupersectors"&],SectorOrdering[#[[1]]]&]//Reverse
 	)[[All,1]];
@@ -177,6 +180,7 @@ runningMissionUnregistered},
 	)[[All,1]];
 	missionLost=Complement[SectorNumber/@missionComputing,actuallyRunningMissions];
 	runningMissionUnregistered=Complement[actuallyRunningMissions,SectorNumber/@missionComputing];
+	
 	MapThread[#1->#2&,{
 		{
 			"waiting",
@@ -187,21 +191,22 @@ runningMissionUnregistered},
 			"*unlabelled"
 		},
 		Length/@{
-			missionWaitingSupersectors\:ff0c
-			missionReadyToCompute\:ff0c
-			missionComputing\:ff0c
-			missionComputationFinished\:ff0c
-			missionLost\:ff0c
+			missionWaitingSupersectors,
+			missionReadyToCompute,
+			missionComputing,
+			missionComputationFinished,
+			missionLost,
 			runningMissionUnregistered
 		}
 	}]
+	
 ]
 
 
 
 CutMissionInfo[cut_]:=Module[{cutString,path,status},
 	cutString=StringRiffle[ToString/@cut,"_"];
-	path=outputPath<>"/tmp/spanning_cuts_missions/cut_"<>cutString<>"/outputs/"<>ReductionOutputName<>"/";
+	path=outputPath<>"tmp/spanning_cuts_missions/cut_"<>cutString<>"/outputs/"<>ReductionOutputName<>"/";
 	status=MissionStatusInfo[path];
 	Join[{"cut"->cut},status]
 ]
@@ -211,7 +216,8 @@ CutStringToCutIndex[cutString_]:=ToExpression/@StringSplit[StringReplace[cutStri
 
 
 ReadCuts[]:=Module[{dirs,cutStrings},
-	dirs=Select[FileNames[All,outputName<>"/tmp/spanning_cuts_missions/"],DirectoryQ];
+	(*dirs=Select[FileNames[All,outputName<>"/tmp/spanning_cuts_missions/"],DirectoryQ];*)
+	dirs=Select[FileNames[All,outputPath<>"/tmp/spanning_cuts_missions/"],DirectoryQ];
 	cutStrings=FileNameSplit[#][[-1]]&/@dirs;
 	CutStringToCutIndex/@cutStrings
 ]
@@ -239,31 +245,34 @@ CompensateSpace[string_,length_]:=string<>StringRiffle[Table[" ",length],""]
 
 
 
-FineTableDisplay[table_]:=Module[{rows,columns,r,c,maxLengths,fineTable,entry,finalString},
+FineTable[table_]:=Module[{rows,columns,r,c,maxLengths,fineTable,entry,finalString},
 	fineTable=table;
 	{rows,columns}=Dimensions[table];
 	maxLengths=(Max@@(StringLength/@#))&/@Transpose[table];(*max string length of each column*)
+	
 	For[r=1,r<=rows,r++,
-		For[c=1,r<=columns,c++,
+		For[c=1,c<=columns,c++,
+		
 			entry=table[[r,c]];
 			fineTable[[r,c]]=CompensateSpace[entry,maxLengths[[c]]-StringLength[entry]]
 		];
 	];
 	finalString=StringRiffle[StringRiffle[#,"\t"]&/@fineTable,"\n"];
-	Print[finalString]
+	finalString
 ]
 
 
-PrintCutsMissions[]:=Module[{},
-	Print["----------------------------------------------"];
-	Print[TimeString[]];
-	Print["----------------------------------------------"];
-	FineTableDisplay[CutMissionsInfoTable[]]
+PrintCutsMissions[]:=Module[{displaystring},
+	displaystring="----------------------------------------------\n";
+	displaystring=displaystring<>TimeString[]<>"\n"<>displaystring;
+	displaystring=displaystring<>"\n"<>FineTable[CutMissionsInfoTable[]];
+	Print[displaystring]
 ]
 
 
 CutFinishedQ[cut_]:=Module[{info},
-	info=CutMissionsInfoTable[cut];
+	info=CutMissionInfo[cut];
+	
 	And[
 		({
 			"waiting",
@@ -271,7 +280,7 @@ CutFinishedQ[cut_]:=Module[{info},
 			"computing",
 			"*lost",
 			"*unlabelled"
-		}/.info)===(ToString/@{0,0,0,0,0}),
+		}/.info)===((*ToString/@*){0,0,0,0,0}),
 		ToExpression["finished"/.info]>0
 	]
 ]
@@ -279,6 +288,7 @@ CutFinishedQ[cut_]:=Module[{info},
 
 AllCutsFinishedQ[]:=Module[{cuts},
 	cuts=ReadCuts[];
+	
 	And@@(CutFinishedQ/@cuts)
 ]
 
@@ -289,7 +299,7 @@ AllCutsFinishedQ[]:=Module[{cuts},
 
 mode="normal"
 While[True,
-	If[FileExistsQ[outputPath<>"tmp/spanning_cuts_mode.txt"]&&FileExistsQ[outputPath<>"tmp/run_all_cuts.sh"],
+	If[FileExistsQ[outputPath<>"tmp/spanning_cuts_mode.txt"]&&FileExistsQ[outputPath<>"tmp/run_all_cuts.sh"]&&mode=="normal",
 		mode="spanning cuts";
 		Print["----------------------------------------------"];
 		Print[TimeString[]];
@@ -313,7 +323,7 @@ While[True,
 		If[initializationStatus==="in progress",PrintWaitInitialization[]];
 		If[initializationStatus==="failed",Print["==============================================\nInitialization Failed."];Break[]];
 		If[AllCutsFinishedQ[]&&initializationStatus==="finished",Print["==============================================\nAll cuts finished."];Break[]];
-		Pause[3]
+		Pause[1]
 	];
 	
 ]

@@ -7,7 +7,9 @@ kill zombie process
 Theoretically, The syzygy shorthen with CornerOnly is inconsistent with AdditionalIBPs
 
 About the stricty selection, "random" recovering the deleted vectors is not so good, we need to pick up simple ones.
+To allow wp(1，1，1) to ordering setting
 
+Some user may still need cut (partially, like {1,2}) in spanning cut mode
 
 ==========Important=================
 issue in the dev_log.txt at 2022.0923 [II] needs to be considered.
