@@ -57,7 +57,7 @@ ExportUsedSyzygyVectors=False;(*The syzygy vectors really used in the final outp
 ExportAllFIBPs=False;(*All the fundamental (symbolic) IBPs from the syzygy vectors from Singular*)
 
 (*----------spanning cuts related--------*)
-SpanningCutsEvaluationMode="Parallel";
+SpanningCutsEvaluationMode="Sequential";
 
 
 
