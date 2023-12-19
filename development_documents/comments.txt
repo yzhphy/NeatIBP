@@ -11,6 +11,8 @@ To allow wp(1，1，1) to ordering setting
 
 Some user may still need cut (partially, like {1,2}) in spanning cut mode
 
+we need a handbook
+
 ==========Important=================
 issue in the dev_log.txt at 2022.0923 [II] needs to be considered.
 

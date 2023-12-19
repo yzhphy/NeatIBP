@@ -1034,5 +1034,11 @@ added preload subdir, let user set the mathematica command and shell processor. 
 
 version 1.0.2.10
 
+--------------------
+2023.12.19
+Included kira interface
+Modified kira interface to use preload folder, mathematica command definable.
+
+version 1.0.3.0
 
 

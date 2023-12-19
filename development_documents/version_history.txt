@@ -118,4 +118,6 @@ Date: 2023.12.10
 	2. Experimental spanning-cuts module progressed.
 	3. Some bug fixing.
 
-
+[NeatIBP 1.0.3.0]
+Date: 2023.12.19
+	1. Kira interface included
