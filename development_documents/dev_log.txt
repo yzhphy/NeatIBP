@@ -1041,4 +1041,9 @@ Modified kira interface to use preload folder, mathematica command definable.
 
 version 1.0.3.0
 
+--------------------
+2023.12.21
+RW: let user set AllowInternet in config.txt
+
+
 

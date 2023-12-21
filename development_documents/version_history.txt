@@ -121,3 +121,7 @@ Date: 2023.12.10
 [NeatIBP 1.0.3.0]
 Date: 2023.12.19
 	1. Kira interface included
+
+[NeatIBP 1.0.3.1]
+Date: 2023.12.21
+	1.let user set AllowInternet in config.txt. One may set this option as False to avoid the internet check of certain mathkernel functions, especially for downward supported versions of Mathematica.
