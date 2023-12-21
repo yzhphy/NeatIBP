@@ -91,7 +91,7 @@ NeatIBPSeedingMethod="Zurich";
 FIBPGroupingStartRatio=0.5;
 FIBPGroupingRemainingGroups=2;
 
-
+AllowInternet=True; (*One may disable this option to avoid the internet check of certain mathkernel functions, especially for downward supported versions of Mathematica*)
 
 
 (*--------sectorwise settings-------------*)

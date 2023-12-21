@@ -25,7 +25,7 @@ This section shows how to install NeatIBP itself and its depencencies. You can u
 ```
 git clone https://github.com/yzhphy/NeatIBP.git
 ```
-Be advised, NeatIBP currently support only Mathematica 12.0 and up. If you are using some old version of Mathematica, please update to the new version.
+Be advised, NeatIBP currently support downward to Mathematica 11.3. If you are using some old version of Mathematica, please update to the new version.
 
 Then, if you do not have **Singular** installed on your computer, please install this dependency from its [home page](https://www.singular.uni-kl.de/).
 
