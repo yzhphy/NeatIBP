@@ -135,3 +135,9 @@ Date: 2023.12.27
 	4. Users nolonger need to run NeatIBP in the working folder. They can run NeatIBP by .../NeatIBP/run.sh [configFile]. If [configFile] is not specified or not valid, by default it is ./config.txt.
 	5. Spanning cuts in parallel implemented
 	6. Bug fixing.
+
+[NeatIBP 1.0.4.1]
+Date: 2023.12.27
+	1. Bug fixing in SparseRREF.so
+	
+

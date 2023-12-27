@@ -1,4 +1,20 @@
 ==========Urgent===================
+2023.12.27
+Hefeng:
+So if one replace all the parameters to constants, it will trigger a bug 
+with SingularIntersectionMaker[] function in SyzygyRed.wl.
+One may find after
+If[parameters=={},parameters=parameterRedundant[[{1}]]];
+the parameters reads:
+                {}[[{1}]]
+After replacing , [[1]] will be written into Singular script as 
+parameter, which triggers the bug.
+In the attachment is the Singular script.
+One more thing, this bug should also be with SingularGBMaker[] function.
+One may double check the functions regarding the similar expression as 
+"(vars, paras)"
+
+
 2023.12.25:
 1. Let user repermute (kinematic) parameters in config.txt
 2. Added "wp" ordering for Singular. By default, this weight zi's as 1 and parameters as 0 when counting degBound.

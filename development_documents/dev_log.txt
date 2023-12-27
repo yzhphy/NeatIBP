@@ -1081,3 +1081,12 @@ If[vectors===-vectorsImage,Return[#->-#&/@external]];
 zihao:
 5. Spanning cuts in parallel implemented
 
+v1.0.4.0
+
+--------------------
+2023.12.27 - more
+Hefeng: 
+	1. Bug fixing in SparseRREF.so
+
+
+
