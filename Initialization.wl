@@ -13,8 +13,11 @@ If[commandLineMode,
 	(*workingPath=DirectoryName[$InputFileName];*)
 	
 	packagePath=DirectoryName[$InputFileName];
-	workingPath=Directory[]<>"/";
-	missionInput=$CommandLine[[-1]];
+	AbsMissionInput=$CommandLine[[-1]];
+	workingPath=DirectoryName[AbsMissionInput];
+	missionInput=FileNameSplit[AbsMissionInput][[-1]];
+	(*workingPath=Directory[]<>"/";
+	missionInput=$CommandLine[[-1]];*)
 	MathematicaCommand=Import[packagePath<>"/preload/MathematicaCommand.txt"];
 	ShellProcessor=Import[packagePath<>"/preload/ShellProcessor.txt"];
 	,
@@ -106,7 +109,7 @@ If[TargetIntegrals===$Failed,Print["****  Unable to open target intergals file "
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Setting outputPath*)
 
 
@@ -160,7 +163,7 @@ If[And[DirectoryQ[outputPath],automaticOutputPath],
 If[And[DirectoryQ[outputPath],!automaticOutputPath],
 	continueQ=InputString["Output directory \""<>outputPath<>"\" already exists.
 Since this is not an automatic output folder, I cannot delete it for you considering security.
-Please reset outputPath in "<>workingPath<>"config.txt, or delete "<>outputPath<>" manually. Then try again.
+Please reset outputPath in "<>AbsMissionInput<>", or delete "<>outputPath<>" manually. Then try again.
 Type in anything to abort.
 "];
 	
@@ -211,7 +214,7 @@ ScalarExtendedTangentSet,BaikovKernelScalar,BaikovRevRep,BaikovRep,BaikovKernel,
 ForwardRep,BackwardRep,Scalar2sp,sp2Scalar,sp,PolynomialU,PolynomialF,PolynomialG,numericPolynomialG,gen,varOrder,ss,(*in SyzygyRed.wl, IntegerPartition function. I think this variable, ss, can be set as local*)
 ZeroSectors,NonZeroSectors,ZeroTargets,ReductionTargets,ReductionTasks,ZeroSectorRemoval,IBPList,MIList,SectorAnalyzeTiming,IntegralR,FI,BasicRawIBPs,FI0,ZM0,secNum,SelfSymmetryR,ZM,RelavantIntegrals,
 groupMomentumU,groupMomentumV,StdL,i,spanningCuts,bottomSectors,topSectors,spanningCutsMissionMainPath,TemporaryDirectory,
-Prepare,SectorwiseSettingListForCurrentSector
+Prepare,SectorwiseSettingListForCurrentSector,inputParameters
 
 }//DeleteDuplicates
 CheckRange={"TargetIntegrals","LoopMomenta","ExternalMomenta","Propagators","Kinematics","GenericPoint","GenericD"
@@ -246,11 +249,12 @@ If[allProtectedNamesDisappearQ===False,
 (*Other Validations*)
 
 
-If[!SubsetQ[GenericPoint[[All,1]],Complement[Variables[{Propagators,Kinematics[[All,2]]}],LoopMomenta,ExternalMomenta]],
+inputParameters=Complement[Variables[{Propagators,Kinematics[[All,2]]}],LoopMomenta,ExternalMomenta];
+If[!SubsetQ[GenericPoint[[All,1]],inputParameters],
 	PrintAndLog["****  GenericPoint dose not cover all scalar variables. Exiting..."];
 	Exit[0];
 ]
-If[Variables[Complement[Variables[{Propagators,Kinematics[[All,2]]}],LoopMomenta,ExternalMomenta]/.GenericPoint]=!={},
+If[Variables[inputParameters/.GenericPoint]=!={},
 	PrintAndLog["****  GenericPoint ",GenericPoint," is not properly defined. Exiting..."];
 	Exit[0];
 ]
@@ -258,7 +262,12 @@ If[Variables[d/.GenericD]=!={},
 	PrintAndLog["****  GenericD ",GenericD," is not defined or not properly defined. Exiting..."];
 	Exit[0];
 ]
-
+If[ParameterRepermute===True,
+	If[Sort[ParameterRepermuteIndex]=!=Range[Length[inputParameters]],
+		PrintAndLog["****  ParameterRepermuteIndex ",ParameterRepermuteIndex," is not a well-defined permutation with length ",Length[inputParameters],". Exiting..."];
+		Exit[0];
+	]
+]
 
 
 If[Variables[TensorProduct[ExternalMomenta,ExternalMomenta]/.Kinematics/.GenericPoint]=!={},
@@ -277,6 +286,11 @@ If[And[MemberQ[{"spanning cuts"},CutIndices],Not[debugMode===True]],
 	PrintAndLog["****  In the current version, spanning cuts mode is under developement. There may lurks unknown bugs. Please set debugMode=True if you want to try. Exiting..."];
 	Exit[0]
 ]
+If[And[FlexibleNeatIBPIntersectionDegreeBound,Not[debugMode===True]],
+	PrintAndLog["****  In current version, FlexibleNeatIBPIntersectionDegreeBound is under developement. There may lurks unknown bugs. Please set debugMode=True if you want to try. Exiting..."];
+	Exit[0]
+]
+
 (*If[And[SimplifySyzygyVectorsByCut,Not[debugMode===True]],
 	PrintAndLog["****  In current version, SimplifySyzygyVectorsByCut is under developement. There may lurks unknown bugs. Please set debugMode=True if you want to try. Exiting..."];
 	Exit[0]

@@ -23,7 +23,8 @@ ProbeIntermediateResult[name_,sec_,expr_]:=Module[{intermediateResultFolder},
 ConvenientExport[path_,contents_]:=Module[{folder},
 	folder=DirectoryName[path];
 	If[!DirectoryQ[folder],Run["mkdir -p "<>folder]];
-	Export[path,contents]
+	Export[path,contents];
+	PrintAndLog["Exported contents to ",path];
 ]
 
 
@@ -87,7 +88,7 @@ positivity[list_]:=If[Union[#>0&/@list]==Head[list][True],True,False];
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Baikov Representation*)
 
 
@@ -161,6 +162,15 @@ Prepare[]:=Module[{Formula,MatrixA,VectorB,ScalarC,BList,AList,Vectorb,lambda},
 	BaikovKernel=BaikovKernelScalar/.BaikovRep;
 	
 	Parameters=Select[Variables[BaikovMatrix/.BaikovRep],!Head[#]===z&];
+	If[ParameterRepermute===True,
+		If[Sort[ParameterRepermuteIndex]=!=Range[Length[Parameters]],
+			PrintAndLog["***** Error, wrong permutation ",ParameterRepermuteIndex];
+			Exit[0];
+		,
+			Parameters=Parameters[[ParameterRepermuteIndex]];
+		]
+	];
+	
 	TangentSet=MatrixA . #&/@ScalarTangentSet/.BaikovRep//Factor;
 	ExtendedTangentSet=Transpose[Join[Transpose[TangentSet],{Transpose[ScalarExtendedTangentSet]//Last}]]; (* including the cofactors *)
 	
@@ -433,8 +443,43 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 (*Singular Interface*)
 
 
-SingularOrderingString[lens__]:=StringRiffle[(SingularMonomialOrdering<>"("<>ToString[#]<>")")&/@DeleteCases[{lens},0],","]
-
+Options[SingularOrderingString]={WpOrderingWeight->Automatic}
+(*Automatic means, in current version, wp(1,...,1),wp(1,...,1),...,wp(1,...,1),wp(0,...,0)*)
+SingularOrderingString[lens__,OptionsPattern[]]:=Module[{lengthList={lens},result,weight,inputWeight},
+	If[SingularMonomialOrdering==="wp",
+		result=SingularWpOrderingString[lengthList,WpOrderingWeight->OptionValue[WpOrderingWeight]]
+	,
+		result=StringRiffle[(SingularMonomialOrdering<>"("<>ToString[#]<>")")&/@DeleteCases[lengthList,0],","]
+	];
+	result
+]
+Options[SingularWpOrderingString]={WpOrderingWeight->Automatic}
+SingularWpOrderingString[lengthList_,OptionsPattern[]]:=Module[{inputWeight,weight,result},
+	inputWeight=OptionValue[WpOrderingWeight];
+	If[inputWeight===Automatic,
+		weight=Table[Table[If[i===Length[lengthList],0,1],lengthList[[i]]],{i,Length[lengthList]}]
+	,
+		(*currently not used, maybe useful in the future.*)
+		If[Head[inputWeight]=!=List,
+			PrintAndLog["***Error: WpOrderingWeight ",inputWeight," is not a well defined weight list. Exiting."];
+			Exit[0];
+		];
+		If[Union[Head/@inputWeight]=!={List},
+			PrintAndLog["***Error: WpOrderingWeight ",inputWeight," is not a well defined weight list. Exiting."];
+			Exit[0];
+		];
+		If[(Length/@inputWeight)=!=lengthList,
+			PrintAndLog["***Error: WpOrderingWeight ",inputWeight," and length of input ",lengthList," mismatch. Exiting."];
+			Exit[0];
+		];
+		weight=inputWeight;
+	];
+	
+	result=StringRiffle[
+		(SingularMonomialOrdering<>"("<>StringRiffle[ToString/@#,","]<>")")&/@weight
+	,","];
+	result
+]
 
 
 
@@ -2069,7 +2114,7 @@ ReduceTowards[rIBPs_,targets_,irredIntegrals_]:=Module[
 
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*FindIBPs (to seed by more denominator degrees)*)
 
 
@@ -2329,6 +2374,18 @@ FullForm]\);(*?*)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -2342,7 +2399,7 @@ nFIBPs,WellAddressedIntegrals,secNo,degRep,rr,IBPDegreeList,IBPIndex,ReducedInte
 IBPISPdegrees,NewrawIBPs,NewnIBPs,timer2,M1,M1ext,M2,sectorMaps,mappedSectors,tailSectors,leafCounts,byteCounts,maxDenominatorIndices,formalIntegrals,
 zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctions,newSymmetryRelations,VectorList1,irredIntegrals,FIBPs0,FIBPISPDegree0,
 redundantMIs,nFIBPs0,azuritinoMIFolder,nFIBPFunctions0,redundantMIsReduced,newMIs,FindIBPResult,redundantMIsToBeReduced,CompensationIBPDenominatorDegrees,
-reduceTowards,remainedFIBPlabels,usedVectors,additionalResultFolder,memoryUsed3,timer3,nIBPsCutted,NewnIBPsCutted,newSymmetryRelationsCutted,NewSectorIntegrals,
+reduceTowards,remainedFIBPlabels,usedVectors,usedFIBPs,additionalResultFolder,memoryUsed3,timer3,nIBPsCutted,NewnIBPsCutted,newSymmetryRelationsCutted,NewSectorIntegrals,
 NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimplifiedByCutWithCornerOnly
 },
 	timer=AbsoluteTime[];
@@ -2542,6 +2599,9 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  "," Finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	];
 	
+	If[ExportAllSyzygyVectors,
+		ConvenientExport[outputPath<>"results/additional_outputs/all_syzygy_vectors/"<>ToString[secNo]<>".txt",VectorList//InputForm//ToString];
+	];
 	
 	(*ProbeIntermediateResult["VectorList",secNo,VectorList];(*debug2023*)*)
 	timer=AbsoluteTime[];
@@ -2549,11 +2609,11 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Generating Formal IBPs..."]];
 	FIBPs=IBPGenerator[#,secindex,Cut->OptionValue[Cut]]&/@VectorList;
 	If[!StrictDenominatorPowerIndices,FIBPs0=FIBPs];
+	(*end of MaxMemoryUsed*)];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[FIBPs]," Formal IBPs generated. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	If[ExportAllFIBPs,
 		ConvenientExport[outputPath<>"results/additional_outputs/all_FIBPs/"<>ToString[secNo]<>".txt",FIBPs//InputForm//ToString];
 	];
-	(*end of MaxMemoryUsed*)];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[FIBPs]," Formal IBPs generated. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 	(*ProbeIntermediateResult["FIBPs",secNo,FIBPs];*)
 	
@@ -2598,7 +2658,9 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 		(*end of MaxMemoryUsed*)];
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  IBPs for lower sectors removed. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	];
-	
+	If[ExportCornerKilledFIBPs,
+		ConvenientExport[outputPath<>"results/additional_outputs/corner_killed_FIBPs/"<>ToString[secNo]<>".txt",FIBPs//InputForm//ToString];
+	];
 	(*ProbeIntermediateResult["FIBPs",secNo,FIBPs];(*debug2023*)*)
 	
 	timer=AbsoluteTime[];
@@ -3256,6 +3318,10 @@ FullForm]\);(*?*)
 	nIBPsCutted=nIBPsCutted[[UsedIndex]];
 	
 	(*ProbeIntermediateResult["rawIBPsFrom",secNo,rawIBPs[[All,1]]//Union];(*debug2023*)*)
+	If[ExportFinalRawIBPs,
+		ConvenientExport[outputPath<>"results/additional_outputs/final_raw_IBPs/"<>ToString[secNo]<>".txt",rawIBPs//InputForm//ToString];
+	];
+	
 	If[ExportUsedSyzygyVectors===True,
 		usedVectors=Union[
 			Select[
@@ -3264,6 +3330,20 @@ FullForm]\);(*?*)
 			]
 		]/.FI0[x_]:>VectorList[[x]];
 		ConvenientExport[outputPath<>"results/additional_outputs/used_syzygy_vectors/"<>ToString[secNo]<>".txt",usedVectors//InputForm//ToString];
+	];
+	If[ExportUsedFIBPs===True,
+		usedFIBPs=Union[
+			Select[
+				rawIBPs[[All,1]],
+				Head[#]===FI0||Head[#]===FI&
+			]
+		];
+		If[MemberQ[Head/@usedFIBPs,FI0],
+			usedFIBPs=Union[usedFIBPs/.FI[x_]:>FI0[remainedFIBPlabels[[x]]]]
+		];
+		usedFIBPs=usedFIBPs/.{FI0[x_]:>FIBPs0[[x]],FI[x_]:>FIBPs[[x]]};
+		(*well, we assume if FI0 appears, FIBPs0 must be defined, if not , we cannot code so here*)
+		ConvenientExport[outputPath<>"results/additional_outputs/used_FIBPs/"<>ToString[secNo]<>".txt",usedFIBPs//InputForm//ToString];
 	];
 	
 	
@@ -3427,7 +3507,19 @@ FullForm]\);(*?*)
 
 
 
-(* ::Subsection::Closed:: *)
+
+
+
+
+
+
+
+
+
+
+
+
+(* ::Subsection:: *)
 (*Row Reduce Modules*)
 
 
@@ -3507,7 +3599,7 @@ If[UseSRFindPivots===True,ClearAll[IndepedentSet];
 Options[IndepedentSet]:={Modulus->FiniteFieldModulus};
 IndepedentSet[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,redIndex,indepIndex,timer,memoryUsed},
 	M=CoefficientArrays[IBPs,Ints][[2]];
-	
+	ProbeIntermediateResult["M_IndepedentSet",secNum,M];(*debug20231227*)
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t  RREF-pivots finding in IndepedentSet started. Matrix dimension: ",Dimensions[M//Transpose]]];

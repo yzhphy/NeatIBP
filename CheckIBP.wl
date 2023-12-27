@@ -8,7 +8,14 @@ commandLineMode=True
 
 If[commandLineMode,
 	packagePath=DirectoryName[$InputFileName];
-	workingPath=Directory[]<>"/";
+	(*workingPath=$CommandLine[[-1]];(*we can specify working path in command line*)
+	If[workingPath==="-script",workingPath=Directory[]<>"/"];
+	If[!DirectoryQ[workingPath],
+		Print["Warning: the argument working path ",workingPath," does not exist."];
+		workingPath=Directory[]<>"/";
+		Print["\t\t redefining working path as current working folder: ",workingPath,"."];
+	];*)
+	workingPath=Directory[]<>"/";(*is this really used?*)
 	checkPath=$CommandLine[[-1]];
 	MathematicaCommand=Import[packagePath<>"/preload/MathematicaCommand.txt"];
 	ShellProcessor=Import[packagePath<>"/preload/ShellProcessor.txt"];

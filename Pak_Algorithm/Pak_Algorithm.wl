@@ -290,8 +290,11 @@ ExtendedRotationByOrthogonalization[external_,vectors_,vectorsImage_,kinematics_
 {d,n,vectorsC,vectorsImageC,basis1,basis2,MatrixB1,MatrixB2,MatrixS,gramdet1,gramdet2,GlobalMatrixT,GlobalETrans},
 	d=Length[external];
 	n=Length[vectors];
-	If[vectors===vectorsImage,Return[IdentityMatrix[d]]];
-	If[vectors===-vectorsImage,Return[-IdentityMatrix[d]]];
+	(*If[vectors===vectorsImage,Return[IdentityMatrix[d]]];
+	If[vectors===-vectorsImage,Return[-IdentityMatrix[d]]];*)
+	
+	If[vectors===vectorsImage,Return[#->#&/@external]];
+	If[vectors===-vectorsImage,Return[#->-#&/@external]];
 	
 	gramdet1=Det[Expand[KroneckerProduct[vectors,vectors]]/.kinematics]//Factor;
 	gramdet2=Det[Expand[KroneckerProduct[vectorsImage,vectorsImage]]/.kinematics]//Factor;
@@ -363,6 +366,7 @@ ExtendedRotationByDeltaPlainProjection[external_,vectors_,vectorsImage_,kinemati
 projectionMatrixA,rep,ind,p,pProjectionCoordinates,pImage
 },
 	vectorsDiff=vectorsImage-vectors;
+	If[DeleteCases[Expand[vectorsDiff]]==={},Return[#->#&/@external]];
 	vectorsDiffMatrix=CoefficientArrays[vectorsDiff,external][[2]];
 	indepIndices=pivots[vectorsDiffMatrix//Transpose//RowReduce];
 	ws=vectorsDiff[[indepIndices]];
@@ -711,7 +715,7 @@ DeeperMomentumMap[internal_,external_,prop1_,prop2_,kinematics_,OptionsPattern[]
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*backups *)
 
 

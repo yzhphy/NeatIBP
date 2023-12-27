@@ -783,7 +783,7 @@ adding FindInstance implemented by YZ in MomentumMap, many modifications
 Many Modifications in Pak_Algorithm.wl, upgrating MomentumMap
 
 [II]
-RW provided Spack scripts.
+Hefeng provided Spack scripts.
 
 -----------------------
 2023.4.20
@@ -1043,7 +1043,41 @@ version 1.0.3.0
 
 --------------------
 2023.12.21
-RW: let user set AllowInternet in config.txt
+Hefeng: let user set AllowInternet in config.txt
+version 1.0.3.1
 
 
+--------------------
+2023.12.25
+zihao:
+1. Let user repermute (kinematic) parameters in config.txt
+2. Added "wp" ordering for Singular. By default, this weight zi's as 1 and parameters as 0 when counting degBound.
+3. Added more additional output options: ExportUsedFIBPs and ExportAllSyzygyVectors.
+
+
+more:
+added PrintAndLog["Exported contents to ",path] to ConvenientExport
+
+
+--------------------
+2023.12.27
+zihao:
+1. User nolonger need to run NeatIBP in the working folder. They can run NeatIBP by .../NeatIBP/run.sh [configFile]. If [configFile] is not specified or not valid, by default it is ./config.txt.
+
+2. Added more additional output options for developers: ExportCornerKilledFIBPs and ExportFinalRawIBPs
+
+Hefeng and Zihao:
+3.Debug in PackAlgorithm, in Extended orthogonalization method
+modified
+If[vectors===vectorsImage,Return[IdentityMatrix[d]]];
+If[vectors===-vectorsImage,Return[-IdentityMatrix[d]]];
+to
+If[vectors===vectorsImage,Return[#->#&/@external]];
+If[vectors===-vectorsImage,Return[#->-#&/@external]];
+
+4.Debug in PackAlgorithm, in delta plane projection method, added:
+
+
+zihao:
+5. Spanning cuts in parallel implemented
 

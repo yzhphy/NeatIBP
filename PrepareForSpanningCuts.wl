@@ -8,8 +8,13 @@ commandLineMode=True
 
 If[commandLineMode,
 	packagePath=DirectoryName[$InputFileName];
-	workingPath=Directory[]<>"/";
-	missionInput=$CommandLine[[-1]];
+	
+	AbsMissionInput=$CommandLine[[-1]];
+	workingPath=DirectoryName[AbsMissionInput];
+	missionInput=FileNameSplit[AbsMissionInput][[-1]];
+	
+	(*workingPath=Directory[]<>"/";
+	missionInput=$CommandLine[[-1]];*)
 	MathematicaCommand=Import[packagePath<>"/preload/MathematicaCommand.txt"];
 	ShellProcessor=Import[packagePath<>"/preload/ShellProcessor.txt"];
 	,
@@ -133,11 +138,16 @@ ModifiedConfig[file_,cut_]:=Module[{string},
 ]
 
 
-Export[
+(*Export[
 	TemporaryDirectory<>"run_cut.sh",
 "cd $1
 "<>packagePath<>"run.sh
 cd -",
+	"Text"
+]*)
+Export[
+	TemporaryDirectory<>"run_cut.sh",
+""<>packagePath<>"run.sh $1"<>missionInput,
 	"Text"
 ]
 Run["chmod +x "<>TemporaryDirectory<>"run_cut.sh"]
@@ -146,7 +156,7 @@ Run["chmod +x "<>TemporaryDirectory<>"run_cut.sh"]
 (*we may need to recreate spanningCutsMissionMainPath by default, considering what if this is a 2nd time running? *)
 Module[{i,cut,stringTail,cutMissionPath,runAllCutsScript},
 	PrintAndLog["Creating spanning cuts missions..."];
-	spanningCutsMissionMainPath=TemporaryDirectory<>"/spanning_cuts_missions/";
+	spanningCutsMissionMainPath=TemporaryDirectory<>"spanning_cuts_missions/";
 	runAllCutsScript="";
 	If[!DirectoryQ[#],CreateDirectory[#]]&[spanningCutsMissionMainPath];
 	For[i=1,i<=Length[spanningCuts],i++,

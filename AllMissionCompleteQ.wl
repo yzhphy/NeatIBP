@@ -4,9 +4,15 @@ commandLineMode=True
 
 
 If[commandLineMode,
+	
+	
+	(*workingPath=Directory[]<>"/";*)
+	
 	packagePath=DirectoryName[$InputFileName];
-	workingPath=Directory[]<>"/";
-	missionInput=$CommandLine[[-1]];
+	AbsMissionInput=$CommandLine[[-1]];
+	workingPath=DirectoryName[AbsMissionInput];
+	missionInput=FileNameSplit[AbsMissionInput][[-1]];
+	
 	MathematicaCommand=Import[packagePath<>"/preload/MathematicaCommand.txt"];
 	ShellProcessor=Import[packagePath<>"/preload/ShellProcessor.txt"];
 	,
@@ -81,10 +87,10 @@ If[!FileExistsQ[tmpPath<>"spanning_cuts_mode.txt"],
 	If[DeleteCases[Union[missionStatus[[All,2]]],"ComputationFinished"]==={},
 		script="echo \"All mission finished!\"\n"
 		,
-		script=MathematicaCommand<>" -script "<>packagePath<>"MissionStatusChecker.wl "<>missionInput<>" | "<>ShellProcessor
+		script=MathematicaCommand<>" -script "<>packagePath<>"MissionStatusChecker.wl "<>AbsMissionInput<>" | "<>ShellProcessor
 	]
 ,
-	script=MathematicaCommand<>" -script "<>packagePath<>"PrepareForSpanningCuts.wl "<>missionInput<>" \n"<>
+	script=MathematicaCommand<>" -script "<>packagePath<>"PrepareForSpanningCuts.wl "<>AbsMissionInput<>" \n"<>
 			tmpPath<>"run_all_cuts.sh"
 ]
 

@@ -10,8 +10,11 @@ commandLineMode=True
 
 If[commandLineMode,
 	packagePath=DirectoryName[$InputFileName];
-	workingPath=Directory[]<>"/";
-	missionInput=$CommandLine[[-1]];
+	AbsMissionInput=$CommandLine[[-1]];
+	workingPath=DirectoryName[AbsMissionInput];
+	missionInput=FileNameSplit[AbsMissionInput][[-1]];
+	(*workingPath=Directory[]<>"/";
+	missionInput=$CommandLine[[-1]];*)
 	MathematicaCommand=Import[packagePath<>"/preload/MathematicaCommand.txt"];
 	ShellProcessor=Import[packagePath<>"/preload/ShellProcessor.txt"];
 	,
@@ -176,8 +179,8 @@ While[True,
 		newComputingSectorNumbers=SectorNumber/@newComputingSectors;
 		Export[missionStatusFolder<>ToString[#]<>".txt","Computing"//InputForm//ToString]&/@newComputingSectorNumbers;
 		script=""<>
-			StringRiffle[MathematicaCommand<>" -script "<>packagePath<>"Analyze_Sector.wl "<>missionInput<>" "<>ToString[#]<>" "<>outputPath<>" &\n"&/@newComputingSectorNumbers,""]<>
-			MathematicaCommand<>" -script "<>packagePath<>"AllMissionCompleteQ.wl "<>missionInput<>" | "<>ShellProcessor<>" &\n"<>
+			StringRiffle[MathematicaCommand<>" -script "<>packagePath<>"Analyze_Sector.wl "<>AbsMissionInput<>" "<>ToString[#]<>" "<>outputPath<>" &\n"&/@newComputingSectorNumbers,""]<>
+			MathematicaCommand<>" -script "<>packagePath<>"AllMissionCompleteQ.wl "<>AbsMissionInput<>" | "<>ShellProcessor<>" &\n"<>
 			"wait\n";
 			(*script=StringRiffle[MathematicaCommand<>" -script Analyze_Sector.wl "<>missionInput<>" "<>ToString[#]<>"\n"&/@newReadySectorNumbers,""];*)
 		Break[];

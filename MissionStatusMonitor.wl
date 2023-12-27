@@ -5,8 +5,11 @@ commandLineMode=True
 
 If[commandLineMode,
 	packagePath=DirectoryName[$InputFileName];
-	workingPath=Directory[]<>"/";
-	missionInput=$CommandLine[[-1]];
+	AbsMissionInput=$CommandLine[[-1]];
+	workingPath=DirectoryName[AbsMissionInput];
+	missionInput=FileNameSplit[AbsMissionInput][[-1]];
+	(*workingPath=Directory[]<>"/";
+	missionInput=$CommandLine[[-1]];*)
 	MathematicaCommand=Import[packagePath<>"/preload/MathematicaCommand.txt"];
 	ShellProcessor=Import[packagePath<>"/preload/ShellProcessor.txt"];
 (*	AppendTo[$Path,workingPath];

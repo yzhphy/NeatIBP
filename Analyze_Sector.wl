@@ -12,9 +12,16 @@ commandLineMode=True
 
 If[commandLineMode,
 	
+	(*workingPath=Directory[]<>"/";
+	missionInput=$CommandLine[[-3]];*)
+	
+	
 	packagePath=DirectoryName[$InputFileName];
-	workingPath=Directory[]<>"/";
-	missionInput=$CommandLine[[-3]];
+	AbsMissionInput=$CommandLine[[-3]];
+	workingPath=DirectoryName[AbsMissionInput];
+	missionInput=FileNameSplit[AbsMissionInput][[-1]];
+	
+	
 	sectorID=$CommandLine[[-2]]//ToExpression;
 	(*outputPath=$CommandLine[[-1]];*)(*This is for MissionStatusMonitor to read, not needed here*)
 	MathematicaCommand=Import[packagePath<>"/preload/MathematicaCommand.txt"];

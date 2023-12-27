@@ -1,4 +1,13 @@
 ==========Urgent===================
+2023.12.25:
+1. Let user repermute (kinematic) parameters in config.txt
+2. Added "wp" ordering for Singular. By default, this weight zi's as 1 and parameters as 0 when counting degBound.
+3. Added more additional output options: ExportUsedFIBPs and ExportAllSyzygyVectors.
+but we need to test all 3 for dbox and:
+ - the 1st one for diagrams with more parameters (also ,look into the code carefully for possible different definition for the parameters, incase that some are permuted and some are not. especially to search for like Compelement, Join, Intersection, or Variables, if I redefined the parameters, I very possibly used such commands)
+ - the 3rd one for some cases with FI0
+
+
 what if the targets are all MI (or on a sector all MI)? There will be IBPs={} and OrderedIntegrals={}
 
 spanning cut
@@ -7,7 +16,6 @@ kill zombie process
 Theoretically, The syzygy shorthen with CornerOnly is inconsistent with AdditionalIBPs
 
 About the stricty selection, "random" recovering the deleted vectors is not so good, we need to pick up simple ones.
-To allow wp(1，1，1) to ordering setting
 
 Some user may still need cut (partially, like {1,2}) in spanning cut mode
 
@@ -100,6 +108,12 @@ add diagram name into monitor
 We have not proved that the projection way to find ext momenta symmetry always guarantee that the w transform always have solution...
 
 =============Not Important=================
+SectorNumberToSectorIndex:
+1.Integrate this into SyzygyRed.wl
+2."Sector index", this name is misused, will cause confusion. Sector index in SyzygyRed means {1,2,3,4,5,6,7}, not {1,1,1,1,1,1,1,0,0}, but this function is defined as the later one.
+
+we need to include MaxCutsInParallel
+
 Function name typo: IndepedentSet
 
 messages in DeepMomentumMap are ugly in terminal if ParallelTable is used
