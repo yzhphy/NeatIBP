@@ -96,15 +96,63 @@ Print["Summarizing..."]
 
 
 tmpPath=outputPath<>"tmp/"
+
+
+ReportTotalTimeUsed[]:=Module[{startAbsTime,timeUsedString,timeUsed,seconds,minutes,hours},
+	PrintAndLog["=========================================="];
+	If[FileExistsQ[tmpPath<>"start_abs_time.txt"],
+		startAbsTime=Get[tmpPath<>"start_abs_time.txt"];
+		If[startAbsTime===0,
+			timeUsedString="not available since this is a continued running.";
+		,
+			timeUsed=Round[AbsoluteTime[]-startAbsTime];
+			{minutes,seconds}=QuotientRemainder[timeUsed,60];
+			{hours,minutes}=QuotientRemainder[minutes,60];
+			timeUsedString=If[hours>0,ToString[hours]<>"h",""]<>If[minutes>0||hours>0,ToString[minutes]<>"m",""]<>ToString[seconds]<>"s.";
+		];
+		PrintAndLog["Total real time used: ",timeUsedString];
+	]
+]
+
+
+
+
+
+
 If[!FileExistsQ[tmpPath<>"initialized.txt"],
 	Print["Initialization failed, cannot summarize."];
 	Exit[0];
 ]
 If[FileExistsQ[tmpPath<>"spanning_cuts_mode.txt"],
-	Print["Spanning cuts mode, skip summarizing."];
+	PrintAndLog["Spanning cuts mode, collecting spanning cuts results."];
+	Module[{spanningCutsMissionMainPath,spanningCutStrings,spanningCuts,spanningCutString,spanningCutResultFolder,spanningCutResultSummaryFolder},
+		spanningCutsMissionMainPath=tmpPath<>"spanning_cuts_missions/";
+		spanningCuts=Get[tmpPath<>"spanningCuts.txt"];
+		spanningCutStrings=StringRiffle[ToString/@#,"_"]&/@spanningCuts;
+		For[i=1,i<=Length[spanningCutStrings],i++,
+			spanningCutString=spanningCutStrings[[i]];
+			spanningCutResultSummaryFolder=outputPath<>"results/results_spanning_cuts/cut_"<>spanningCutString<>"/";
+			spanningCutResultFolder=spanningCutsMissionMainPath<>"cut_"<>spanningCutString<>"/outputs/"<>ReductionOutputName<>"/results/";
+			
+			If[!DirectoryQ[#],CreateDirectory[#]]&[spanningCutResultSummaryFolder];(*automatically -p*)
+			(
+				CopyFile[spanningCutResultFolder<>#<>".txt",spanningCutResultSummaryFolder<>#<>".txt"];
+				(*PrintAndLog["\t copied ",spanningCutResultFolder<>#<>".txt"," to ",spanningCutResultSummaryFolder<>#<>".txt"];*)
+			)&/@{"IBP_all","MI_all","OrderedIntegrals","summary"};
+		]
+	];
+	PrintAndLog["\t Finished.\n All spanning cuts finished."];
+	ReportTotalTimeUsed[];
 	Exit[0];
 ]
 TemporaryDirectory=tmpPath
+
+
+
+
+
+(* ::Input:: *)
+(**)
 
 
 missionStatusFolder=tmpPath<>"mission_status/"
@@ -310,21 +358,7 @@ For[i=1,i<=Length[fileNamesIBP],i++,
 	IBP=IBPs[[i]];
 	If[Length[IBP]>0,PrintAndLog["sector ",sector," :\t",Length[IBP]," IBPs(s)"]]
 ]
-
-PrintAndLog["=========================================="]
-If[FileExistsQ[TemporaryDirectory<>"start_abs_time.txt"],
-	startAbsTime=Get[TemporaryDirectory<>"start_abs_time.txt"];
-	If[startAbsTime===0,
-		timeUsedString="not available since this is a continued running.";
-	,
-		timeUsed=Round[AbsoluteTime[]-startAbsTime];
-		{minutes,seconds}=QuotientRemainder[timeUsed,60];
-		{hours,minutes}=QuotientRemainder[minutes,60];
-		timeUsedString=If[hours>0,ToString[hours]<>"h",""]<>If[minutes>0||hours>0,ToString[minutes]<>"m",""]<>ToString[seconds]<>"s.";
-	];
-	
-	PrintAndLog["Total real time used: ",timeUsedString];
-]
+ReportTotalTimeUsed[];
 
 
 

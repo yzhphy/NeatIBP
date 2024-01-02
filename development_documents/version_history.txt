@@ -139,5 +139,11 @@ Date: 2023.12.27
 [NeatIBP 1.0.4.1]
 Date: 2023.12.27
 	1. Bug fixing in SparseRREF.so
+
+[NeatIBP 1.0.4.2]
+	1. Implemented automatic summary in spanning cuts mode.
+	2. Spanning cuts monitor made more user-friendly.
+	3. Some bug fixing.
+
 	
 

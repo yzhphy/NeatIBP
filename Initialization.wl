@@ -135,12 +135,33 @@ If[FileExistsQ[outputPath<>"tmp/"<>"initialized.txt"],
 ];
 
 
+FinishedOutputPathQ[outputPath_]:=Module[{subDirs,IBPallExistQs},
+	If[FileExistsQ[outputPath<>"results/IBP_all.txt"],
+		Return[True]
+	,
+		If[DirectoryQ[outputPath<>"results/results_spanning_cuts/"],
+			subDirs=Select[FileNames[All,outputPath<>"results/results_spanning_cuts/"],DirectoryQ];
+			subDirs=#<>"/"&/@subDirs;
+			IBPallExistQs=FileExistsQ[#<>"IBP_all.txt"]&/@subDirs;
+			If[MemberQ[IBPallExistQs,False],
+				Return[False]
+			,
+				Return[True]
+			]
+		,
+			Return[False]
+		]
+	];
+	
+]
+
+
 If[And[DirectoryQ[outputPath],automaticOutputPath],
 	
 	continueQ=InputString["Output directory \""<>outputPath<>"\" already exists. Do you want to delete it? Type Y or y to continue. Type others to abort.\n"];
 	
 	If[Or[continueQ=="y",continueQ=="Y"],
-		If[!FileExistsQ[outputPath<>"results/IBP_all.txt"],
+		If[!FinishedOutputPathQ[outputPath],
 			Print["Output directory "<>outputPath<>" is not a complete directory.\nIt could be the output directory of a running NeatIBP mission, or could be a unfinished NeatIBP mission in the past."];
 			Print["It is highly recommended that you check to make sure that it is not the former case. Otherwise, there will be conflict and unknown errors will occur."];
 			Print["Do you still wish to delete "<>outputPath<>" ?"];
@@ -308,7 +329,7 @@ If[CutIndices=!={}&&NeedSymmetry,
 
 
 If[(CutIndices==="spanning cuts")&&(automaticOutputPath===False),
-	PrintAndLog["****  In spanning cuts mode, outputPath must be set to be Automatic. Exiting..."];
+	PrintAndLog["****  In spanning cuts mode, outputPath must be set to be Automatic. Exiting..."];(*I think this is unecessary, we can modify the config for the cut missions*)
 	Exit[0]
 ]
 

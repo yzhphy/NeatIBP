@@ -1090,5 +1090,56 @@ Hefeng:
 
 v1.0.4.1
 
+--------------------
+2024.1.1
+Zihao:
+   spanning cuts completed, auto summary.
+
+-------------------------
+2023.1.2
+zihao:
+delete 
+If[FileExistsQ[#], Export[#, "0"]] &[
+ TemporaryDirectory <> "start_abs_time.txt"]
+in 
+PrepareForSpanningCuts.wl
+this code shouldnt have been here.
+
+
+zihao:
+integrating FinishedOutputPathQ in Initialization, including spanning cuts mode case
+
+modified some local var name in monitor CutMissionInfo[cut_] (status to info), just for wording goodness
+
+spanning cuts monitor upgrated
+
+v1.0.4.2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

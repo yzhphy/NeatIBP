@@ -166,7 +166,6 @@ MissionStatusInfo[path_]:=Module[
 missionComputing,missionComputationFinished,actuallyRunningMissions,missionLost,
 runningMissionUnregistered},
 	actuallyRunningMissions=ActuallyRunningMissions[path];
-	
 	missionStatusPath=path<>"/tmp/mission_status/";
 	missionStatus={ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex,Get[#]}&/@FileNames[All,missionStatusPath];
 	missionWaitingSupersectors=(
@@ -207,11 +206,51 @@ runningMissionUnregistered},
 
 
 
-CutMissionInfo[cut_]:=Module[{cutString,path,status},
+CutMissionInfo[cut_]:=Module[{cutString,path,info},
 	cutString=StringRiffle[ToString/@cut,"_"];
 	path=outputPath<>"tmp/spanning_cuts_missions/cut_"<>cutString<>"/outputs/"<>ReductionOutputName<>"/";
-	status=MissionStatusInfo[path];
-	Join[{"cut"->cut},status]
+	info=MissionStatusInfo[path];
+	Join[{"cut"->cut},info]
+]
+CutMissionInfoExtended[cut_]:=Module[{cutString,path,info,status,progress,totalSectors},
+	cutString=StringRiffle[ToString/@cut,"_"];
+	path=outputPath<>"tmp/spanning_cuts_missions/cut_"<>cutString<>"/outputs/"<>ReductionOutputName<>"/";
+	info=MissionStatusInfo[path];
+	Switch[#===0&/@({"*lost","*unlabelled"}/.info),
+	{True,True},
+		Switch[#===0&/@({
+			"waiting",
+			"computable",
+			"computing",
+			"finished"
+		}/.info),
+		{True,True,True,True},
+			status="not started";
+		,
+		{True,True,True,False},
+			status="finished";
+		,
+		_,
+			status="in progress";
+		];
+	,
+	{True,False},
+		status="**sector unlabelled";
+	,
+	{False,True},
+		status="**sector lost";
+	,
+	{False,False},
+		status="**sector lost/unlabbelled"
+	];
+	If[status==="not started",
+		progress="-";
+	,
+		totalSectors=Total[info[[All,2]]];
+		progress=Round[1000*("finished"/.info)/totalSectors]*0.1;
+		progress=ToString[progress]<>"%"
+	];
+	Join[{"cut"->cut,"status"->status,"progress"->progress},info]
 ]
 
 
@@ -240,6 +279,23 @@ CutMissionsInfoTable[]:=Module[{cuts,infos,heads},
 	};
 	(ToString/@(heads/.#))&/@Join[{{}},infos]
 ]
+CutMissionsInfoTableExtended[]:=Module[{cuts,infos,heads},
+	cuts=ReadCuts[];
+	infos=CutMissionInfoExtended/@cuts;
+	heads={
+		"cut",
+		"status",
+		"progress",
+		"waiting",
+		"computable",
+		"computing",
+		"finished",
+		"*lost",
+		"*unlabelled"
+	};
+	
+	(ToString/@(heads/.#))&/@Join[{{}},infos]
+]
 
 
 CompensateSpace[string_,length_]:=string<>StringRiffle[Table[" ",length],""]
@@ -266,9 +322,10 @@ FineTable[table_]:=Module[{rows,columns,r,c,maxLengths,fineTable,entry,finalStri
 
 
 PrintCutsMissions[]:=Module[{displaystring},
-	displaystring="----------------------------------------------\n";
-	displaystring=displaystring<>TimeString[]<>"\n"<>displaystring;
-	displaystring=displaystring<>"\n"<>FineTable[CutMissionsInfoTable[]];
+	displaystring="----------------------------------------------";
+	displaystring=displaystring<>"\n"<>TimeString[]<>"\n"<>displaystring;
+	(*displaystring=displaystring<>"\n"<>FineTable[CutMissionsInfoTable[]];*)
+	displaystring=displaystring<>"\n"<>FineTable[CutMissionsInfoTableExtended[]];
 	Print[displaystring]
 ]
 
@@ -320,12 +377,19 @@ While[True,
 		Pause[1]
 	];
 	If[mode==="spanning cuts",
+		
 		If[!DirectoryQ[outputPath//ToString],Print["outputPath "<>ToString[outputPath]<>" does not exist."];Break[]];
 		initializationStatus=InitializationStatus[];
-		If[initializationStatus==="finished",PrintCutsMissions[]];
+		terminateQSpanningCutsMode=False;
+		If[initializationStatus==="finished",
+			If[AllCutsFinishedQ[],terminateQSpanningCutsMode=True];
+			PrintCutsMissions[];
+		];
 		If[initializationStatus==="in progress",PrintWaitInitialization[]];
 		If[initializationStatus==="failed",Print["==============================================\nInitialization Failed."];Break[]];
-		If[AllCutsFinishedQ[]&&initializationStatus==="finished",Print["==============================================\nAll cuts finished."];Break[]];
+		(*If[AllCutsFinishedQ[]&&initializationStatus==="finished",Print["==============================================\nAll cuts finished."];Break[]];
+		*)
+		If[terminateQSpanningCutsMode,Print["==============================================\nAll cuts finished."];Break[]];
 		Pause[1]
 	];
 	
