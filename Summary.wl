@@ -125,20 +125,27 @@ If[!FileExistsQ[tmpPath<>"initialized.txt"],
 ]
 If[FileExistsQ[tmpPath<>"spanning_cuts_mode.txt"],
 	PrintAndLog["Spanning cuts mode, collecting spanning cuts results."];
-	Module[{spanningCutsMissionMainPath,spanningCutStrings,spanningCuts,spanningCutString,spanningCutResultFolder,spanningCutResultSummaryFolder},
+	Module[{spanningCutsMissionMainPath,spanningCutStrings,spanningCuts,
+	spanningCutString,spanningCutResultFolder,spanningCutSummaryFolder,spanningCutInputsFolder},
 		spanningCutsMissionMainPath=tmpPath<>"spanning_cuts_missions/";
 		spanningCuts=Get[tmpPath<>"spanningCuts.txt"];
 		spanningCutStrings=StringRiffle[ToString/@#,"_"]&/@spanningCuts;
 		For[i=1,i<=Length[spanningCutStrings],i++,
 			spanningCutString=spanningCutStrings[[i]];
-			spanningCutResultSummaryFolder=outputPath<>"results/results_spanning_cuts/cut_"<>spanningCutString<>"/";
+			spanningCutSummaryFolder=outputPath<>"results/results_spanning_cuts/cut_"<>spanningCutString<>"/";
 			spanningCutResultFolder=spanningCutsMissionMainPath<>"cut_"<>spanningCutString<>"/outputs/"<>ReductionOutputName<>"/results/";
-			
-			If[!DirectoryQ[#],CreateDirectory[#]]&[spanningCutResultSummaryFolder];(*automatically -p*)
+			spanningCutInputsFolder=spanningCutsMissionMainPath<>"cut_"<>spanningCutString<>"/outputs/"<>ReductionOutputName<>"/inputs/";
+			If[!DirectoryQ[#],CreateDirectory[#]]&[spanningCutSummaryFolder];(*automatically -p*)
+			If[!DirectoryQ[#],CreateDirectory[#]]&[spanningCutSummaryFolder<>"results/"];
+			If[!DirectoryQ[#],CreateDirectory[#]]&[spanningCutSummaryFolder<>"inputs/"];
 			(
-				CopyFile[spanningCutResultFolder<>#<>".txt",spanningCutResultSummaryFolder<>#<>".txt"];
-				(*PrintAndLog["\t copied ",spanningCutResultFolder<>#<>".txt"," to ",spanningCutResultSummaryFolder<>#<>".txt"];*)
+				CopyFile[spanningCutResultFolder<>#<>".txt",spanningCutSummaryFolder<>"results/"<>#<>".txt"];
+				(*PrintAndLog["\t copied ",spanningCutResultFolder<>#<>".txt"," to ",spanningCutSummaryFolder<>"results/"<>#<>".txt"];*)
 			)&/@{"IBP_all","MI_all","OrderedIntegrals","summary"};
+			(
+				CopyFile[spanningCutInputsFolder<>#,spanningCutSummaryFolder<>"inputs/"<>#];
+				(*PrintAndLog["\t copied ",spanningCutInputsFolder<>#," to ",spanningCutSummaryFolder<>"inputs/"<>#];*)
+			)&/@(FileNameSplit[#][[-1]]&/@FileNames[All,spanningCutInputsFolder]);
 		]
 	];
 	PrintAndLog["\t Finished.\n All spanning cuts finished."];

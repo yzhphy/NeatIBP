@@ -114,7 +114,7 @@ If[Length[uncuttableIndices]>0,
 	PrintAndLog["\tIn current version of NeatIBP, these indices are not cuttable."];
 	PrintAndLog["\tRedefining spanning cuts..."];
 	spanningCuts=Sort[Complement[#,uncuttableIndices]]&/@spanningCuts;
-	spanningCuts//DeleteDuplicates;
+	spanningCuts=spanningCuts//DeleteDuplicates;
 	newSpanningCuts=spanningCuts;
 	For[i=1,i<=Length[spanningCuts],i++,
 		For[j=1,j<=Length[spanningCuts],j++,
@@ -125,6 +125,7 @@ If[Length[uncuttableIndices]>0,
 		]
 	];
 	spanningCuts=newSpanningCuts;
+	Export[TemporaryDirectory<>"spanningCuts.txt",spanningCuts//InputForm//ToString];
 	PrintAndLog["\tDone."];
 ]
 
