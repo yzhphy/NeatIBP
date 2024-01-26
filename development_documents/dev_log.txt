@@ -1135,6 +1135,16 @@ minor bug fix according to report: redirected SpaSM directory to global var "Spa
 
 v1.0.4.3
 
+=======
+
+-------------------------
+
+2024.1.26
+
+zihao:
+
+Refined output directory structure in spanning cuts mode
+
 
 
 

@@ -148,7 +148,11 @@ Date: 2024.1.2
 
 [NeatIBP 1.0.4.3]
 Date: 2024.1.25
-        1. Bug fixing in SparseRREF.m
+	1. Bug fixing in SparseRREF.m
+
+[NeatIBP 1.0.4.4]
+Date: 2024.1.26
+	1. Refined output directory structure in spanning cuts mode
 
 	
 
