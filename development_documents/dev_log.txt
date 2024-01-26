@@ -1116,13 +1116,24 @@ spanning cuts monitor upgrated
 v1.0.4.2
 
 
+<<<<<<< HEAD
 -----------------------------
 2023.1.3
 zihao:
 Bug fix: after redefining spanning cuts, overwrite them on disk, otherwise, Summary.wl will read the wrong spanning cuts 
 
 
+=======
+------------------------
 
+2024.1.25
+
+hefeng:
+
+minor bug fix according to report: redirected SpaSM directory to global var "SpaSMLibrary" in SparseRREF.m
+>>>>>>> 87b0201a91652dc29eb98517fc59f45192bf732d
+
+v1.0.4.3
 
 
 

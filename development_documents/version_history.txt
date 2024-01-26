@@ -146,5 +146,9 @@ Date: 2024.1.2
 	2. Spanning cuts monitor made more user-friendly.
 	3. Some bug fixing.
 
+[NeatIBP 1.0.4.3]
+Date: 2024.1.25
+        1. Bug fixing in SparseRREF.m
+
 	
 
