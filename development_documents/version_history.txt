@@ -154,5 +154,9 @@ Date: 2024.1.25
 Date: 2024.1.26
 	1. Refined output directory structure in spanning cuts mode
 
-	
+[NeatIBP 1.0.4.5]
+Date: 2024.4.17
+	1.Added additional output options.
+	2.Added option SilentExport.
+	2.Added option SkipLiftInLiftSelection.
 

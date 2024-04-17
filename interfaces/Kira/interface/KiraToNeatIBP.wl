@@ -308,7 +308,7 @@ StringHandleForSquareBrackets[str_]:=If[
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*YamlNodeAnalyze*)
 
 

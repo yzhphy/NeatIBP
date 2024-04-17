@@ -52,6 +52,7 @@ DeleteSingularScriptFiles=False;
 DeleteSingularResultFiles=True;
 
 (*----------additional outputs-----------*)
+SilentExport=True;
 ExportTheModules=False;(*the modules before module intersection, including M1, M1ext, M2.*)
 ExportUsedSyzygyVectors=False;(*The syzygy vectors really used in the final output IBPs*)
 ExportAllSyzygyVectors=False;(*All the syzygy vectors from Singular*)
@@ -59,6 +60,28 @@ ExportUsedFIBPs=False;(*The fundamental (symbolic) IBPs really used in the final
 ExportAllFIBPs=False;(*All the fundamental (symbolic) IBPs from the syzygy vectors from Singular*)
 ExportCornerKilledFIBPs=False;(*for developers*)
 ExportFinalRawIBPs=False;(*for developers*)
+ExportFinalRawIBPsInFI0=False;(*for developers, recommended to use  with ExportAllSyzygyVectors together*)
+
+(*the followings are all for developers*)
+ExportFinalNIBPs=False;
+ExportFinalNIBPsCutted=False;
+ExportCompleteRawIBPs=False;
+ExportCompleteRawIBPsInFI0=False;
+ExportCompleteNIBPs=False;
+ExportCompleteNIBPsCutted=False;
+ExportSubsecRemovedRawIBPs=False;
+ExportSubsecRemovedRawIBPsInFI0=False;
+ExportSubsecRemovedNIBPs=False;
+ExportSubsecRemovedNIBPsCutted=False;
+ExportSortedRawIBPs=False;
+ExportSortedRawIBPsInFI0=False;
+ExportSortedNIBPs=False;
+ExportSortedNIBPsCutted=False;
+ExportIndependentRawIBPs=False;
+ExportIndependentRawIBPsInFI0=False;
+ExportIndependentNIBPs=False;
+ExportIndependentNIBPsCutted=False;
+
 
 (*----------spanning cuts related--------*)
 SpanningCutsEvaluationMode="Parallel";
@@ -86,6 +109,7 @@ NumericIBP=False;
 ReportIrreducibleIntegralsAfterIBPAnalyze=False;
 AllowingCornerOnlyModeInSimplifyByCut=True;
 SimplifyByCutMethod="LiftSelection";(*"LiftResubstitution" or "LiftSelection", "LiftSelection" recommended*)
+SkipLiftInLiftSelection=False;
 FurtherSyzygyVectorsSelection=True;(*deleting vectors to test if cut GB unchange, only valid for "LiftSelection"*)
 FiniteFieldModulus2=117763;(*for FurtherSyzygyVectorsSelection*)
 LiftSelectionStricty=10;(*the propability to delete a syzygy vector which should be deleted in LiftSelection, >1 means 1, <0 means 0*)

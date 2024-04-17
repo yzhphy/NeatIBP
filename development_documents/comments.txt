@@ -3,6 +3,8 @@ It is not so safe to judge output path finished or not by existance of IBP_all.t
 
 reading actually running missions is too slow, try ommit reading finished cuts and not-started cuts in the next monitor upgrade.
 
+We have assumed that the user calls the config file "config.txt" but what if they don't? This matters CheckIBP, SolveIBP and SPanningCutsCheck!
+
 2023.12.27
 Hefeng:
 So if one replace all the parameters to constants, it will trigger a bug 

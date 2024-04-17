@@ -1145,11 +1145,37 @@ zihao:
 
 Refined output directory structure in spanning cuts mode
 
+-------------------------
 
+2024.2.26
+zihao:
+added additional outputs:
+ExportFinalRawIBPsInFI0
+ExportFinalNIBPs
+ExportFinalNIBPsCutted
 
+ExportCompleteRawIBPs
+ExportCompleteRawIBPsInFI0
+ExportCompleteNIBPs
+ExportCompleteNIBPsCutted
+ExportSubsecRemovedRawIBPs
+ExportSubsecRemovedRawIBPsInFI0
+ExportSubsecRemovedNIBPs
+ExportSubsecRemovedNIBPsCutted
+ExportSortedRawIBPs
+ExportSortedRawIBPsInFI0
+ExportSortedNIBPs
+ExportSortedNIBPsCutted
+ExportIndependentRawIBPs
+ExportIndependentRawIBPsInFI0
+ExportIndependentNIBPs
+ExportIndependentNIBPsCutted
 
+added option SilentExport
 
-
+------------------
+2024.4.15
+added SkipLiftInLiftSelection (*if this is true, then only use further selection, skip LiftSelection*)
 
 
 

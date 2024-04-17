@@ -16,7 +16,10 @@ ProbeIntermediateResult[name_,sec_,expr_]:=Module[{intermediateResultFolder},
 	intermediateResultFolder=outputPath<>"tmp/intermediate_results/"<>name<>"/";
 	If[!DirectoryQ[#],Run["mkdir -p "<>#]]&[intermediateResultFolder];
 	Export[intermediateResultFolder<>ToString[sec]<>".txt",expr//InputForm//ToString];
-	PrintAndLog["probed intermediate result into ",intermediateResultFolder<>ToString[sec]<>".txt"];
+	If[SilentExport=!=True,
+		PrintAndLog["probed intermediate result into ",intermediateResultFolder<>ToString[sec]<>".txt"];
+	];
+	
 ]
 
 
@@ -439,7 +442,7 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 ];*)
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Singular Interface*)
 
 
@@ -997,11 +1000,11 @@ SingularLiftToGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,va
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*SimplifyByCut*)
 
 
-Options[SimplifyByCut]={sectorNumber->0,ReportLayer->2,CornerOnly->False,SimplifyMethod->SimplifyByCutMethod,FurtherSelection->FurtherSyzygyVectorsSelection,Modulus->0};
+Options[SimplifyByCut]={sectorNumber->0,ReportLayer->2,CornerOnly->False,SimplifyMethod->SimplifyByCutMethod,FurtherSelection->FurtherSyzygyVectorsSelection,Modulus->0,SkipLift->SkipLiftInLiftSelection};
 SimplifyByCut[vectorsInput_,cutIndices_,OptionsPattern[]]:=Module[
 {vectors,vectorsCutted,sortedVectorIndices,vectorsSorted,vectorsCuttedSorted,vectorsInputSorted,i,
 tmp,syzygyVectorAbsDegrees,syzygyVectorISPDegrees,syzygyVectorPropDegrees,
@@ -1079,20 +1082,20 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 	
 	
 	
-	timer=AbsoluteTime[];
-	PrintAndLog["#",secNo,ReportIndent[reportLayer],"Computing lift matrix..."];
-	memoryUsed=MaxMemoryUsed[
 	
-	liftMatrix=SingularLiftToGB[vectorsCuttedSorted,var,cutIndices,Modulus->OptionValue[Modulus]];
-	
-	(*end of MaxMemoryUsed*)];
-	PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Finished. Time Used: ", Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB." ];
 	
 	timer=AbsoluteTime[];
 	PrintAndLog["#",secNo,ReportIndent[reportLayer],"Making simplified vector list..."];
 	memoryUsed=MaxMemoryUsed[
 	Switch[OptionValue[SimplifyMethod]
 	,"LiftResubstitution",
+		timer=AbsoluteTime[];
+		PrintAndLog["#",secNo,ReportIndent[reportLayer],"Computing lift matrix..."];
+		memoryUsed=MaxMemoryUsed[
+		liftMatrix=SingularLiftToGB[vectorsCuttedSorted,var,cutIndices,Modulus->OptionValue[Modulus]];
+		(*end of MaxMemoryUsed*)];
+		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Finished. Time Used: ", Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB." ];
+		
 		timer2=AbsoluteTime[];
 		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Lift resubstituting..."];
 		memoryUsed2=MaxMemoryUsed[
@@ -1102,27 +1105,42 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 		
 	,_,
 		If[SimplifyByCutMethod=!="LiftSelection",PrintAndLog["#",secNo,"\t","SimplifyByCut: Unknown SimplifyByCutMethod, switching to LiftSelection"]];
-		timer2=AbsoluteTime[];
-		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Lift selecting... [stricty=",Max[Min[LiftSelectionStricty,1],0],"]"];
-		memoryUsed2=MaxMemoryUsed[
-		selectedIndices=Select[Range[Length[vectorsInputSorted]],Union[liftMatrix[[All,#]]]=!={0}&];
-		PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Selected vectors: ",Length[selectedIndices],"."];
-		If[LiftSelectionStricty<1,
-			recoveredIndices={};
-			For[i=1,i<=Length[vectorsInputSorted],i++,
-				If[!MemberQ[selectedIndices,i],
-					If[RandomReal[]>LiftSelectionStricty,
-						recoveredIndices=Join[recoveredIndices,{i}]
+		If[(!OptionValue[SkipLift])===True,(*the naming (SkipLiftInLiftSelection) and logical structure of this setting is really... mismatched, messy and confusing!  ... maybe this should be changed if I have time*)
+			timer=AbsoluteTime[];
+			PrintAndLog["#",secNo,ReportIndent[reportLayer],"Computing lift matrix..."];
+			memoryUsed=MaxMemoryUsed[
+			liftMatrix=SingularLiftToGB[vectorsCuttedSorted,var,cutIndices,Modulus->OptionValue[Modulus]];
+			(*end of MaxMemoryUsed*)];
+			PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Finished. Time Used: ", Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB." ];
+		
+			timer2=AbsoluteTime[];
+			PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Lift selecting... [stricty=",Max[Min[LiftSelectionStricty,1],0],"]"];
+			memoryUsed2=MaxMemoryUsed[
+			selectedIndices=Select[Range[Length[vectorsInputSorted]],Union[liftMatrix[[All,#]]]=!={0}&];
+			PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Selected vectors: ",Length[selectedIndices],"."];
+			If[LiftSelectionStricty<1,
+				recoveredIndices={};
+				For[i=1,i<=Length[vectorsInputSorted],i++,
+					If[!MemberQ[selectedIndices,i],
+						If[RandomReal[]>LiftSelectionStricty,
+							recoveredIndices=Join[recoveredIndices,{i}]
+						]
 					]
-				]
+				];
+				PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Recovered unselected vectors: ",Length[recoveredIndices],"."];
+				selectedIndices=Join[selectedIndices,recoveredIndices]//Union//Sort;
 			];
-			PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Recovered unselected vectors: ",Length[recoveredIndices],"."];
-			selectedIndices=Join[selectedIndices,recoveredIndices]//Union//Sort;
+			PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Vectors: ",Length[selectedIndices],"."];
+			result=vectorsInputSorted[[selectedIndices]];
+			(*end of MaxMemoryUsed*)];
+			PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB." ];
+		,
+			PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"SkipLiftInLiftSelection is True, skipping the selection using lift matrix. "];
+			selectedIndices=Range[Length[vectorsInputSorted]];
+			result=vectorsInputSorted[[selectedIndices]];
 		];
-		PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Vectors: ",Length[selectedIndices],"."];
-		result=vectorsInputSorted[[selectedIndices]];
-		(*end of MaxMemoryUsed*)];
-		PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB." ];
+		
+		
 		
 		If[OptionValue[FurtherSelection]===True,
 			timer2=AbsoluteTime[];
@@ -2386,6 +2404,16 @@ FullForm]\);(*?*)
 
 
 
+
+
+
+
+
+
+
+
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -3000,11 +3028,7 @@ FullForm]\);(*?*)
 			nIBPsCutted=Join[nIBPsCutted,NewnIBPsCutted];
 			(*end of MaxMemoryUsed*)];
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","Joining finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
-			(*If[secNo===1277,
-				
-				ProbeIntermediateResult["nIBPs_step_"<>ToString[step],secNo,nIBPs];
-				
-			];(*debug2023*)*)
+			
 			timer2=AbsoluteTime[];
 			memoryUsed2=MaxMemoryUsed[
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Deriving SectorIntegrals..."];];
@@ -3085,7 +3109,9 @@ FullForm]\);(*?*)
 			
 			(*end of MaxMemoryUsed*)];
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Seeding in step ",step," finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
-			If[SubsetQ[WellAddressedIntegrals,LocalTargets],Break[]];
+			If[SubsetQ[WellAddressedIntegrals,LocalTargets],
+				Break[]
+			];
 			If[step==s+OptionValue[AdditionalDegree],
 				If[And[StrictDenominatorPowerIndices===False,AllowedDenominatorPowerLift>0],
 					PrintAndLog["#",secNo,"\t","[Notice]: Targets are still not reduced to MIs in the maximum step ",step,". Trying to find more IBPs by seeds with denominator powers lifted."];
@@ -3191,7 +3217,30 @@ FullForm]\);(*?*)
 	
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Current IBP number: ",Length[nIBPs]];];
 	
-	
+	If[ExportCompleteRawIBPs,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/complete_raw_IBPs/"<>ToString[secNo]<>".txt",
+			rawIBPs//InputForm//ToString
+		];
+	];
+	If[ExportCompleteRawIBPsInFI0,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/complete_raw_IBPs_in_FI0/"<>ToString[secNo]<>".txt",
+			rawIBPs/.FI[x_]:>FI0[remainedFIBPlabels[[x]]]//InputForm//ToString
+		];
+	];
+	If[ExportCompleteNIBPs,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/complete_nIBPs/"<>ToString[secNo]<>".txt",
+			nIBPs//InputForm//ToString
+		];
+	];
+	If[ExportCompleteNIBPsCutted,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/complete_nIBPs_cutted/"<>ToString[secNo]<>".txt",
+			nIBPsCutted//InputForm//ToString
+		];
+	];
 	
 	If[SubsetQ[MIs,LocalTargets],
 		(* No need to generate IBPs for this sector *)
@@ -3214,7 +3263,30 @@ FullForm]\);(*?*)
 	(*|||||||||*)(*ProbeIntermediateResult["nIBPs_subsecIBPsRemoved",secNo,nIBPs];*)
 	(*end of MaxMemoryUsed*)];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Subsector IBPs removed. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
-	
+	If[ExportSubsecRemovedRawIBPs,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/subsec_removed_raw_IBPs/"<>ToString[secNo]<>".txt",
+			rawIBPs//InputForm//ToString
+		];
+	];
+	If[ExportSubsecRemovedRawIBPsInFI0,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/subsec_removed_raw_IBPs_in_FI0/"<>ToString[secNo]<>".txt",
+			rawIBPs/.FI[x_]:>FI0[remainedFIBPlabels[[x]]]//InputForm//ToString
+		];
+	];
+	If[ExportSubsecRemovedNIBPs,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/subsec_removed_nIBPs/"<>ToString[secNo]<>".txt",
+			nIBPs//InputForm//ToString
+		];
+	];
+	If[ExportSubsecRemovedNIBPsCutted,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/subsec_removed_nIBPs_cutted/"<>ToString[secNo]<>".txt",
+			nIBPsCutted//InputForm//ToString
+		];
+	];
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Sorting nFIBPs..."]];
@@ -3234,8 +3306,6 @@ FullForm]\);(*?*)
 	];
 	(*end of MaxMemoryUsed*)];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","Finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
-	
-	
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Calculating IBPDegreeList..."]];
 	
 	timer2=AbsoluteTime[];
@@ -3273,6 +3343,33 @@ FullForm]\);(*?*)
 	(*end of MaxMemoryUsed*)];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  nFIBPs sorted. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
+	If[ExportSortedRawIBPs,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/sorted_raw_IBPs/"<>ToString[secNo]<>".txt",
+			rawIBPs//InputForm//ToString
+		];
+	];
+	If[ExportSortedRawIBPsInFI0,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/sorted_raw_IBPs_in_FI0/"<>ToString[secNo]<>".txt",
+			rawIBPs/.FI[x_]:>FI0[remainedFIBPlabels[[x]]]//InputForm//ToString
+		];
+	];
+	If[ExportSortedNIBPs,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/sorted_nIBPs/"<>ToString[secNo]<>".txt",
+			nIBPs//InputForm//ToString
+		];
+	];
+	If[ExportSortedNIBPsCutted,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/sorted_nIBPs_cutted/"<>ToString[secNo]<>".txt",
+			nIBPsCutted//InputForm//ToString
+		];
+	];
+	
+	
+	
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Selecting independent IBPs..."]];
@@ -3298,8 +3395,33 @@ FullForm]\);(*?*)
 	
 	(*ProbeIntermediateResult["nIBPs2",secNo,nIBPs];*)
 	
-	(* Remove the unneeded IBP , Oerlikon algorithm *)
 	
+	If[ExportIndependentRawIBPs,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/independent_raw_IBPs/"<>ToString[secNo]<>".txt",
+			rawIBPs//InputForm//ToString
+		];
+	];
+	If[ExportIndependentRawIBPsInFI0,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/independent_raw_IBPs_in_FI0/"<>ToString[secNo]<>".txt",
+			rawIBPs/.FI[x_]:>FI0[remainedFIBPlabels[[x]]]//InputForm//ToString
+		];
+	];
+	If[ExportIndependentNIBPs,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/independent_nIBPs/"<>ToString[secNo]<>".txt",
+			nIBPs//InputForm//ToString
+		];
+	];
+	If[ExportIndependentNIBPsCutted,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/independent_nIBPs_cutted/"<>ToString[secNo]<>".txt",
+			nIBPsCutted//InputForm//ToString
+		];
+	];
+	
+	(* Remove the unneeded IBP , Oerlikon algorithm *)
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing the unneeded IBPs..."]];
@@ -3318,10 +3440,33 @@ FullForm]\);(*?*)
 	nIBPsCutted=nIBPsCutted[[UsedIndex]];
 	
 	(*ProbeIntermediateResult["rawIBPsFrom",secNo,rawIBPs[[All,1]]//Union];(*debug2023*)*)
+	(*we say this is the final rawIBP in the sence of concept. 
+	The same symbol is used for another concept afterwards in this function*)
 	If[ExportFinalRawIBPs,
-		ConvenientExport[outputPath<>"results/additional_outputs/final_raw_IBPs/"<>ToString[secNo]<>".txt",rawIBPs//InputForm//ToString];
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/final_raw_IBPs/"<>ToString[secNo]<>".txt",
+			rawIBPs//InputForm//ToString
+		];
 	];
 	
+	If[ExportFinalRawIBPsInFI0,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/final_raw_IBPs_in_FI0/"<>ToString[secNo]<>".txt",
+			rawIBPs/.FI[x_]:>FI0[remainedFIBPlabels[[x]]]//InputForm//ToString
+		];
+	];
+	If[ExportFinalNIBPs,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/final_nIBPs/"<>ToString[secNo]<>".txt",
+			nIBPs//InputForm//ToString
+		];
+	];
+	If[ExportFinalNIBPsCutted,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/final_nIBPs_cutted/"<>ToString[secNo]<>".txt",
+			nIBPsCutted//InputForm//ToString
+		];
+	];
 	If[ExportUsedSyzygyVectors===True,
 		usedVectors=Union[
 			Select[
@@ -3345,6 +3490,7 @@ FullForm]\);(*?*)
 		(*well, we assume if FI0 appears, FIBPs0 must be defined, if not , we cannot code so here*)
 		ConvenientExport[outputPath<>"results/additional_outputs/used_FIBPs/"<>ToString[secNo]<>".txt",usedFIBPs//InputForm//ToString];
 	];
+
 	
 	
 	(*|||||||||*)(*ProbeIntermediateResult["nIBPs_used",secNo,nIBPs];*)
@@ -3457,68 +3603,6 @@ FullForm]\);(*?*)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 (* ::Subsection:: *)
 (*Row Reduce Modules*)
 
@@ -3599,7 +3683,7 @@ If[UseSRFindPivots===True,ClearAll[IndepedentSet];
 Options[IndepedentSet]:={Modulus->FiniteFieldModulus};
 IndepedentSet[IBPs_,Ints_,OptionsPattern[]]:=Module[{M,redIndex,indepIndex,timer,memoryUsed},
 	M=CoefficientArrays[IBPs,Ints][[2]];
-	ProbeIntermediateResult["M_IndepedentSet",secNum,M];(*debug20231227*)
+	(*ProbeIntermediateResult["M_IndepedentSet",secNum,M];(*debug20231227*)*)
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	If[TimingReportOfRowReduce===True,PrintAndLog["#",secNum,"\t\t  RREF-pivots finding in IndepedentSet started. Matrix dimension: ",Dimensions[M//Transpose]]];
