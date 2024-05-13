@@ -7,6 +7,9 @@ math -script NeatIBPToKira.wl [NeatIBPOutputFolder]
 *)
 
 
+outputWithIntegralsLabelledByOrdering=True
+
+
 commandLineMode=True
 
 
@@ -98,6 +101,15 @@ timer=AbsoluteTime[];
 Print["Exporting to KIRA input..."];
 
 
+integralsReversed=integrals//Reverse;
+
+
+IntegralLabel[int_]:=Flatten[Position[integralsReversed,int]][[1]]
+
+
+IntegralLabelling[int_]:=If[outputWithIntegralsLabelledByOrdering,IntegralLabel[int],int]
+
+
 (*Tokirastring[x_]:=Module[{length,varlist,coefflist,stringlist,stringlist1},
 length=Length[x];
 varlist=Table[Complement[Variables[x[[i]]],kinevar],{i,length}];
@@ -111,13 +123,17 @@ OneIBPtoKiraString[ibp_]:=Module[{ar,relatedIntegrals},
 	ar=ArrayRules[CoefficientArrays[ibp,relatedIntegrals][[2]]];
 	If[ar[[-1,2]]===0,ar=ar[[1;;-2]]];
 	StringRiffle[
-		ToString[relatedIntegrals[[#[[1,1]]]]//InputForm]<>"*("<>ToString[InputForm[#[[2]]]]<>")"&/@ar
+		ToString[relatedIntegrals[[#[[1,1]]]]//IntegralLabelling//InputForm]<>"*("<>ToString[InputForm[#[[2]]]]<>")"&/@ar
 	,"\n"]
 ]
 IBPstoKiraString[ibps_]:=StringRiffle[Table[OneIBPtoKiraString[ibps[[i]]],{i,Length[ibps]}],"\n\n"]
 
 
 userdefinedsystem=StringReplace[IBPstoKiraString[userdefinedinput]," "->""];
+
+
+mlist=IntegralLabelling/@mlist
+reducelist=IntegralLabelling/@reducelist
 
 
 basis=StringReplace[StringRiffle[ToString[InputForm[#]]&/@mlist,"\n\n"]," "->""]

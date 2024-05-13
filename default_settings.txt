@@ -44,6 +44,7 @@ CriticalPointInAzuritino=True;
 StrictMI=False;
 StrictDenominatorPowerIndices=False;
 AllowedDenominatorPowerLift=1;(*Irrelavant if StrictDenominatorPowerIndices==True*)
+FineGrainedZurichSeeding=False;
 
 (*-----------usage settings--------------*)
 MemoryUsedLimit=Infinity;(*MB*)
@@ -89,7 +90,6 @@ SpanningCutsEvaluationMode="Parallel";
 
 
 (*--------developer settings-------------*)
-
 debugMode=False;
 seedingViaFIBPFunction=True;
 SowAndReap=True;(*of the Zuirch seeding in the main body of NeatIBP*)
@@ -120,7 +120,7 @@ FIBPGroupingStartRatio=0.5;(*not used*)
 FIBPGroupingRemainingGroups=2;(*not used*)
 ParameterRepermute=False;
 ParameterRepermuteIndex={};
-
+FurtherSelectionTimeUsedLimit=Infinity;(*seconds*)
 AllowInternet=True; (*One may disable this option to avoid the internet check of certain mathkernel functions, especially for downward supported versions of Mathematica*)
 
 

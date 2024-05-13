@@ -1000,14 +1000,14 @@ SingularLiftToGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,va
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*SimplifyByCut*)
 
 
 Options[SimplifyByCut]={sectorNumber->0,ReportLayer->2,CornerOnly->False,SimplifyMethod->SimplifyByCutMethod,FurtherSelection->FurtherSyzygyVectorsSelection,Modulus->0,SkipLift->SkipLiftInLiftSelection};
 SimplifyByCut[vectorsInput_,cutIndices_,OptionsPattern[]]:=Module[
 {vectors,vectorsCutted,sortedVectorIndices,vectorsSorted,vectorsCuttedSorted,vectorsInputSorted,i,
-tmp,syzygyVectorAbsDegrees,syzygyVectorISPDegrees,syzygyVectorPropDegrees,
+tmp,syzygyVectorAbsDegrees,syzygyVectorISPDegrees,syzygyVectorPropDegrees,FurtherSelectionETC,FurtherSelectionTimer,
 memoryUsed,timer,selectedIndices,selectedIndices2,selectedIndices2New,
 vectorsCuttedSortedSelectedGB,vectorsCuttedSortedSelected,recoveredIndices,
 secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,timer3,memoryUsed3,timeForAGBComputation},
@@ -1156,13 +1156,20 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 			PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"Finished. Time Used: ",Round[timeForAGBComputation], " second(s). Memory used: ",Round[memoryUsed3/(1024^2)]," MB." ];
 		
 			timer3=AbsoluteTime[];
+			FurtherSelectionETC=Max[Min[FurtherSyzygyVectorsSelectionStricty,1],0]*timeForAGBComputation*Length[vectorsCuttedSortedSelected];
 			PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Testing each vector [stricty=",Max[Min[FurtherSyzygyVectorsSelectionStricty,1],0],
 				"]. Estimated time cost: ",
-				Round[Max[Min[FurtherSyzygyVectorsSelectionStricty,1],0]*timeForAGBComputation*Length[vectorsCuttedSortedSelected]],
+				Round[FurtherSelectionETC],
 				" second(s)."];
 			memoryUsed3=MaxMemoryUsed[
 			selectedIndices2=Range[Length[vectorsCuttedSortedSelected]];
+			FurtherSelectionTimer=AbsoluteTime[];
 			For[i=Length[selectedIndices2],i>=1,i--,
+				If[AbsoluteTime[]-FurtherSelectionTimer>FurtherSelectionTimeUsedLimit,
+					PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"The further selection time used exceeds the limit ",FurtherSelectionTimeUsedLimit," second(s)."];
+					PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"Skiping the rest ",i," further selections. ( total: ",Length[vectorsCuttedSortedSelected],")."];
+					Break[];
+				];
 				selectedIndices2New=DeleteCases[selectedIndices2,i];
 				If[RandomReal[]<FurtherSyzygyVectorsSelectionStricty,
 					If[vectorsCuttedSortedSelectedGB===SingularGB[vectorsCuttedSortedSelected[[selectedIndices2New]],var,{},Modulus->OptionValue[Modulus]],
@@ -2032,7 +2039,7 @@ DenominatorLiftingShifts[sector_,liftDegree_]:=Module[{cs,c,constrain1,constrain
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*ZurichSeeding*)
 
 
@@ -2089,6 +2096,22 @@ ZurichSeedingVianFIBPFunctions[sector_,nFIBPFunctions_,IBPISPdegreeList_,Current
 	];
 	Return[{RawIBPs,nIBPs}];
 ];
+
+
+(* ::Subsubsection:: *)
+(*FineGrainedZurichSeeding*)
+
+
+(*FGZurichSeeding[sector_,nFIBPs_,IBPISPdegreeList_,degreeStructures_,OptionsPattern[]]:=Module[{i,DenominatorTypes,CurrentDeg,RawIBPs,nIBPs,RawIBPsAll,nIBPsAll},
+	RawIBPsAll={};
+	nIBPsAll={};
+	For[i=1,i<=Length[degreeStructures],i++,
+		{CurrentDeg,DenominatorTypes}=degreeStructures[[i]];
+		If[debugModification20230314,DenominatorTypes=DenominatorTypeCompleting[DenominatorTypes]];
+		{RawIBPs,nIBPs}=ZurichSeeding[sector,nFIBPs,IBPISPdegreeList,CurrentDeg,DenominatorTypes];
+		
+	]
+]*)
 
 
 (* ::Subsection::Closed:: *)
@@ -2414,7 +2437,11 @@ FullForm]\);(*?*)
 
 
 
-(* ::Subsection:: *)
+
+
+
+
+(* ::Subsection::Closed:: *)
 (*SectorAnalyze (main)*)
 
 
@@ -3585,6 +3612,10 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
+
+
 
 
 

@@ -5,6 +5,8 @@ reading actually running missions is too slow, try ommit reading finished cuts a
 
 We have assumed that the user calls the config file "config.txt" but what if they don't? This matters CheckIBP, SolveIBP and SPanningCutsCheck!
 
+NeatIBPToKira.wl: The KiraInput result are exported to Directory[], the directory which the terminal opens, this is not reasonable!  
+
 2023.12.27
 Hefeng:
 So if one replace all the parameters to constants, it will trigger a bug 

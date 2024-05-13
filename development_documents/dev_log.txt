@@ -1177,6 +1177,22 @@ added option SilentExport
 2024.4.15
 added SkipLiftInLiftSelection (*if this is true, then only use further selection, skip LiftSelection*)
 
+V1.0.4.5
+
+
+--------
+2024.4.22
+added SpanningCutsIBPShorten, and created MD5 certificate in spanning cuts check.
+But the above 2 modifications are currently git ignored.
+
+------------
+2024.4.23
+added FurtherSelectionTimeUsedLimit
+
+----------------
+2024.4.26
+modified NeatIBP to kira .wl, added IntegralLabelling, make the ordering manifest.
+
 
 
 
