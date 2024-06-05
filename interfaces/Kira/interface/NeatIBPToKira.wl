@@ -73,16 +73,24 @@ timer=AbsoluteTime[];
 Print["Sorting IBPs using KIRA order..."];
 
 
-KiraOrder[ibp_,integrals_]:=Module[{ar,bins},
+PreKiraOrder[ibp_,integrals_]:=Module[{ar,bins},
 	ar=ArrayRules[CoefficientArrays[ibp,integrals][[2]]];
 	If[ar[[-1,2]]===0,ar=ar[[1;;-2]]];
 	Sort[ar[[All,1,1]]]
 ]
-SortIBPsForKira[ibps_,integrals_]:=Module[{kiraOrders,maxLen,indices},
-	kiraOrders=Table[KiraOrder[ibps[[i]],integrals],{i,Length[ibps]}];
-	maxLen=Max[Length[#]&/@kiraOrders];
-	kiraOrders=Join[#,Table[0,maxLen-Length[#]]]&/@kiraOrders;
+SortIBPsForKira[ibps_,integrals_]:=Module[{preKiraOrders,maxLen,indices,kiraOrders},
+	preKiraOrders=Table[PreKiraOrder[ibps[[i]],integrals],{i,Length[ibps]}];
+	maxLen=Max[Length[#]&/@preKiraOrders];
+	kiraOrders={
+		#[[1]],
+		-Length[#],
+		PadRight[#,maxLen,Length[integrals]+1]
+		(*Length[integrals]+1 is simpler than the most simple integral in integrals*)
+	}&/@preKiraOrders;
+	(*the larger the kiraOrders, the simpler the IBP is *)
 	indices=SortBy[Range[Length[ibps]],kiraOrders[[#]]&]//Reverse;
+	(*we put the simple functions in the front*)
+	(*probe=kiraOrders[[indices]];*)
 	ibps[[indices]]
 ]
 

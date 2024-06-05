@@ -1191,7 +1191,31 @@ added FurtherSelectionTimeUsedLimit
 
 ----------------
 2024.4.26
-modified NeatIBP to kira .wl, added IntegralLabelling, make the ordering manifest.
+modified NeatIBP to kira .wl, added IntegralLabelling, make the ordering manifest for kira Usr.Def.Sys.
+
+-----
+2024.5.30
+zihao:
+1.deleted unneeded file /interfaces/Kira/interface/test.wl
+2.In kira interface, NeatIBPToKira.wl, modified the IBP ordering criterion to {highest, Length, 2nd highest, 3rd highest,....}. It used to be {highest, 2nd highest, 3rd highest,....}
+3.In Pak_Algorithm.wl, rewritten IntegralMomentaGroup (original codes commented out). Added a function to use the new ext. momenta grouping algorithm I suggested. But now I havent interface this to the config settings of NeatIBP, it is not yet online
+4. record the version of NeatIBP used in log_files/initialization.txt
+
+----------------
+2023.05.31
+zihao:
+Found a stupid bug in SyzygyRed.wl, where I use IBPCoefficientForm[CoefficientArray[...]]
+In mathematica, Factor[SparseArray] will Factoe all its entries, but Expand[SparseArray] changes nothing... this is really nonsense...
+I fixed this problem by rewriting the function CollectG, extending its options, and use it where the problem occurs.
+
+-----------------
+2023.06.05
+remove FFSolveIBP.wl, FFSpanningCutsConsistencyCheck.wl, FFSpanningCutsIBPShorten.wl, from .gitignore
+Moved SpanningCutsCombine.wl from Kira interface folder to NeatIBP root folder, renamed as 
+ReducedSpanningCutsCombine.wl, and removed it from .gitignore
+However, these scripts are not linked to user's interface, even if they are now visible. The user interface is still under construction.
+
+
 
 
 

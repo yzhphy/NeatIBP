@@ -156,7 +156,15 @@ Date: 2024.1.26
 
 [NeatIBP 1.0.4.5]
 Date: 2024.4.17
-	1.Added additional output options.
-	2.Added option SilentExport.
-	2.Added option SkipLiftInLiftSelection.
+	1. Added additional output options.
+	2. Added option SilentExport.
+	3. Added option SkipLiftInLiftSelection.
+
+[NeatIBP 1.0.4.6]
+Date: 2024.6.5
+	1. Several new modules/functions added for future newer-version construction.
+	2. Added new setting option: FurtherSelectionTimeUsedLimit.
+	3. The version of NeatIBP used in a run will be recorded in outputs/.../tmp/log_files/initialization.txt.
+	4. Fixed a bug in IBP coefficient simplification.
+ 
 

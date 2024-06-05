@@ -198,7 +198,7 @@ Run["cp "<>kinematicsFile<>" "inputBackupPath]
 Run["cp "<>targetIntegralsFile<>" "inputBackupPath]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Some file or folders*)
 
 
@@ -217,7 +217,9 @@ runningScriptFolder=outputPath<>"tmp/running_scripts/"
 LogPath=outputPath<>"tmp/log_files/"
 LogFile=LogPath<>"initialization"<>".txt";
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[LogPath]
-PrintAndLog["start initialization steps."]
+PrintAndLog["----------------\nNeatIBP version: "<>versionNumber]
+PrintAndLog["Start initialization steps."]
+
 Export[TemporaryDirectory<>"start_abs_time.txt",AbsoluteTime[]//InputForm//ToString]
 
 

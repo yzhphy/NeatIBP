@@ -134,7 +134,7 @@ KinematicConstrains[internal_,external_,props_,kinematics_,head_]:=Module[{T,c,r
 (*MomentumMap*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*MomentumMap*)
 
 
@@ -266,7 +266,36 @@ result={},DM,leadingCoef,kvars,kEqns,kinematicVar,Exteqns,ExtGB,instance,additio
 (*reliaments*)
 
 
-IntegralMomentaGroup[Internal_, External_, Propagators_]:=Module[{result,yList,yRep,y,i,ScalarPropagator,M={},indices,ComplementIndices,rep,backrep},
+(*IntegralMomentaGroup[Internal_, External_, Propagators_]:=Module[{result,yList,yRep,y,i,ScalarPropagator,M={},indices,ComplementIndices,rep,backrep},
+	yRep=Table[Internal[[i]]External[[j]]->y[i,j],{i,1,Length[Internal]},{j,1,Length[External]}]//Flatten;
+	ScalarPropagator=Expand[Propagators]/.yRep;
+	M=Reap[For[i=1,i<=Length[Internal],i++,
+		Sow[D[ScalarPropagator,{Table[y[i,j],{j,1,Length[External]}]}]];
+	
+	];][[2]];
+	M=RowReduce[Flatten[M,2]];
+	ComplementIndices=Complement[Range[Length[External]],pivots[M]];
+	result={Complement[M . External,{0}],External[[ComplementIndices]]};
+	rep=Solve[Flatten[result]==groupMomentumU/@Range[Length[External]],External][[1]];
+	backrep=MapThread[#1->#2&,{groupMomentumU/@Range[Length[External]],Flatten[result]}];
+	Return[Join[result,{rep,backrep}]];
+]
+
+*)
+
+
+
+IntegralMomentaGroup//ClearAll
+Options[IntegralMomentaGroup]={Method->"MomentumSpace"}
+IntegralMomentaGroup[Internal_, External_, Propagators_,OptionsPattern[]]:=Module[{result,yList,yRep,y,i,ScalarPropagator,M={},indices,ComplementIndices,rep,backrep},
+	If[OptionValue[Method]==="FeynmanParameterization",
+		Return[IntegralMomentaGroupFeynPar[Internal,External,Propagators]];
+	,
+		If[OptionValue[Method]=!="MomentumSpace",
+			PrintAndLog["IntegralMomentaGroup: Unkown Method \""<>OptionValue[Method]<>"\". "];
+			Return[$Failed];
+		]
+	];
 	yRep=Table[Internal[[i]]External[[j]]->y[i,j],{i,1,Length[Internal]},{j,1,Length[External]}]//Flatten;
 	ScalarPropagator=Expand[Propagators]/.yRep;
 	M=Reap[For[i=1,i<=Length[Internal],i++,
@@ -283,6 +312,32 @@ IntegralMomentaGroup[Internal_, External_, Propagators_]:=Module[{result,yList,y
 
 
 
+
+IntegralMomentaGroupFeynPar[Internal_, External_, Propagators_]:=Module[
+{U,F,Gpol,xs,cr,coeffs,M,pos,complementIndices,groupNum,groupCoeffs,groups,rep,backrep,result
+},
+	{U,F,xs}=GenerateUF[Propagators,Internal,{}];
+	Gpol=U+F;
+	cr=CoefficientRules[Gpol,xs];
+	coeffs=cr[[All,2]];
+	M=Table[D[coeffs[[i]],External[[j]]],{i,Length[coeffs]},{j,Length[External]}];
+	groupNum=MatrixRank[M];
+	complementIndices=Complement[Range[Length[External]],pivots[RowReduce[M]]];
+	groupCoeffs=M//NullSpace//NullSpace//RowReduce;(*find the basis that is ortho to M's null space*)
+	groups=#.External&/@groupCoeffs;
+	If[Length[groups]=!=groupNum,
+		PrintAndLog["IntegralMomentaGroupFeynPar: The groups found ",groups," mismatchs matrix rank ",groupNum];
+		Return[$Failed]
+	];
+	result={groups,External[[complementIndices]]};
+	If[Length[result//Flatten]=!=Length[External],
+		PrintAndLog["IntegralMomentaGroupFeynPar: The number groups+complements ",result," mismatchs the number of external momenta ",Length[External]];
+		Return[$Failed]
+	];
+	rep=Solve[Flatten[result]==groupMomentumU/@Range[Length[External]],External][[1]];
+	backrep=MapThread[#1->#2&,{groupMomentumU/@Range[Length[External]],Flatten[result]}];
+	Return[Join[result,{rep,backrep}]]
+]
 
 
 Options[ExtendedRotationByOrthogonalization]={BackupMethod->"None",ReportNotice->ReportNoticeInDeepMomentumMap};

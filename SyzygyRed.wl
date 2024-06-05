@@ -319,7 +319,7 @@ SectorElimination[sector_]:=(G@@Table[If[sector[[i]]>0,PatternTest[Pattern[ToExp
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Integral Ordering*)
 
 
@@ -380,10 +380,26 @@ FIntegralSectorISPDegree[fInt_,sector_]:=(IntegralRealization[fInt,Table[0,SDim]
 IntegralOrdering[int_]:=Join[{IntegralSectorHeight[int],SectorNumber[int//Sector]},IntegralWeight[int]];   (* Key function *)
 
 
-CollectG[exp_]:=Coefficient[exp,Select[Variables[exp],Head[#]==G&]] . Select[Variables[exp],Head[#]==G&];
+CollectG//ClearAll
+Options[CollectG]={
+	RelevantGs -> Automatic,
+	CoefficientForm -> Identity
+}
+CollectG[exp_,OptionsPattern[]]:=Module[{Gs,coeffs,coeffForm},
+	Gs=OptionValue[RelevantGs];
+	If[Gs===Automatic,
+		Gs=Select[Variables[exp],Head[#]==G&];
+	];
+	coeffs=Coefficient[exp,Gs];
+	coeffForm=OptionValue[CoefficientForm];
+	If[coeffForm=!=Identity,
+		coeffs=coeffForm/@coeffs;
+	];
+	coeffs.Gs
+]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*old or unneeded codes*)
 
 
@@ -1000,7 +1016,7 @@ SingularLiftToGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,va
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*SimplifyByCut*)
 
 
@@ -1201,7 +1217,7 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*IBP generator*)
 
 
@@ -1383,7 +1399,7 @@ pivots[matrix_]:=Module[{ARLonglist},
 ];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Symmetry *)
 
 
@@ -1739,7 +1755,7 @@ LPSymmetryQ[integral1_,integral2_]:=Module[
 ]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Azuritino*)
 
 
@@ -2441,7 +2457,9 @@ FullForm]\);(*?*)
 
 
 
-(* ::Subsection::Closed:: *)
+
+
+(* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
 
@@ -3576,11 +3594,15 @@ FullForm]\);(*?*)
 	timer2=AbsoluteTime[];
 	memoryUsed2=MaxMemoryUsed[
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  removing zero integrals..."]];
-	rawIBPs=IBPCoefficientForm[CoefficientArrays[rawIBPs,integrals][[2]]] . integrals; 
+	(*rawIBPs=IBPCoefficientForm[CoefficientArrays[rawIBPs,integrals][[2]]] . integrals; *)
 	(*Do I need to factor these coefficients?...OH yes, very important
 	(2023.11.08)well, but, Factor is really too slow for some hard problems,
 	I would like to make it an option, defaultly Expand
+	2024.05.31: Expand does not work on SparseArray.............. 
+	Thus, I modified the above line by CollectG, as follows:
 	*)
+	rawIBPs=CollectG[#,CoefficientForm->IBPCoefficientForm,RelevantGs->integrals]&/@rawIBPs;
+	(*must specify relevant Gs here to dezerosectorintegrals*)
 	 (*end of MaxMemoryUsed*)];
     If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  Finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
@@ -3612,6 +3634,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 
