@@ -111,7 +111,7 @@ NeatIBP uses Mathematica in command line using command like
 ```
 math -script script_name.wl
 ```
-Please make sure that this works on your computer in order to use NeatIBP. This version of NeatIBP dose not support running Mathematica in command lines using other commands yet.
+Please make sure that this works on your computer in order to use NeatIBP. If not, you should modify the file NeatIBP/preload/MathematicaCommand.txt to as the mathematica command on your computer.
 
 ## How to cite
 If you use NeatIBP in your research, we would appreciate it if you cite the related paper  [arxiv 2305.08783](https://arxiv.org/abs/2305.08783). Or you can cite with
