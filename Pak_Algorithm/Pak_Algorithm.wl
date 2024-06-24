@@ -360,7 +360,7 @@ groupNum,groupCoeffs,groups,rep,backrep,result,MNull
 		RM=RowReduce[M];
 		groups=DeleteCases[Expand[#.External]&/@RM,0];
 		complementIndices=Complement[Range[Length[External]],pivots[RM]];
-		groupNum=Length[complementIndices];(*just a horse butt*)
+		groupNum=Length[groups];(*just a horse butt*)
 	,
 	_,
 		PrintAndLog["IntegralMomentaGroupFeynPar: wrong devsetting20240624: ",devsetting20240624,"."];
