@@ -313,18 +313,60 @@ IntegralMomentaGroup[Internal_, External_, Propagators_,OptionsPattern[]]:=Modul
 
 
 
+devsetting20240624="ExtRREF";
+(*
+"ExtRREF"
+or
+"NS^2"(NS=nullspace)
+the two are in principle equivalent
+just in case.
+*)
 IntegralMomentaGroupFeynPar[Internal_, External_, Propagators_]:=Module[
-{U,F,Gpol,xs,cr,coeffs,M,pos,complementIndices,groupNum,groupCoeffs,groups,rep,backrep,result
+{U,F,Gpol,xs,cr,coeffs,M,pos,complementIndices,RM,
+groupNum,groupCoeffs,groups,rep,backrep,result,MNull
 },
 	{U,F,xs}=GenerateUF[Propagators,Internal,{}];
 	Gpol=U+F;
 	cr=CoefficientRules[Gpol,xs];
 	coeffs=cr[[All,2]];
 	M=Table[D[coeffs[[i]],External[[j]]],{i,Length[coeffs]},{j,Length[External]}];
-	groupNum=MatrixRank[M];
-	complementIndices=Complement[Range[Length[External]],pivots[RowReduce[M]]];
-	groupCoeffs=M//NullSpace//NullSpace//RowReduce;(*find the basis that is ortho to M's null space*)
-	groups=#.External&/@groupCoeffs;
+	Switch[devsetting20240624,
+	"NS^2",
+		groupNum=MatrixRank[M];
+		complementIndices=Complement[Range[Length[External]],pivots[RowReduce[M]]];
+		MNull=M//NullSpace;
+		(*find the basis that is ortho to M's null space*)
+		If[MNull==={},
+			groupCoeffs=IdentityMatrix[Length[External]];
+		,
+			groupCoeffs=MNull//NullSpace//RowReduce;
+		];
+		groups=#.External&/@groupCoeffs;
+	,
+	"ExtRREF",
+		(*
+		coordinatize the external momenta w.r.t. external momenta basis
+		taken that the mandeston vars are quadratic
+		*)
+		M=Transpose[M];
+		M=Flatten[
+			Table[
+				D[#[[i]],External[[j]]],
+				{i,Length[#]},
+				{j,Length[External]}
+			]
+		]&/@M;
+		M=Transpose[M];
+		RM=RowReduce[M];
+		groups=DeleteCases[Expand[#.External]&/@RM,0];
+		complementIndices=Complement[Range[Length[External]],pivots[RM]];
+		groupNum=Length[complementIndices];(*just a horse butt*)
+	,
+	_,
+		PrintAndLog["IntegralMomentaGroupFeynPar: wrong devsetting20240624: ",devsetting20240624,"."];
+		PrintAndLog["This is a bug. Please contact depeloper to fix this. Exiting..."];
+		Exit[0];
+	];
 	If[Length[groups]=!=groupNum,
 		PrintAndLog["IntegralMomentaGroupFeynPar: The groups found ",groups," mismatchs matrix rank ",groupNum];
 		Return[$Failed]

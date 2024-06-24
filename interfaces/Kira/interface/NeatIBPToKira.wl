@@ -134,14 +134,26 @@ OneIBPtoKiraString[ibp_]:=Module[{ar,relatedIntegrals},
 		ToString[relatedIntegrals[[#[[1,1]]]]//IntegralLabelling//InputForm]<>"*("<>ToString[InputForm[#[[2]]]]<>")"&/@ar
 	,"\n"]
 ]
-IBPstoKiraString[ibps_]:=StringRiffle[Table[OneIBPtoKiraString[ibps[[i]]],{i,Length[ibps]}],"\n\n"]
+IBPstoKiraString[ibps_]:=StringRiffle[Table[
+	If[Mod[i,1000]===0,Print["\t\tconverting IBP to Kira expression... (",i,"/",Length[ibps],")"]];
+	OneIBPtoKiraString[ibps[[i]]],
+{i,Length[ibps]}],"\n\n"]
+
+
+
 
 
 userdefinedsystem=StringReplace[IBPstoKiraString[userdefinedinput]," "->""];
 
 
+
+
+
 mlist=IntegralLabelling/@mlist
 reducelist=IntegralLabelling/@reducelist
+
+
+
 
 
 basis=StringReplace[StringRiffle[ToString[InputForm[#]]&/@mlist,"\n\n"]," "->""]

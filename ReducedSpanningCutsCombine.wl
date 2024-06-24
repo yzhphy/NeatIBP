@@ -22,8 +22,10 @@ If[commandLineMode,
 	Print["WARNING: program is not running in command line mode!"];
 	workingPath=NotebookDirectory[];
 	(*packagePath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/";*)
-	resultsPath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples_private/Examples_Kira+NeatIBP/config-tenniscourt/config/massless/massless-tenniscourt/massless-tenniscourt/spc/outputs/tenniscort-mslss-spc/results/";
+	(*resultsPath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples_private/Examples_Kira+NeatIBP/config-tenniscourt/config/massless/massless-tenniscourt/massless-tenniscourt/spc/outputs/tenniscort-mslss-spc/results/";*)
+	resultsPath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples_private/Examples_Kira+NeatIBP/config-tenniscourt/config/massless/spc/outputs/tenniscort-mslss-spc/results_spanning_cuts-0612/results_spanning_cuts-0612/";
 	targets=Get["/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples_private/Examples_Kira+NeatIBP/config-tenniscourt/config/massless/massless-tenniscourt/massless-tenniscourt/spc/targetIntegrals.txt"];
+	
 ]
 
 
@@ -47,7 +49,7 @@ timer=AbsoluteTime[];
 Print["Reading spanning cuts Kira outputs..."];
 
 
-spcResultsPath=resultsPath<>"results_spanning_cuts/";
+spcResultsPath=resultsPath(*<>"results_spanning_cuts/";*)
 
 
 spanningCutStrings=Select[FileNameSplit[#][[-1]]&/@FileNames[All,spcResultsPath],StringContainsQ["cut_"]]
@@ -55,13 +57,33 @@ spanningCutStrings=Select[FileNameSplit[#][[-1]]&/@FileNames[All,spcResultsPath]
 spanningCuts=(ToExpression/@(StringSplit[#,"_"][[2;;-1]]))&/@spanningCutStrings;
 
 
-furtherPath="KiraInput/results/G/"
-GetReducedIBPs[cut_]:=Get[spcResultsPath<>"cut_"<>StringRiffle[ToString/@cut,"_"]<>"/"<>furtherPath<>"kira_list.m"];
+furtherPath="KiraInput/results/Tuserweight/"
+GetOrderedIntegrals[cut_]:=Get[spcResultsPath<>"cut_"<>StringRiffle[ToString/@cut,"_"]<>"/results/OrderedIntegrals.txt"];
+GetTuserweightToGRules[cut_]:=Module[{integralsReverse=Reverse[GetOrderedIntegrals[cut]]},
+	Table[Tuserweight[i]->integralsReverse[[i]],{i,Length[integralsReverse]}]
+]
+GetReducedIBPs[cut_]:=Get[spcResultsPath<>"cut_"<>StringRiffle[ToString/@cut,"_"]<>"/"<>furtherPath<>"kira_list.m"]/.GetTuserweightToGRules[cut];
+GetMI[cut_]:=Module[{string,lines,MIs},
+	string=StringReplace[Import[spcResultsPath<>"cut_"<>StringRiffle[ToString/@cut,"_"]<>"/"<>furtherPath<>"masters","Text"]," "->""];
+	lines=DeleteCases[StringSplit[string,"\n"],""];
+	lines=StringSplit[#,"#"][[1]]&/@lines;(*decomment*)
+	MIs=Tuserweight[ToExpression[#]]&/@lines;
+	MIs/.GetTuserweightToGRules[cut]
+]
+GetMIFinal[cut_]:=Module[{string,lines,MIs},
+	string=StringReplace[Import[spcResultsPath<>"cut_"<>StringRiffle[ToString/@cut,"_"]<>"/"<>furtherPath<>"masters.final","Text"]," "->""];
+	lines=DeleteCases[StringSplit[string,"\n"],""];
+	lines=StringSplit[#,"#"][[1]]&/@lines;(*decomment*)
+	MIs=Tuserweight[ToExpression[#]]&/@lines;
+	MIs/.GetTuserweightToGRules[cut]
+]
 
 
-
-FormulateReducedIBP[reducedIBP_]:=Module[{MIs},
-	MIs=Cases[Variables[reducedIBP[[2]]],_G];
+FormulateReducedIBP//ClearAll
+Options[FormulateReducedIBP]={IntegralHead->G}
+FormulateReducedIBP[reducedIBP_,OptionsPattern[]]:=Module[{MIs,integralHead},
+	integralHead=OptionValue[IntegralHead];
+	MIs=Select[Variables[reducedIBP[[2]]],Head[#]===integralHead&];
 	reducedIBP[[1]]->(#->D[reducedIBP[[2]],#]&/@MIs)
 ]
 
@@ -73,6 +95,7 @@ allMIs={};
 formulatedReducedIBPs={};
 Module[{i,j,cut,newFormulatedReducedIBP},
 	For[i=1,i<=Length[spanningCuts],i++,
+		Print["\t\treading spanning cuts (",i,"/",Length[spanningCuts],")"];
 		cut=spanningCuts[[i]];
 		newFormulatedReducedIBP=FormulateReducedIBP/@GetReducedIBPs[cut];
 		formulatedReducedIBPs=Append[formulatedReducedIBPs,newFormulatedReducedIBP];
@@ -211,47 +234,10 @@ cut,targetReducedFormulated,targetReducedFormulatedMIs,oldK,reducedResults
 CombineReducedRedults[ShortenedMode->True]
 
 
-G[1,1,1,1,1,1,1,1,1,1,-3,0,0,0,0]/.(FormulateReducedIBP/@GetReducedIBPs[{2,4,5,6,9}])
-%[[All,1]]
-MemberQ[%,G[0,1,1,1,1,1,0,0,1,0,0,0,0,0,0]]
-
-
 GetCoeff[target_,MI_,cut_]:=Module[{reduced=target/.(FormulateReducedIBP/@GetReducedIBPs[cut])},
 	If[MemberQ[reduced[[All,1]],MI],MI/.reduced,0]
 ]
 
 
-Get["/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples_private/Examples_Kira+NeatIBP/config-tenniscourt/config/massless/spc/outputs/tenniscort-mslss-spc/results/results_spanning_cuts/cut_2_3_5_6_10/sol.txt"];
-D[G[1,1,1,1,1,1,1,1,1,1,0,-3,0,0,0]/.%,G[0,1,1,1,1,1,0,0,0,1,0,0,0,0,0]]
 
-
-GetCoeff[  G[1,1,1,1,1,1,1,1,1,1,0,-3,0,0,0],G[0,1,1,1,1,1,0,0,0,1,0,0,0,0,0],{2,3,5,6,10}]/.{s -> 5/109, t -> 349/43, m1 -> 233/577, d -> 3/137};
-PolynomialMod[%,42013]
-
-
-GetCoeff[  G[1,1,1,1,1,1,1,1,1,1,0,-3,0,0,0],G[0,1,1,1,1,1,0,0,0,1,0,0,0,0,0],{2,3,4,6,10}]
-GetCoeff[  G[1,1,1,1,1,1,1,1,1,1,0,-3,0,0,0],G[0,1,1,1,1,1,0,0,0,1,0,0,0,0,0],{2,3,5,6,10}]
-
-
-%201-%202//Factor
-
-
-FormulateReducedIBP/@GetReducedIBPs[{1,3,4,7,9}];
-G[1,1,1,1,1,1,1,1,1,1,0,0,0,0,-3]/.%;
-G[0,0,1,1,0,1,0,1,1,1,0,0,0,0,0]/.%
-
-
-a-c//Factor
-
-
-a
-
-
-b
-
-
-reducedResults
-
-
-Print["\tTotal MI number: ",allMIs//Length]
 Print["\tFinished. Time used: ",Round[AbsoluteTime[]-timer]," second(s)."]

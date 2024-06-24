@@ -1202,24 +1202,28 @@ zihao:
 4. record the version of NeatIBP used in log_files/initialization.txt
 
 ----------------
-2023.05.31
+2024.05.31
 zihao:
 Found a stupid bug in SyzygyRed.wl, where I use IBPCoefficientForm[CoefficientArray[...]]
 In mathematica, Factor[SparseArray] will Factoe all its entries, but Expand[SparseArray] changes nothing... this is really nonsense...
 I fixed this problem by rewriting the function CollectG, extending its options, and use it where the problem occurs.
 
 -----------------
-2023.06.05
+2024.06.05
 remove FFSolveIBP.wl, FFSpanningCutsConsistencyCheck.wl, FFSpanningCutsIBPShorten.wl, from .gitignore
 Moved SpanningCutsCombine.wl from Kira interface folder to NeatIBP root folder, renamed as 
 ReducedSpanningCutsCombine.wl, and removed it from .gitignore
 However, these scripts are not linked to user's interface, even if they are now visible. The user interface is still under construction.
 
+------------------
+2024.6.13
+zihao:
+added a progress reporter in function IBPstoKiraString in NeatIBP to Kira converter (.wl) in Kira interface
 
-
-
-
-
+-----------------
+2024.6.24
+zihao:
+added ExtRREF in IntegralMomentaGroupFeynPar in Pak_Algorithm.wl
 
 
 
