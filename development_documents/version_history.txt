@@ -167,4 +167,8 @@ Date: 2024.6.5
 	3. The version of NeatIBP used in a run will be recorded in outputs/.../tmp/log_files/initialization.txt.
 	4. Fixed a bug in IBP coefficient simplification.
  
+[NeatIBP 1.0.4.7]
+Date: 2024.6.25
+	1. Implemented external momenta grouping via Feynman parameterization.
+	2. Bug fixing.
 

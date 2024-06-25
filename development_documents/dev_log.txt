@@ -1214,6 +1214,7 @@ remove FFSolveIBP.wl, FFSpanningCutsConsistencyCheck.wl, FFSpanningCutsIBPShorte
 Moved SpanningCutsCombine.wl from Kira interface folder to NeatIBP root folder, renamed as 
 ReducedSpanningCutsCombine.wl, and removed it from .gitignore
 However, these scripts are not linked to user's interface, even if they are now visible. The user interface is still under construction.
+v1.0.4.6
 
 ------------------
 2024.6.13
@@ -1229,7 +1230,7 @@ added ExtRREF in IntegralMomentaGroupFeynPar in Pak_Algorithm.wl
 2024.6.25
 zihao:
 fixed a bug in FindSymmetry[sec1_,sec2_] in SyzygyRed.wl. Before the fix, it will say {1,1,1,1} is an unexpected input. This is wrong.
-
+v1.0.4.7
 
 
 
