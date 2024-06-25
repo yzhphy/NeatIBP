@@ -357,6 +357,10 @@ If[!MemberQ[{"MultiplePropagatorElimination","ISPElimination","Global"},Integral
 	PrintAndLog["****  Invalid IntegralOrder \""<>ToString[IntegralOrder]<>"\". Exiting..."];
 	Exit[0]
 ]
+If[!MemberQ[{"MomentumSpace","FeynmanParameterization"},ExternalMomentaGroupingMethod],
+	PrintAndLog["****  Invalid ExternalMomentaGroupingMethod \""<>ToString[ExternalMomentaGroupingMethod]<>"\". Exiting..."];
+	Exit[0]
+]
 
 
 If[!MemberQ[{"Zurich","Zurich+FIBPGrouping"},NeatIBPSeedingMethod],

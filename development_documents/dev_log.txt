@@ -1225,6 +1225,11 @@ added a progress reporter in function IBPstoKiraString in NeatIBP to Kira conver
 zihao:
 added ExtRREF in IntegralMomentaGroupFeynPar in Pak_Algorithm.wl
 
+-----------------
+2024.6.25
+zihao:
+fixed a bug in FindSymmetry[sec1_,sec2_] in SyzygyRed.wl. Before the fix, it will say {1,1,1,1} is an unexpected input. This is wrong.
+
 
 
 

@@ -286,7 +286,9 @@ result={},DM,leadingCoef,kvars,kEqns,kinematicVar,Exteqns,ExtGB,instance,additio
 
 
 IntegralMomentaGroup//ClearAll
-Options[IntegralMomentaGroup]={Method->"MomentumSpace"}
+(*Options[IntegralMomentaGroup]={Method->"MomentumSpace"}*)
+Options[IntegralMomentaGroup]={Method->ExternalMomentaGroupingMethod}
+
 IntegralMomentaGroup[Internal_, External_, Propagators_,OptionsPattern[]]:=Module[{result,yList,yRep,y,i,ScalarPropagator,M={},indices,ComplementIndices,rep,backrep},
 	If[OptionValue[Method]==="FeynmanParameterization",
 		Return[IntegralMomentaGroupFeynPar[Internal,External,Propagators]];

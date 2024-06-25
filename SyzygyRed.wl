@@ -1434,8 +1434,12 @@ SymmetryRules[zPerm_]:=Module[{prop1,prop2,momentumMaps},
 	ZSymmetry/@momentumMaps
 ]
 FindSymmetry[sec1_,sec2_]:=Module[{zs,G1,G2,zs1,zs2,zPerms,result},
-	If[Union[Flatten[sec1]]=!=Union[{0,1}],Print["sector ",sec1," is an unexpected input."];Return[$Failed]];
-	If[Union[Flatten[sec2]]=!=Union[{0,1}],Print["sector ",sec2," is an unexpected input."];Return[$Failed]];
+	(*If[Union[Flatten[sec1]]=!=Union[{0,1}],Print["sector ",sec1," is an unexpected input."];Return[$Failed]];
+	If[Union[Flatten[sec2]]=!=Union[{0,1}],Print["sector ",sec2," is an unexpected input."];Return[$Failed]];*)
+	
+	
+	If[!SubsetQ[{0,1},Union[Flatten[sec1]]],Print["sector ",sec1," is an unexpected input."];Return[$Failed]];
+	If[!SubsetQ[{0,1},Union[Flatten[sec2]]],Print["sector ",sec2," is an unexpected input."];Return[$Failed]];
 	If[Total[sec1]=!=Total[sec2],Return[{}]];(*no need to find symmetry between sectors of different heights*)
 	zs=Sort[Cases[Variables[PolynomialG],_z]];
 	G1=PolynomialG/.Table[z[i]->z[i]*sec1[[i]],{i,Length[zs]}];
@@ -2358,6 +2362,8 @@ FullForm]\);(*?*)
 	PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t Found ",Length[IBPIndex]," IBPs."];
 	result
 ]
+
+
 
 
 
@@ -3634,6 +3640,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 
