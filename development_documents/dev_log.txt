@@ -1233,6 +1233,12 @@ fixed a bug in FindSymmetry[sec1_,sec2_] in SyzygyRed.wl. Before the fix, it wil
 v1.0.4.7
 
 
+----------------
+2024.6.30
+modified typo DeltaPlainProjection to DeltaPlaneProjection
+modified the default setting of PreferedExternalExtendedRotationMethod as DeltaPlaneProjection
+
+
 
 
 

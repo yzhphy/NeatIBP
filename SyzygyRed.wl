@@ -1481,7 +1481,9 @@ SectorMaps[sectors_]:=Module[
 		If[Not[ParallelInFindingSectorMaps],
 			For[i=1,i<=Length[undeterminedSectors],i++,
 				newTestingSector=undeterminedSectors[[i]];
+				(*PrintAndLog["finding symmetries between ",newTestingSector,newUniqueSector];*)
 				maps=FindSymmetry[newTestingSector,newUniqueSector];
+				(*PrintAndLog["found ",Length[maps],"maps."];*)
 				If[Length[maps]>0,
 					selectedMap=SortBy[maps,{LeafCount[#],ByteCount[#]}&][[1]];
 					mappedSectors=Join[mappedSectors,{newTestingSector}];
@@ -1520,7 +1522,7 @@ SectorMaps[sectors_]:=Module[
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Integral Maps*)
 
 
@@ -1705,7 +1707,7 @@ MappedAndSubSectorsAllFinder[sectorMaps_,sectors_]:=Module[{mappingOfSectors,old
 SelfSymmetryRealization[zMap_,indices_]:=Expand[MappedIntegral[zMap,indices]-(G@@indices)](*well this function does not map the produced subsec integrals*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*LPSymmetryQ*)
 
 
@@ -1759,7 +1761,7 @@ LPSymmetryQ[integral1_,integral2_]:=Module[
 ]
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Azuritino*)
 
 
@@ -1801,7 +1803,7 @@ LeeCriticalPoints[sector_,OptionsPattern[]]:=Module[{P,Indices,vlist,ideal,GB,w}
 
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*AzuritinoMIFind*)
 
 
@@ -1961,7 +1963,7 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries,L
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Main *)
 
 
@@ -2059,7 +2061,7 @@ DenominatorLiftingShifts[sector_,liftDegree_]:=Module[{cs,c,constrain1,constrain
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*ZurichSeeding*)
 
 
@@ -2465,7 +2467,9 @@ FullForm]\);(*?*)
 
 
 
-(* ::Subsection:: *)
+
+
+(* ::Subsection::Closed:: *)
 (*SectorAnalyze (main)*)
 
 
@@ -3640,6 +3644,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 

@@ -100,7 +100,7 @@ MomentumMapTimeConstrain=15;(*seconds*)
 UseNicePropagatorsInMomentumMap=True;(*must turn off this if one or more propagators are not quadratic*)
 ReportNoticeInDeepMomentumMap=False;
 ReportWarningInMomentumMap=False;
-PreferedExternalExtendedRotationMethod="Orthogonalization";(*"Orthogonalization" or "DeltaPlainProjection"*)
+PreferedExternalExtendedRotationMethod="DeltaPlaneProjection";(*"Orthogonalization" or "DeltaPlaneProjection"*)
 moduleIntersectionMethod = "Singular";
 AzuritinoDefaultStartDegree=3;(*Irrelavant if CriticalPointInAzuritino==True*)
 AzuritinoDefaultMaxDegree=5;(*Irrelavant if CriticalPointInAzuritino==True*)

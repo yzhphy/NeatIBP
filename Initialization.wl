@@ -361,6 +361,10 @@ If[!MemberQ[{"MomentumSpace","FeynmanParameterization"},ExternalMomentaGroupingM
 	PrintAndLog["****  Invalid ExternalMomentaGroupingMethod \""<>ToString[ExternalMomentaGroupingMethod]<>"\". Exiting..."];
 	Exit[0]
 ]
+If[!MemberQ[{"Orthogonalization","DeltaPlaneProjection"},PreferedExternalExtendedRotationMethod],
+	PrintAndLog["****  Invalid PreferedExternalExtendedRotationMethod \""<>ToString[PreferedExternalExtendedRotationMethod]<>"\". Exiting..."];
+	Exit[0]
+]
 
 
 If[!MemberQ[{"Zurich","Zurich+FIBPGrouping"},NeatIBPSeedingMethod],
