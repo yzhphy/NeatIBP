@@ -11,15 +11,16 @@ settings must include:
 --targets_file=...
 
 it may also include:
---symmetry=Ture/False 
+--symmetry=True/False 
 --degbound=... 
 --modulus=...
 --option_simplification=... 
 --seeding_additional_degree=...
+--additional_NeatIBP_config_file=... (this overwrites the above!)
 *)
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Read in informations*)
 
 
@@ -32,7 +33,7 @@ If[commandLineMode,
 	NeatIBPPackagePath=Environment["NEATIBPPATH"];
 	SingularApp=Environment["SINGULARAPP"];
 	SpaSMLib=Environment["SPASMLIB"];
-	
+	(*SetDirectory[workingPath];*)
 	commandLine=$CommandLine;
 	settingStrings=Select[commandLine,StringContainsQ[#,"--"]&&StringContainsQ[#,"="]&];
 	settingPairs=StringSplit[StringReplace[#,"--"->""],"=",All]&/@settingStrings;
@@ -665,6 +666,18 @@ basicConfigString="outputPath=Automatic;\n"<>
 "SparseRREF`SpaSMLibrary="<>"\""<>SpaSMLib<>"\";\n"
 
 
+additionalNeatIBPConfigFile=ReadSetting["additional_NeatIBP_config_file"];(*a file*)
+If[furtherNeatIBPConfigFile==="Unidentified",
+	additionalConfigString="(*None*)"
+,
+	additionalConfigString=Import[additionalNeatIBPConfigFile,"String"];
+	If[additionalConfigString===$Failed,
+		Print["Failed to read further NeatIBP config in file ",additionalNeatIBPConfigFile,". Exiting."];
+		Exit[];
+	]
+]
+
+
 ToNeatIBPInputFiles[kinematicsFile_,familiesFile_,familyName_,outputFolder_]:=Module[
 {data,kinematicsString,configString,numerics,vars},
 	If[!DirectoryQ[outputFolder],Print["ToNeatIBPInputFiles: output folder ",outputFolder," does not exist."];Return[$Failed]];
@@ -672,6 +685,7 @@ ToNeatIBPInputFiles[kinematicsFile_,familiesFile_,familyName_,outputFolder_]:=Mo
 	If[data===$Failed,Return[$Failed]];
 	kinematicsString="";
 	configString=basicConfigString<>"\n"<>extraSettingsString<>"\n\n";
+	configString=configString<>"(*====================additional config========================*)\n"<>additionalConfigString<>"\n\n";
 	
 	kinematicsString=(kinematicsString<>#<>"="<>ToString[InputForm[#/.data]]<>";\n")&["LoopMomenta"];
 	kinematicsString=(kinematicsString<>#<>"="<>ToString[InputForm[#/.data]]<>";\n")&["ExternalMomenta"];

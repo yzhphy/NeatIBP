@@ -23,3 +23,7 @@ $MathematicaCommand -script $packagePath/Summary.wl $AbsMissionInput
 #$MathematicaCommand -script $packagePath/PrepareForContinueComputation.wl config.txt
 #$MathematicaCommand -script $packagePath/AllMissionCompleteQ.wl config.txt | $ShellProcessor
 #$MathematicaCommand -script $packagePath/Summary.wl config.txt
+
+
+$MathematicaCommand -script $packagePath/AssignIBPReduction.wl $AbsMissionInput
+$MathematicaCommand -script $packagePath/LaunchIBPReduction.wl $AbsMissionInput | $ShellProcessor

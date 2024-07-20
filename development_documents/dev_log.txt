@@ -1239,7 +1239,18 @@ modified typo DeltaPlainProjection to DeltaPlaneProjection
 modified the default setting of PreferedExternalExtendedRotationMethod as DeltaPlaneProjection
 
 
+--------------
+2024.7.15
+zihao:
+1. renamed folder name: KiraInput -> KiraIO
+2. allowing additional config input into KiraToNeatIBP.wl
+3. finished ReadKiraReductionResults.wl
 
+
+--------------
+2024.7.16
+zihao:
+1. added issue reduction task in Summary.wl
 
 
 

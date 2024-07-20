@@ -19,7 +19,7 @@ commandLineMode=True
 If[commandLineMode,
 	(*packagePath=DirectoryName[$InputFileName];*)
 	workingPath=Directory[]<>"/";
-	convertPath=$CommandLine[[-1]]<>"/";
+	convertPath=$CommandLine[[-1]];
 
 	,
 	Print["WARNING: program is not running in command line mode!"];
@@ -34,6 +34,9 @@ If[commandLineMode,
 
 
 
+
+
+If[StringSplit[convertPath,""][[-1]]=!="/",convertPath=convertPath<>"/"]
 
 
 (* ::Section:: *)
@@ -160,7 +163,7 @@ basis=StringReplace[StringRiffle[ToString[InputForm[#]]&/@mlist,"\n\n"]," "->""]
 list=StringReplace[StringRiffle[ToString[InputForm[#]]&/@reducelist,"\n"]," "->""]
 
 
-kiraInputFolder=workingPath<>"KiraInput/"
+kiraInputFolder=convertPath<>"KiraIO/"
 If[!DirectoryQ[#],CreateDirectory[#]]&@kiraInputFolder
 If[!DirectoryQ[#],CreateDirectory[#]]&@(kiraInputFolder<>"userSystem/")
 

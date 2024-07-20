@@ -17,6 +17,8 @@ ReductionOutputName="Untitled";
 outputPath=Automatic;
 (*outputPath=workingPath<>"test/";*)(*alternative*)
 
+
+
 (*-----------math settings---------------*)
 OptionSimplification = 12;
 FiniteFieldModulus=42013;(*do not use any prime number larger than 46337*)
@@ -87,6 +89,18 @@ ExportIndependentNIBPsCutted=False;
 (*----------spanning cuts related--------*)
 SpanningCutsEvaluationMode="Parallel";
 
+(*-----------IBP Reduction related-------*)
+PerformIBPReduction=False;
+(*if this is set to be True, NeatIBP runs related reducer via interfaces, to reduce the IBPs, after summarizing.*)
+
+IBPReductionMethod="None";
+(*
+options:
+"None": equivalent to setting PerformIBPReduction=False
+"FFNumerical": a numerical reduction on finite field
+"Kira": using Kira
+
+*)
 
 
 (*--------developer settings-------------*)

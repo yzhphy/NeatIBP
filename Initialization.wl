@@ -365,6 +365,10 @@ If[!MemberQ[{"Orthogonalization","DeltaPlaneProjection"},PreferedExternalExtende
 	PrintAndLog["****  Invalid PreferedExternalExtendedRotationMethod \""<>ToString[PreferedExternalExtendedRotationMethod]<>"\". Exiting..."];
 	Exit[0]
 ]
+If[!MemberQ[{"None","Kira","FFNumerical"},IBPReductionMethod],
+	PrintAndLog["****  Invalid IBPReductionMethod \""<>ToString[IBPReductionMethod]<>"\". Exiting..."];
+	Exit[0]
+]
 
 
 If[!MemberQ[{"Zurich","Zurich+FIBPGrouping"},NeatIBPSeedingMethod],
