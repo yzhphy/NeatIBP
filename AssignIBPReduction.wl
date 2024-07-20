@@ -74,7 +74,7 @@ If[PerformIBPReduction=!=True,
 
 Switch[IBPReductionMethod,
 "None",
-	script="echo \"IBPReductionMethod=None, will not perform IBP reduction.\"";
+	script="echo \"IBPReductionMethod=None, will not perform IBP reduction.\"\n";
 ,
 "Kira",
 	KiraCommandRefined=StringRiffle[
@@ -118,9 +118,10 @@ Switch[IBPReductionMethod,
 		Exit[];
 	];
 	script=script<>"\n"<>ShellProcessor<>" "<>packagePath<>
-		"interfaces/Kira/interface/run_Kira_reduction.sh \""<>KiraCommandRefined<>"\" "<>outputPath;
-"FFNumerical"\:ff0c
-	script=MathematicaCommand<>" "<>packagePath<>"FFSolveIBP.wl "<>outputPath;
+		"interfaces/Kira/interface/run_kira_reduction.sh \""<>KiraCommandRefined<>"\" "<>outputPath<>"\n";
+,
+"FFNumerical",
+	script=MathematicaCommand<>" "<>packagePath<>"FFSolveIBP.wl "<>outputPath<>"\n";
 ,
 _,
 	(*this should have been excluded by initialization, but... better double checked*)
@@ -129,4 +130,4 @@ _,
 ]
 
 
-Export[outputPath<>"tmp/assigned_reduction_script.txt",script]
+Export[outputPath<>"tmp/assigned_reduction_script.sh",script,"Text"]

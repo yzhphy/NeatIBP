@@ -1252,6 +1252,15 @@ zihao:
 zihao:
 1. added issue reduction task in Summary.wl
 
+--------------
+2024.7.20
+zihao:
+1. in Summary.wl, modified integralList=IntegralList[IBPs] to
+integralList=IntegralList[Join[IBPs,MIs]];
+otherwise, some MIs may be missing in the integralList
+2. Kira interface finished construction, not including the spanning cuts.
+3. v1.0.5.0
+
 
 
 

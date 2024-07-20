@@ -172,3 +172,9 @@ Date: 2024.6.25
 	1. Implemented external momenta grouping via Feynman parameterization.
 	2. Bug fixing.
 
+[NeatIBP 1.0.5.0]
+Date: 2024.7.20
+	1. Kira interface is online, without spanning cuts yet.
+	2. Adjust default setting PreferedExternalExtendedRotationMethod as "DeltaPlaneProjection".
+	3. Other bug fixings.
+

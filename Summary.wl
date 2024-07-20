@@ -307,7 +307,7 @@ If[And[NeedSymmetry===True,AdditionalMISymmetries===True],
 timer=AbsoluteTime[];
 relavantIntegrals=Get/@FileNames[All,outputPath<>"tmp/relavant_integrals/"];
 (*integralList=IntegralList[relavantIntegrals]*)
-integralList=IntegralList[IBPs]
+integralList=IntegralList[Join[IBPs,MIs]];
 Export[outputPath<>"results/OrderedIntegrals.txt",integralList//InputForm//ToString];
 Export[outputPath<>"results/MI_all.txt",MIs//Flatten//InputForm//ToString];
 Export[outputPath<>"results/IBP_all.txt",IBPs//Flatten//InputForm//ToString];

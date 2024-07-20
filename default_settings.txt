@@ -102,6 +102,10 @@ options:
 
 *)
 
+(*Kira setting*)
+KiraCommand=""
+FermatPath=""
+
 
 (*--------developer settings-------------*)
 debugMode=False;

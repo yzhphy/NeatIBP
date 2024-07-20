@@ -72,4 +72,4 @@ If[!DirectoryQ[outputPath<>"KiraIO/"],
 ]
 
 
-Export[outputPath<>"KiraIO/jobs.yaml",jobYamlString]
+Export[outputPath<>"KiraIO/jobs.yaml",jobYamlString,"Text"]

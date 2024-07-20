@@ -42,11 +42,15 @@ fi
 $MathematicaCommand -script $KiraNeatIBPInterfacePath"CreateJobsYaml.wl" $NeatIBPOutputPath
 
 
+
 KiraIOPath=$NeatIBPOutputPath"KiraIO/"
 if
 	[ -e $KiraIOPath"basis" -a -e $KiraIOPath"list" -a -e $KiraIOPath"jobs.yaml" -a -e $KiraIOPath"userSystem/userdefinedsystem.kira" ]
 then
-	$ShellProcessor $KiraCommand $KiraIOPath"jobs.yaml"
+	cd $KiraIOPath
+	$KiraCommand $KiraIOPath"jobs.yaml"
+	cd -
+	#echo $KiraCommand" "$KiraIOPath"jobs.yaml"
 else
 	echo "***Kira input files are not complete. Giving up running kira."
 	echo "Failed." 

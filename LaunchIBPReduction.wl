@@ -72,7 +72,7 @@ If[PerformIBPReduction=!=True,
 
 
 
-script=Import[outputPath<>"tmp/assigned_reduction_script.txt","Text"]
+script=Import[outputPath<>"tmp/assigned_reduction_script.sh","Text"]
 
 
 Print[script]
