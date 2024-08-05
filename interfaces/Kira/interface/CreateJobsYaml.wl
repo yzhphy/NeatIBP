@@ -10,6 +10,9 @@ math -script CreateJobsYaml.wl [outputPath]
 
 
 
+
+
+
 commandLineMode=True
 
 
@@ -19,14 +22,20 @@ commandLineMode=True
 If[commandLineMode,
 	(*packagePath=DirectoryName[$InputFileName];*)
 	workingPath=Directory[]<>"/";
-	outputPath=$CommandLine[[-1]];
+	commandLine=$CommandLine;
+	outputPath=commandLine[[-1]];
+	If[commandLine[[-2]]==="-s",
+		mode="shortened";
+	,
+		mode="normal";
+	];
 
 	,
 	Print["WARNING: program is not running in command line mode!"];
 	workingPath=NotebookDirectory[];
 	(*packagePath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/";*)
-	outputPath=""
-	
+	outputPath="";
+	mode="normal"
 ]
 
 
@@ -42,10 +51,10 @@ If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 jobYamlString="
 jobs:
   - reduce_user_defined_system:
-      input_system: {files: [\"userSystem\"], otf: true}
-#      input_system: {files: [\"userSystem\"], otf: true} # works as well
-#      input_system: {files: [\"userSystem\"]} # works as well
-#      input_system: \"userSystem\" # works as well
+      input_system: {files: [\"userSystemSUFFIX\"], otf: true}
+#      input_system: {files: [\"userSystemSUFFIX\"], otf: true} # works as well
+#      input_system: {files: [\"userSystemSUFFIX\"]} # works as well
+#      input_system: \"userSystemSUFFIX\" # works as well
       select_integrals:
         select_mandatory_list:
           - [list] 
@@ -64,6 +73,19 @@ jobs:
        - [list]
 #       - [Tuserweight,list] # works as well
 "
+
+
+Switch[mode,
+"normal",
+	jobYamlString=StringReplace[jobYamlString,"SUFFIX"->""];
+,
+"shortened",
+	jobYamlString=StringReplace[jobYamlString,"SUFFIX"->"Shortened"];
+,
+_,
+	Print["***CreateJobsYaml.wl: Unkown mode ",mode, ". Exiting."];
+	Exit[];
+]
 
 
 If[!DirectoryQ[outputPath<>"KiraIO/"],

@@ -3,6 +3,8 @@
 ==========Urgent===================
 GB.sing sometimes stucks... give them a time limit!
 
+We seem to give user a freedom to input kinematic files and target integral files, but the file names (targetIntegrals.txt, kinematics.txt) are actually hard coded in many many places. Try to fix this... Currently, we just forbid user to use this.
+
 continue.sh for spanning cuts
 
 Let Momenta group by FeynPar online

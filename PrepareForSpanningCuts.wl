@@ -134,6 +134,7 @@ ModifiedConfig[file_,cut_]:=Module[{string},
 	string=Import[file];
 	string=StringReplace[string,{"CutIndices="~~Shortest[x__]~~"\n"->"\n"}];
 	string=string<>"\n\n(*-----actual cuts-----*)\nCutIndices="<>ToString[InputForm[cut]]<>";\n";
+	string=string<>"\n\n(*-----turn off IBP reduction in individual cuts-----*)\nPerformIBPReduction=False;\n";
 	(*string//Print;*)
 	string
 ]

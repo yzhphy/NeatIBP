@@ -88,6 +88,7 @@ ExportIndependentNIBPsCutted=False;
 
 (*----------spanning cuts related--------*)
 SpanningCutsEvaluationMode="Parallel";
+ShortenIBPs=True;
 
 (*-----------IBP Reduction related-------*)
 PerformIBPReduction=False;
@@ -102,9 +103,14 @@ options:
 
 *)
 
-(*Kira setting*)
+(*---Kira setting---*)
 KiraCommand=""
 FermatPath=""
+UseShortenedIBPForKira=True;(*only valid for spanning cuts mode*)
+ForceRemoveExistingKiraResults=False;
+ParallelKiraReductionForSpanningCuts=False;
+
+
 
 
 (*--------developer settings-------------*)

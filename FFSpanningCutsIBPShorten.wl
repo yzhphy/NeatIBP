@@ -1,9 +1,17 @@
 (* ::Package:: *)
 
-
 (*
 If in cut A there is a MI, then in cut B we can set that MI to 0
 This requires that the spanning cuts pass consistency check.
+*)
+
+
+(*
+2024.8.3 comment:
+I don't know why this script is named "FF"SpaningCutsIBPShorten
+Maybe this relies on "FF"SpanningCutsConsistencyCheck.wl
+But this script, itself, dose not seem to rely on FF
+
 *)
 
 
@@ -162,3 +170,5 @@ For[i=1,i<=Length[spanningCutsSorted],i++,
 
 
 Print["==========================\nspanning cuts IBP shorten finished."]
+Export[checkPath<>"tmp/spanning_cuts_IBP_shorten_finished.txt",""]
+

@@ -16,15 +16,23 @@ commandLineMode=True
 If[commandLineMode,
 	(*packagePath=DirectoryName[$InputFileName];*)
 	workingPath=Directory[]<>"/";
-	spcResultsPath=$CommandLine[[-1]]<>"/";
-
+	commandLine=$CommandLine;
+	If[MemberQ[commandLine,"-s"],
+		shortenedMode=True;
+		commandLine=DeleteCases[commandLine,"-s"];
+	,
+		shortenedMode=False;
+	];
+	outputPath=commandLine[[-1]];
+	reducedIBPInputSetting=$CommandLine[[-2]];
 	,
 	Print["WARNING: program is not running in command line mode!"];
 	workingPath=NotebookDirectory[];
 	(*packagePath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/";*)
 	(*resultsPath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples_private/Examples_Kira+NeatIBP/config-tenniscourt/config/massless/massless-tenniscourt/massless-tenniscourt/spc/outputs/tenniscort-mslss-spc/results/";*)
-	resultsPath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples_private/Examples_Kira+NeatIBP/config-tenniscourt/config/massless/spc/outputs/tenniscort-mslss-spc/results_spanning_cuts-0612/results_spanning_cuts-0612/";
-	targets=Get["/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples_private/Examples_Kira+NeatIBP/config-tenniscourt/config/massless/massless-tenniscourt/massless-tenniscourt/spc/targetIntegrals.txt"];
+	shortenedMode=True;
+	reducedIBPInputSetting="-Kira";
+	outputPath="/home/zihao/NeatIBP/examples_private/kira_interface/examples/dbox-demo/outputs/kira-spc/"
 	
 ]
 
@@ -35,29 +43,83 @@ If[commandLineMode,
 
 
 
-If[StringSplit[#][[-1]]=!="/",#=#<>"/"]&/@resultsPath
+If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
+
+
+resultsPath=outputPath<>"results/"
+spcResultsPath=resultsPath<>"results_spanning_cuts/";
+
+
+(*If[StringSplit[#][[-1]]=!="/",#=#<>"/"]&/@resultsPath*)
+
+
+targets=Get[outputPath<>"inputs/targetIntegrals.txt"]
+(*issue of the hard coded file name targetIntegrals.txt*)
 
 
 Print["number of targets: ",targets//Length]
 
 
+Print[reducedIBPInputSetting]
+
+
 (* ::Section:: *)
-(*Reading spc Kira outputs*)
+(*Identifying IBP input*)
+
+
+Switch[reducedIBPInputSetting,
+"-Kira",
+	reducedIBPInput="Kira";
+,
+"-FFNumerical",
+	reducedIBPInput="FFNumerical";
+,
+_,
+	Print["[Notice]: IBP input not specified or uncategorized. Reading config file for this info."];
+	outputPath1=outputPath;
+	Get[outputPath<>"inputs/config.txt"];
+	reducedIBPInput=IBPReductionMethod;
+	Print["IBP input: ",IBPReductionMethod];
+	outputPath=outputPath1;
+]
+
+
+Switch[reducedIBPInput,
+"Kira",
+	furtherPath="results/Kira_reduction_results/reduced_IBP_Table.txt";
+,
+"FFNumerical",
+	Print["ReducedSpanningCutsCombine: Sorry, FFNumerical spanning cuts is still in developement. Exiting."];
+	Exit[];
+,
+_,
+	Print["ReducedSpanningCutsCombine: Uncategorized IBP input: \"",reducedIBPInput,"\". Exiting. "];
+	Exit[];
+	
+]
+
+
+(* ::Section:: *)
+(*Reading spc outputs*)
 
 
 timer=AbsoluteTime[];
-Print["Reading spanning cuts Kira outputs..."];
+Print["Reading IBP reduction results in each spanning cuts..."];
 
 
-spcResultsPath=resultsPath(*<>"results_spanning_cuts/";*)
+GetReducedIBPs[cut_]:=Get[spcResultsPath<>"cut_"<>StringRiffle[ToString/@cut,"_"]<>"/"<>furtherPath]
+
+
+
 
 
 spanningCutStrings=Select[FileNameSplit[#][[-1]]&/@FileNames[All,spcResultsPath],StringContainsQ["cut_"]]
-(*need to be modified, we should read SpanningCuts.txt*)
+(*need to be modified, we should read SpanningCuts.txt, but what if user deletes tmp folder? Maybe if so we can use this as a 2nd choice*)
 spanningCuts=(ToExpression/@(StringSplit[#,"_"][[2;;-1]]))&/@spanningCutStrings;
 
 
-furtherPath="KiraInput/results/Tuserweight/"
+(*not needed, code specially for kira*)
+(*furtherPath="KiraInput/results/Tuserweight/"
 GetOrderedIntegrals[cut_]:=Get[spcResultsPath<>"cut_"<>StringRiffle[ToString/@cut,"_"]<>"/results/OrderedIntegrals.txt"];
 GetTuserweightToGRules[cut_]:=Module[{integralsReverse=Reverse[GetOrderedIntegrals[cut]]},
 	Table[Tuserweight[i]->integralsReverse[[i]],{i,Length[integralsReverse]}]
@@ -76,7 +138,10 @@ GetMIFinal[cut_]:=Module[{string,lines,MIs},
 	lines=StringSplit[#,"#"][[1]]&/@lines;(*decomment*)
 	MIs=Tuserweight[ToExpression[#]]&/@lines;
 	MIs/.GetTuserweightToGRules[cut]
-]
+]*)
+
+
+
 
 
 FormulateReducedIBP//ClearAll
@@ -231,13 +296,31 @@ cut,targetReducedFormulated,targetReducedFormulatedMIs,oldK,reducedResults
 ]
 
 
-CombineReducedRedults[ShortenedMode->True]
+combinedIBPFormulated=CombineReducedRedults[ShortenedMode->shortenedMode]
 
 
-GetCoeff[target_,MI_,cut_]:=Module[{reduced=target/.(FormulateReducedIBP/@GetReducedIBPs[cut])},
-	If[MemberQ[reduced[[All,1]],MI],MI/.reduced,0]
+UnFormulateReducedIBP[formulatedIBP_]:=Rule[
+	formulatedIBP[[1]],
+	Sum[
+		(formulatedIBP[[2,i,2]])*
+		formulatedIBP[[2,i,1]]
+	,
+		{i,Length[formulatedIBP[[2]]]}]
 ]
 
+
+combinedIBP=UnFormulateReducedIBP/@combinedIBPFormulated
+
+
+(*GetCoeff[target_,MI_,cut_]:=Module[{reduced=target/.(FormulateReducedIBP/@GetReducedIBPs[cut])},
+	If[MemberQ[reduced[[All,1]],MI],MI/.reduced,0]
+]*)
+
+
+
+exportPath=outputPath<>"results/reduced_IBP_spanning_cuts_combined/from_"<>reducedIBPInput<>"_reduction/"
+If[!DirectoryQ[exportPath],CreateDirectory[exportPath]];
+Export[exportPath<>"IBPTable.txt",combinedIBP//InputForm//ToString]
 
 
 Print["\tFinished. Time used: ",Round[AbsoluteTime[]-timer]," second(s)."]

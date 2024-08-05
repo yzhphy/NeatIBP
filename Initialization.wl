@@ -62,6 +62,7 @@ Print["================================================================
 NeatIBP version "<>versionNumber<>"
 by: Janko Boehm, Rourou Ma, Hefeng Xu, Zihao Wu and Yang Zhang.
 ================================================================"];
+If[developerMode===True,Print["*** developer mode is on ***"]]
 If[debugMode===True,Print["*** debug mode is on ***"]]
 
 
@@ -305,14 +306,29 @@ If[Head[CutIndices]=!=List&&!MemberQ[{"spanning cuts"},CutIndices],
 ]
 
 
-If[And[MemberQ[{"spanning cuts"},CutIndices],Not[debugMode===True]],
-	PrintAndLog["****  In the current version, spanning cuts mode is under developement. There may lurks unknown bugs. Please set debugMode=True if you want to try. Exiting..."];
+If[And[MemberQ[{"spanning cuts"},CutIndices],Not[developerMode===True]],
+	PrintAndLog["****  In the current version, spanning cuts mode is under developement. There may lurks unknown bugs. Please set developerMode=True if you want to try. Exiting..."];
 	Exit[0]
 ]
-If[And[FlexibleNeatIBPIntersectionDegreeBound,Not[debugMode===True]],
-	PrintAndLog["****  In current version, FlexibleNeatIBPIntersectionDegreeBound is under developement. There may lurks unknown bugs. Please set debugMode=True if you want to try. Exiting..."];
+If[And[FlexibleNeatIBPIntersectionDegreeBound,Not[developerMode===True]],
+	PrintAndLog["****  In current version, FlexibleNeatIBPIntersectionDegreeBound is under developement. There may lurks unknown bugs. Please set developerMode=True if you want to try. Exiting..."];
 	Exit[0]
 ]
+
+If[And[Not[kinematicsFile===workingPath<>"kinematics.txt"],Not[developerMode===True]],
+	PrintAndLog["****  Sorry, in current version, we do not recommend non-default value of kinematicsFile. We recommend that you keep it as workingPath<>\"kinematics.txt\". "];
+	PrintAndLog["****  If you really want to use this non-default file name, please set developerMode=True, then run again."];
+	PrintAndLog["****  But, we need to tell you that, this may bring disfunctioning of some of the modules of NeatIBP."];
+	Exit[0]
+]
+
+If[And[Not[targetIntegralsFile===workingPath<>"targetIntegrals.txt"],Not[developerMode===True]],
+	PrintAndLog["****  Sorry, in current version, we do not recommend non-default value of targetIntegralsFile. We recommend that you keep it as workingPath<>\"targetIntegrals.txt\". "];
+	PrintAndLog["****  If you really want to use this non-default file name, please set developerMode=True, then run again."];
+	PrintAndLog["****  But, we need to tell you that, this may bring disfunctioning of some of the modules of NeatIBP."];
+	Exit[0]
+]
+
 
 (*If[And[SimplifySyzygyVectorsByCut,Not[debugMode===True]],
 	PrintAndLog["****  In current version, SimplifySyzygyVectorsByCut is under developement. There may lurks unknown bugs. Please set debugMode=True if you want to try. Exiting..."];

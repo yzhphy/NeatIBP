@@ -19,13 +19,19 @@ commandLineMode=True
 If[commandLineMode,
 	(*packagePath=DirectoryName[$InputFileName];*)
 	workingPath=Directory[]<>"/";
-	convertPath=$CommandLine[[-1]];
-
+	commandLine=$CommandLine;
+	convertPath=commandLine[[-1]];
+	If[commandLine[[-2]]==="-s",
+		mode="shortened";
 	,
+		mode="normal";	
+	];
+,
 	Print["WARNING: program is not running in command line mode!"];
 	workingPath=NotebookDirectory[];
 	(*packagePath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/";*)
-	convertPath=workingPath<>"\\dbox\\outputs\\dbox\\"
+	convertPath=workingPath<>"\\dbox\\outputs\\dbox\\";
+	mode="normal"
 	
 ]
 
@@ -40,17 +46,37 @@ If[StringSplit[convertPath,""][[-1]]=!="/",convertPath=convertPath<>"/"]
 
 
 (* ::Section:: *)
+(*Deal with mode*)
+
+
+Switch[mode,
+"normal",
+	inputIBPFileName="IBP_all.txt";
+	kiraUDSSubFolder="userSystem/";
+,
+"shortened",
+	inputIBPFileName="IBP_all_shortened.txt";
+	kiraUDSSubFolder="userSystemShortened/";
+,
+_,
+	Print["***NeatIBPToKira.wl: Unkown mode ",mode, ". Exiting."];
+	Exit[];
+]
+
+
+(* ::Section:: *)
 (*Reading NeatIBP outputs*)
 
 
 timer=AbsoluteTime[];
-Print["Reading NeatIBP outputs..."];
+Print["Reading NeatIBP outputs... "];
 
 
 NeatIBPOutputPath=convertPath<>"results/"
 
 
-IBPs=Get[NeatIBPOutputPath<>"IBP_all.txt"]
+Print["\tIBPFile: ",NeatIBPOutputPath<>inputIBPFileName]
+IBPs=Get[NeatIBPOutputPath<>inputIBPFileName]
 
 
 mlist=Get[NeatIBPOutputPath<>"MI_all.txt"]
@@ -165,10 +191,14 @@ list=StringReplace[StringRiffle[ToString[InputForm[#]]&/@reducelist,"\n"]," "->"
 
 kiraInputFolder=convertPath<>"KiraIO/"
 If[!DirectoryQ[#],CreateDirectory[#]]&@kiraInputFolder
-If[!DirectoryQ[#],CreateDirectory[#]]&@(kiraInputFolder<>"userSystem/")
+If[!DirectoryQ[#],CreateDirectory[#]]&@(kiraInputFolder<>kiraUDSSubFolder)
 
 
-Export[kiraInputFolder<>"userSystem/userdefinedsystem.kira",userdefinedsystem,"Text"]
+Export[
+	kiraInputFolder<>kiraUDSSubFolder<>"userdefinedsystem.kira",
+	userdefinedsystem,
+	"Text"
+]
 
 
 Export[kiraInputFolder<>"basis",basis,"Text"]
