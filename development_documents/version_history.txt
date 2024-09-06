@@ -178,3 +178,9 @@ Date: 2024.7.20
 	2. Adjust default setting PreferedExternalExtendedRotationMethod as "DeltaPlaneProjection".
 	3. Other bug fixings.
 
+[NeatIBP 1.0.5.1]
+Date: 2024.9.6
+	1. Kira interface now support spanning cuts mode
+	2. Refining the timing constrains of Singular running in simplification of syzygy vectors.
+	3. Allow to set run_firefly in Kira
+	4. Other bug fixings

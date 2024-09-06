@@ -236,9 +236,21 @@ Switch[mode,
 				cutPath=outputPath<>"results/results_spanning_cuts/"<>cutString<>"/";
 				script=script<>ShellProcessor<>" "<>packagePath<>
 					"interfaces/Kira/interface/run_kira_reduction.sh"<>" "<>
-					kiraScriptSetting<>"\""<>KiraCommandRefined<>"\" "<>cutPath<>"&\n";
+					kiraScriptSetting<>"\""<>KiraCommandRefined<>"\" "<>cutPath<>" &\n";
+				If[ParallelKiraJobNumber=!=Infinity,
+					If[Mod[i,ParallelKiraJobNumber]===0,
+						script=script<>"wait\n";
+					];
+				];
 			];
-			script=script<>"wait\n";
+			If[ParallelKiraJobNumber===Infinity,
+				script=script<>"wait\n";
+			,
+				If[Mod[i,ParallelKiraJobNumber]=!=0,
+					script=script<>"wait\n";
+				]
+			];
+			
 		,
 		False,
 			For[i=1,i<=Length[spanningCuts],i++,

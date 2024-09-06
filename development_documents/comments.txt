@@ -7,7 +7,7 @@ We seem to give user a freedom to input kinematic files and target integral file
 
 continue.sh for spanning cuts
 
-Let Momenta group by FeynPar online
+spanning cuts with CutIndices=!={}. Now only added a setting SpanningCutsMode=False in default_settings.txt
 
 It is not so safe to judge output path finished or not by existance of IBP_all.txt, this file can be writing using a few seconds, what if user launch a new process in these seconds? The safer way is to generate a tmp file "summary_finished.txt" in the final stage. And, this is not suitable for spanning cuts mode.
 

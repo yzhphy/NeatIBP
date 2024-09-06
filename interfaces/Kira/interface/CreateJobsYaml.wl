@@ -66,7 +66,9 @@ jobs:
       run_initiate: true
 #      run_triangular: true
 #      run_back_substitution: true
-      run_firefly: true
+      run_firefly: RUNFIREFLY
+      run_triangular: RUNTRIANGULAR
+      run_back_substitution: RUNBACKSUBSTITUTION
       preferred_masters: basis
   - kira2math:
       target:
@@ -85,6 +87,22 @@ Switch[mode,
 _,
 	Print["***CreateJobsYaml.wl: Unkown mode ",mode, ". Exiting."];
 	Exit[];
+]
+
+
+If[Not[RunFireFlyInKira===False],
+	jobYamlString=StringReplace[jobYamlString,{
+		"RUNFIREFLY"->"true",
+		"RUNTRIANGULAR"->"false",
+		"RUNBACKSUBSTITUTION"->"false"
+	}]
+,
+	jobYamlString=StringReplace[jobYamlString,{
+		"RUNFIREFLY"->"false",
+		"RUNTRIANGULAR"->"true",
+		"RUNBACKSUBSTITUTION"->"true"
+	}]
+
 ]
 
 

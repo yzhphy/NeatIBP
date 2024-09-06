@@ -306,10 +306,10 @@ If[Head[CutIndices]=!=List&&!MemberQ[{"spanning cuts"},CutIndices],
 ]
 
 
-If[And[MemberQ[{"spanning cuts"},CutIndices],Not[developerMode===True]],
+(*If[And[MemberQ[{"spanning cuts"},CutIndices],Not[developerMode===True]],
 	PrintAndLog["****  In the current version, spanning cuts mode is under developement. There may lurks unknown bugs. Please set developerMode=True if you want to try. Exiting..."];
 	Exit[0]
-]
+]*)
 If[And[FlexibleNeatIBPIntersectionDegreeBound,Not[developerMode===True]],
 	PrintAndLog["****  In current version, FlexibleNeatIBPIntersectionDegreeBound is under developement. There may lurks unknown bugs. Please set developerMode=True if you want to try. Exiting..."];
 	Exit[0]

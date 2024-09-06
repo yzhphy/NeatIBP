@@ -319,7 +319,7 @@ SectorElimination[sector_]:=(G@@Table[If[sector[[i]]>0,PatternTest[Pattern[ToExp
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Integral Ordering*)
 
 
@@ -506,7 +506,7 @@ SingularWpOrderingString[lengthList_,OptionsPattern[]]:=Module[{inputWeight,weig
 
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Singular GB*)
 
 
@@ -569,8 +569,9 @@ GBRead[dim_,OptionsPattern[]]:=Module[{string,vectors},
 	If[!FileExistsQ[OptionValue[OutputFile]],
 		(*Return[]*)
 		PrintAndLog["#",secNum,"  Singular result file ",OptionValue[OutputFile]," not found in GBRead."];
-		PrintAndLog["******** sector ",secNum," failed."];
-		Quit[];
+		(*PrintAndLog["******** sector ",secNum," failed."];
+		Quit[];*)
+		Return[$Failed];
 	];
 	string=StringReplace["{"<>Import[OptionValue[OutputFile]]<>"}","gen("~~Shortest[x__]~~")":>"gen["~~x~~"]"];
 	vectors=ToExpression[string];
@@ -584,7 +585,9 @@ GBRead[dim_,OptionsPattern[]]:=Module[{string,vectors},
 
 
 Options[SingularGB]={Modulus->0,SimplificationRules->Global`OptionSimplification,ScriptFile->TemporaryDirectory<>"GB.sing",
-OutputFile->TemporaryDirectory<>"GB_result.txt",TrashFile->TemporaryDirectory<>"GB_trash.txt",(*TestOnly->False,*)ScriptOnly->False,degBound->0,VariableOrder->var,(*Cut->{},ShortenTheModules->False,*)
+OutputFile->TemporaryDirectory<>"GB_result.txt",TrashFile->TemporaryDirectory<>"GB_trash.txt",(*TestOnly->False,*)ScriptOnly->False,degBound->0,
+SingularTimeUsedLimit->Infinity,
+VariableOrder->var,(*Cut->{},ShortenTheModules->False,*)
 NumericMode->False,PrintDegBound->False,DeleteResultFiles->DeleteSingularResultFiles,DeleteScriptFiles->DeleteSingularScriptFiles,Silence->True};
 SingularGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,varsCutted,SingularCommand,timer,gb},
 	cut=Table[vars[[i]]->0,{i,cutIndex}];
@@ -610,6 +613,13 @@ SingularGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,varsCutt
 	,
 		SingularCommand=SingularApp<>" "<>OptionValue[ScriptFile];
 	];
+	If[OptionValue[SingularTimeUsedLimit]=!=Infinity,
+		If[OptionValue[SingularTimeUsedLimit]<0,
+			PrintAndLog["SingularGB: SingularTimeUsedLimit must be positive!"];
+			Exit[1];
+		];
+		SingularCommand="timeout "<>ToString[OptionValue[SingularTimeUsedLimit]]<>" "<>SingularCommand;
+	];
 	timer=AbsoluteTime[];
 	Run[SingularCommand];
 	If[OptionValue[Silence]=!=True,
@@ -617,16 +627,16 @@ SingularGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,varsCutt
 	];
 	gb=GBRead[Length[M[[1]]],OutputFile->OptionValue[OutputFile]];
 	
-	If[OptionValue[DeleteScriptFiles],
+	If[OptionValue[DeleteScriptFiles]&&FileExistsQ[OptionValue[ScriptFile]],
 		Run["rm "<>OptionValue[ScriptFile]];
 		If[(!OptionValue[Silence]),Print[OptionValue[ScriptFile]<>" deleted."]];
 	];
-	If[OptionValue[DeleteResultFiles],
+	If[OptionValue[DeleteResultFiles]&&FileExistsQ[OptionValue[OutputFile]],
 		Run["rm "<>OptionValue[OutputFile]];
 		If[(!OptionValue[Silence]),Print[OptionValue[OutputFile]<>" deleted."]];
 	];
 	If[OptionValue[PrintDegBound]&&(!OptionValue[Silence]),PrintAndLog["Degree bound:",OptionValue[degBound]]];
-	Run["rm "<>OptionValue[TrashFile]];
+	If[FileExistsQ[OptionValue[TrashFile]],Run["rm "<>OptionValue[TrashFile]]];
 	Return[gb];
 ];
 
@@ -805,8 +815,12 @@ IntersectionRead[OptionsPattern[]]:=Module[{dim,string,vectors},
 	If[!FileExistsQ[OptionValue[OutputFile]],
 		(*Return[]*)
 		PrintAndLog["#",secNum,"  Singular result file ",OptionValue[OutputFile]," not found in IntersectionRead."];
+		(*
 		PrintAndLog["******** sector ",secNum," failed."];
 		Quit[];
+		*)
+		Return[$Failed];
+		
 	];
 	string=StringReplace["{"<>Import[OptionValue[OutputFile]]<>"}","gen("~~Shortest[x__]~~")":>"gen["~~x~~"]"];
 	vectors=ToExpression[string];
@@ -829,10 +843,11 @@ ShortenedModule[M1ext_,restrictedIndices_]:=Module[{shortenedM1,shortenedM2},
 
 Options[SingularIntersection]={Modulus->0,SimplificationRules->Global`OptionSimplification,ScriptFile->TemporaryDirectory<>"intersection.sing",
 OutputFile->TemporaryDirectory<>"intersection_result.txt",TestOnly->False,ScriptOnly->False,degBound->0,VariableOrder->var,Cut->{},ShortenTheModules->False,
+SingularTimeUsedLimit->Infinity,
 NumericMode->False,PrintDegBound->False,DeleteResultFiles->DeleteSingularResultFiles,DeleteScriptFiles->DeleteSingularScriptFiles};
 SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCommand,timer,vectors,cutIndex,blockPrioryVars},
 	cutIndex=OptionValue[Cut];
-	If[!SubsetQ[resIndex,cutIndex],PrintAndLog["Sorry... This version does not support the case with a cut propagator index UNrestricted ..."]; Return[];];
+	If[!SubsetQ[resIndex,cutIndex],PrintAndLog["Sorry... This version does not support the case with a cut propagator index UNrestricted ..."]; Return[$Failed];];
 	{M1,M1ext,M2}=TangentModules[resIndex,cutIndex];
 	If[OptionValue[NumericMode]===True,
 		M1=M1/.GenericPoint/.GenericD;
@@ -875,17 +890,25 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 		BlockPrioryVars->blockPrioryVars
 	];
 	SingularCommand=SingularApp<>" "<>OptionValue[ScriptFile];
+	If[OptionValue[SingularTimeUsedLimit]=!=Infinity,
+		If[OptionValue[SingularTimeUsedLimit]<0,
+			PrintAndLog["SingularIntersection: SingularTimeUsedLimit must be positive!"];
+			Exit[1];
+		];
+		SingularCommand="timeout "<>ToString[OptionValue[SingularTimeUsedLimit]]<>" "<>SingularCommand;
+	];
 	timer=AbsoluteTime[];
 	Run[SingularCommand];
 	PrintAndLog["Singular running time ... ",AbsoluteTime[]-timer];
 	
 	vectors=IntersectionRead[OutputFile->OptionValue[OutputFile]];
 	
-	If[OptionValue[DeleteScriptFiles],
+	
+	If[OptionValue[DeleteScriptFiles]&&FileExistsQ[OptionValue[ScriptFile]],
 		Run["rm "<>OptionValue[ScriptFile]];
 		Print[OptionValue[ScriptFile]<>" deleted."];
 	];
-	If[OptionValue[DeleteResultFiles],
+	If[OptionValue[DeleteResultFiles]&&FileExistsQ[OptionValue[OutputFile]],
 		Run["rm "<>OptionValue[OutputFile]];
 		Print[OptionValue[OutputFile]<>" deleted."];
 	];
@@ -967,8 +990,11 @@ LiftToGBRead[dim_,OptionsPattern[]]:=Module[{string,vectors},
 	If[!FileExistsQ[OptionValue[OutputFile]],
 		(*Return[]*)
 		PrintAndLog["#",secNum,"  Singular result file ",OptionValue[OutputFile]," not found in LiftToGBRead."];
+		(*
 		PrintAndLog["******** sector ",secNum," failed."];
 		Quit[];
+		*)
+		Return[$Failed];
 	];
 	string=StringReplace["{"<>Import[OptionValue[OutputFile]]<>"}","gen("~~Shortest[x__]~~")":>"gen["~~x~~"]"];
 	vectors=ToExpression[string];
@@ -983,7 +1009,7 @@ LiftToGBRead[dim_,OptionsPattern[]]:=Module[{string,vectors},
 
 Options[SingularLiftToGB]={Modulus->0,SimplificationRules->Global`OptionSimplification,ScriptFile->TemporaryDirectory<>"lift_to_GB.sing",
 OutputFile->TemporaryDirectory<>"lift_to_GB_result.txt",(*TestOnly->False,*)ScriptOnly->False,degBound->0,VariableOrder->var,(*Cut->{},ShortenTheModules->False,*)
-NumericMode->False,PrintDegBound->False,DeleteResultFiles->DeleteSingularResultFiles,DeleteScriptFiles->DeleteSingularScriptFiles};
+NumericMode->False,PrintDegBound->False,DeleteResultFiles->DeleteSingularResultFiles,DeleteScriptFiles->DeleteSingularScriptFiles,SingularTimeUsedLimit->Infinity};
 SingularLiftToGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,varsCutted,SingularCommand,timer,liftMatrix},
 	cut=Table[vars[[i]]->0,{i,cutIndex}];
 	M=vectorList/.cut;
@@ -997,17 +1023,24 @@ SingularLiftToGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,va
 	varsCutted=DeleteCases[vars/.cut,0];
 	SingularLiftToGBMaker[M,varsCutted,Parameters,ScriptFile->OptionValue[ScriptFile],OutputFile->OptionValue[OutputFile],Modulus->OptionValue[Modulus],SimplificationRules->OptionValue[SimplificationRules],degBound->OptionValue[degBound]];
 	SingularCommand=SingularApp<>" "<>OptionValue[ScriptFile];
+	If[OptionValue[SingularTimeUsedLimit]=!=Infinity,
+		If[OptionValue[SingularTimeUsedLimit]<0,
+			PrintAndLog["SingularLiftToGB: SingularTimeUsedLimit must be positive!"];
+			Exit[1];
+		];
+		SingularCommand="timeout "<>ToString[OptionValue[SingularTimeUsedLimit]]<>" "<>SingularCommand;
+	];
 	timer=AbsoluteTime[];
 	Run[SingularCommand];
 	PrintAndLog["Singular running time ... ",AbsoluteTime[]-timer];
 	
 	liftMatrix=LiftToGBRead[Length[M],OutputFile->OptionValue[OutputFile]];
 	
-	If[OptionValue[DeleteScriptFiles],
+	If[OptionValue[DeleteScriptFiles]&&FileExistsQ[OptionValue[ScriptFile]],
 		Run["rm "<>OptionValue[ScriptFile]];
 		Print[OptionValue[ScriptFile]<>" deleted."];
 	];
-	If[OptionValue[DeleteResultFiles],
+	If[OptionValue[DeleteResultFiles]&&FileExistsQ[OptionValue[OutputFile]],
 		Run["rm "<>OptionValue[OutputFile]];
 		Print[OptionValue[OutputFile]<>" deleted."];
 	];
@@ -1024,7 +1057,7 @@ Options[SimplifyByCut]={sectorNumber->0,ReportLayer->2,CornerOnly->False,Simplif
 SimplifyByCut[vectorsInput_,cutIndices_,OptionsPattern[]]:=Module[
 {vectors,vectorsCutted,sortedVectorIndices,vectorsSorted,vectorsCuttedSorted,vectorsInputSorted,i,
 tmp,syzygyVectorAbsDegrees,syzygyVectorISPDegrees,syzygyVectorPropDegrees,FurtherSelectionETC,FurtherSelectionTimer,
-memoryUsed,timer,selectedIndices,selectedIndices2,selectedIndices2New,
+memoryUsed,timer,selectedIndices,selectedIndices2,selectedIndices2New,vectorsCuttedSortedSelectedGB2,
 vectorsCuttedSortedSelectedGB,vectorsCuttedSortedSelected,recoveredIndices,
 secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,timer3,memoryUsed3,timeForAGBComputation},
 	secNo=OptionValue[sectorNumber];
@@ -1111,6 +1144,11 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 		liftMatrix=SingularLiftToGB[vectorsCuttedSorted,var,cutIndices,Modulus->OptionValue[Modulus]];
 		(*end of MaxMemoryUsed*)];
 		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Finished. Time Used: ", Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB." ];
+		If[liftMatrix===$Failed,
+			PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Warning in SimplifyByCut, Singular returns $Failed. Giving up simplification."];
+			Return[vectorsInput];
+		];
+		
 		
 		timer2=AbsoluteTime[];
 		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Lift resubstituting..."];
@@ -1128,28 +1166,33 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 			liftMatrix=SingularLiftToGB[vectorsCuttedSorted,var,cutIndices,Modulus->OptionValue[Modulus]];
 			(*end of MaxMemoryUsed*)];
 			PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Finished. Time Used: ", Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB." ];
-		
-			timer2=AbsoluteTime[];
-			PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Lift selecting... [stricty=",Max[Min[LiftSelectionStricty,1],0],"]"];
-			memoryUsed2=MaxMemoryUsed[
-			selectedIndices=Select[Range[Length[vectorsInputSorted]],Union[liftMatrix[[All,#]]]=!={0}&];
-			PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Selected vectors: ",Length[selectedIndices],"."];
-			If[LiftSelectionStricty<1,
-				recoveredIndices={};
-				For[i=1,i<=Length[vectorsInputSorted],i++,
-					If[!MemberQ[selectedIndices,i],
-						If[RandomReal[]>LiftSelectionStricty,
-							recoveredIndices=Join[recoveredIndices,{i}]
+			If[liftMatrix===$Failed,
+				PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Warning in SimplifyByCut, Singular returns $Failed. Keeping result=vectorsInputSorted in this step."];
+				selectedIndices=Range[Length[vectorsInputSorted]];
+				result=vectorsInputSorted[[selectedIndices]];
+			,
+				timer2=AbsoluteTime[];
+				PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Lift selecting... [stricty=",Max[Min[LiftSelectionStricty,1],0],"]"];
+				memoryUsed2=MaxMemoryUsed[
+				selectedIndices=Select[Range[Length[vectorsInputSorted]],Union[liftMatrix[[All,#]]]=!={0}&];
+				PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Selected vectors: ",Length[selectedIndices],"."];
+				If[LiftSelectionStricty<1,
+					recoveredIndices={};
+					For[i=1,i<=Length[vectorsInputSorted],i++,
+						If[!MemberQ[selectedIndices,i],
+							If[RandomReal[]>LiftSelectionStricty,
+								recoveredIndices=Join[recoveredIndices,{i}]
+							]
 						]
-					]
+					];
+					PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Recovered unselected vectors: ",Length[recoveredIndices],"."];
+					selectedIndices=Join[selectedIndices,recoveredIndices]//Union//Sort;
 				];
-				PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Recovered unselected vectors: ",Length[recoveredIndices],"."];
-				selectedIndices=Join[selectedIndices,recoveredIndices]//Union//Sort;
-			];
-			PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Vectors: ",Length[selectedIndices],"."];
-			result=vectorsInputSorted[[selectedIndices]];
-			(*end of MaxMemoryUsed*)];
-			PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB." ];
+				PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Vectors: ",Length[selectedIndices],"."];
+				result=vectorsInputSorted[[selectedIndices]];
+				(*end of MaxMemoryUsed*)];
+				PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB." ];
+			];	
 		,
 			PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"SkipLiftInLiftSelection is True, skipping the selection using lift matrix. "];
 			selectedIndices=Range[Length[vectorsInputSorted]];
@@ -1166,11 +1209,18 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 			timer3=AbsoluteTime[];
 			PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Computing cut GB..."];
 			memoryUsed3=MaxMemoryUsed[
-			vectorsCuttedSortedSelectedGB=SingularGB[vectorsCuttedSortedSelected,var,{},Modulus->OptionValue[Modulus]];
+			vectorsCuttedSortedSelectedGB=SingularGB[
+				vectorsCuttedSortedSelected,var,{},
+				Modulus->OptionValue[Modulus],
+				SingularTimeUsedLimit->FurtherSelectionSingularTimeConstrain
+			];
 			(*end of MaxMemoryUsed*)];
 			timeForAGBComputation=AbsoluteTime[]-timer3;
 			PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"Finished. Time Used: ",Round[timeForAGBComputation], " second(s). Memory used: ",Round[memoryUsed3/(1024^2)]," MB." ];
-		
+			If[vectorsCuttedSortedSelectedGB===$Failed,
+				PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Warning in SimplifyByCut, Singular returns $Failed. Skipping further selection."];
+				Return[result];
+			];
 			timer3=AbsoluteTime[];
 			FurtherSelectionETC=Max[Min[FurtherSyzygyVectorsSelectionStricty,1],0]*timeForAGBComputation*Length[vectorsCuttedSortedSelected];
 			PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Testing each vector [stricty=",Max[Min[FurtherSyzygyVectorsSelectionStricty,1],0],
@@ -1188,9 +1238,21 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 				];
 				selectedIndices2New=DeleteCases[selectedIndices2,i];
 				If[RandomReal[]<FurtherSyzygyVectorsSelectionStricty,
-					If[vectorsCuttedSortedSelectedGB===SingularGB[vectorsCuttedSortedSelected[[selectedIndices2New]],var,{},Modulus->OptionValue[Modulus]],
+					vectorsCuttedSortedSelectedGB2=SingularGB[
+						vectorsCuttedSortedSelected[[selectedIndices2New]],var,{},
+						Modulus->OptionValue[Modulus],
+						SingularTimeUsedLimit->FurtherSelectionSingularTimeConstrain
+					];
+					If[And[
+							vectorsCuttedSortedSelectedGB===vectorsCuttedSortedSelectedGB2,
+							vectorsCuttedSortedSelectedGB2=!=$Failed
+						]
+					,
 						selectedIndices2=selectedIndices2New;
 					,
+						If[vectorsCuttedSortedSelectedGB2===$Failed,
+							PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Warning in SimplifyByCut, Singular returns $Failed. Keeping the current vector (No.",i,") as selected."];
+						];
 						If[ReportFurtherSelectedSyzygyVectors===True,PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"vector No.",i," selected."]]
 					]
 				,
@@ -1217,7 +1279,7 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*IBP generator*)
 
 
@@ -1399,7 +1461,7 @@ pivots[matrix_]:=Module[{ARLonglist},
 ];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Symmetry *)
 
 
@@ -1803,7 +1865,7 @@ LeeCriticalPoints[sector_,OptionsPattern[]]:=Module[{P,Indices,vlist,ideal,GB,w}
 
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*AzuritinoMIFind*)
 
 
@@ -1869,7 +1931,11 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries,L
 			OutputFile->TemporaryDirectory<>"azuritino_intersection_result.txt"
 		];
 		
-		
+		If[vectorList===$Failed,
+			PrintAndLog["#",secNo,"\t\t","***** Singular running returns $Failed. "];
+			PrintAndLog["***** sector",secNo," failed. Exiting."];
+			Exit[1];
+		];
 		
 		PrintAndLog["#",secNo,"\t\t","Azuritino: number of syzygy generators: ",Length[vectorList]];
 		tt=AbsoluteTime[];
@@ -1963,7 +2029,7 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries,L
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Main *)
 
 
@@ -2469,7 +2535,13 @@ FullForm]\);(*?*)
 
 
 
-(* ::Subsection::Closed:: *)
+
+
+
+
+
+
+(* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
 
@@ -2591,7 +2663,8 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 				Cut->OptionValue[Cut],
 				PrintDegBound->True,
 				NumericMode->NumericIBP
-			]
+			];
+			
 		,
 			For[
 				NeatIBPIntersectionDegreeBoundDecreased=0,
@@ -2604,7 +2677,9 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 						VariableOrder->(var//Reverse),
 						Cut->OptionValue[Cut],
 						PrintDegBound->True,
-						NumericMode->NumericIBP
+						NumericMode->NumericIBP,
+						SingularTimeUsedLimit->NeatIBPIntersectionTimeConstrain+10
+						(*10 more seconds to make sure. This number is just a time to kill Singular zombie, so it does not matter to +10*)
 					],
 					NeatIBPIntersectionTimeConstrain,
 					"SingularIntersectionTimeOut"
@@ -2635,6 +2710,11 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 				]
 			];
 		];
+		If[VectorList===$Failed,
+			PrintAndLog["#",secNo,"\t\t","***** Singular running returns $Failed. "];
+			PrintAndLog["***** sector",secNo," failed. Exiting."];
+			Exit[1];
+		];
 	,
 	"Linear",
 		{M1,M1ext,M2}=TangentModules[secindex,{}];
@@ -2647,6 +2727,11 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 			Cut->OptionValue[Cut],
 			PrintDegBound->True,
 			NumericMode->NumericIBP
+		];
+		If[VectorList===$Failed,
+			PrintAndLog["#",secNo,"\t\t","***** Singular running returns $Failed. "];
+			PrintAndLog["***** sector",secNo," failed. Exiting."];
+			Exit[1];
 		];
 		{M1,M1ext,M2}=TangentModules[secindex,{}];
 		VectorList1=SolveDegreedIntersection[M1ext,secindex,LinearSyzDegree];
@@ -3672,6 +3757,12 @@ FullForm]\);(*?*)
 
 
 
+
+
+
+
+
+
 (* ::Subsection:: *)
 (*Row Reduce Modules*)
 
@@ -3847,7 +3938,7 @@ IBPtest[IBPs_,sector_,OptionsPattern[]]:=Module[{M,RM,Ints,redIndex,irredIndex,t
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*FFRowReduce*)
 
 

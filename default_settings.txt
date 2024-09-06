@@ -87,6 +87,7 @@ ExportIndependentNIBPsCutted=False;
 
 
 (*----------spanning cuts related--------*)
+SpanningCutsMode=False;
 SpanningCutsEvaluationMode="Parallel";
 ShortenIBPs=True;
 
@@ -109,7 +110,8 @@ FermatPath=""
 UseShortenedIBPForKira=True;(*only valid for spanning cuts mode*)
 ForceRemoveExistingKiraResults=False;
 ParallelKiraReductionForSpanningCuts=False;
-
+ParallelKiraJobNumber=Infinity;
+RunFireFlyInKira=True;
 
 
 
@@ -146,6 +148,7 @@ FIBPGroupingRemainingGroups=2;(*not used*)
 ParameterRepermute=False;
 ParameterRepermuteIndex={};
 FurtherSelectionTimeUsedLimit=Infinity;(*seconds*)
+FurtherSelectionSingularTimeConstrain=Infinity;(*seconds*)
 AllowInternet=True; (*One may disable this option to avoid the internet check of certain mathkernel functions, especially for downward supported versions of Mathematica*)
 ExternalMomentaGroupingMethod="MomentumSpace";
 
