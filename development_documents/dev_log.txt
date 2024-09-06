@@ -1278,6 +1278,7 @@ including spanning cuts in kira interface
 ------
 2024.9.6
 v1.0.5.1
+change default of kira parallel reduction to true
 
 
 

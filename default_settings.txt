@@ -109,7 +109,7 @@ KiraCommand=""
 FermatPath=""
 UseShortenedIBPForKira=True;(*only valid for spanning cuts mode*)
 ForceRemoveExistingKiraResults=False;
-ParallelKiraReductionForSpanningCuts=False;
+ParallelKiraReductionForSpanningCuts=True;
 ParallelKiraJobNumber=Infinity;
 RunFireFlyInKira=True;
 
