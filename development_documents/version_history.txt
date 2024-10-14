@@ -184,3 +184,9 @@ Date: 2024.9.6
 	2. Refining the timing constrains of Singular running in simplification of syzygy vectors.
 	3. Allow to set run_firefly in Kira
 	4. Other bug fixings
+
+[NeatIBP 1.0.5.2]
+Date: 2024.10.14
+	1. NeatIBPToKira.wl now is much faster.
+	2. Other bug fixings.
+

@@ -51,7 +51,7 @@ If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 jobYamlString="
 jobs:
   - reduce_user_defined_system:
-      input_system: {files: [\"userSystemSUFFIX\"], otf: true}
+      input_system: {files: [\"userSystemSUFFIX\"], otf: true, config: false}
 #      input_system: {files: [\"userSystemSUFFIX\"], otf: true} # works as well
 #      input_system: {files: [\"userSystemSUFFIX\"]} # works as well
 #      input_system: \"userSystemSUFFIX\" # works as well

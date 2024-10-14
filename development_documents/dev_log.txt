@@ -1281,6 +1281,17 @@ v1.0.5.1
 change default of kira parallel reduction to true
 
 
+-----
+2024.9.19
+added config: false in kira job.yaml template
+
+------
+2024.10.14
+zihao:
+I used Dispatch in NeatIBPToKira.wl. The unbearable slow speed is now a history. Say, I accelerated it by 100 times. Yeah.
+
+v1.0.5.2
+
 
 
 
