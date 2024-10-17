@@ -528,8 +528,42 @@ If[OptionValue[KillCornerSubsecFIBPs],
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  IBPs for lower sectors removed. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]];
 	];
 	
-to
-
+to (to what..? I lost this at 2023.4.6, this part is added at 2024.10.16)
+If[OptionValue[KillCornerSubsecFIBPs],
+		timer=AbsoluteTime[];
+		memoryUsed=MaxMemoryUsed[
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing FIBPs for lower sectors seeding with DenominatorTypes..."]];
+		FIBPs1={};
+		CornerIBP={};
+		remainedFIBPlabels={};
+		For[i=1,i<=Length[FIBPs],i++,
+			(*baseIBP=IntegralRealization[FIBPs[[i]],sector];*)
+			
+			(*If[(baseIBP/.sectorCut)===0&&(Union[VectorList[[i,propLocus]]/.BaikovCut]==={0}),
+				Continue[];  (* This IBP corresponds to a lower sector *)
+			]; *)
+			
+			maxDenominatorIndices=Max/@Transpose[DenominatorTypes];(*WARNING: why use max here? what if there is a term (m1-2)G[...], then m1=2\[Rule]subsecIBP but m1=1 not \[Rule] subsecIBP *)
+			formalIntegrals=Cases[Variables[FIBPs[[i]]],_G];
+			
+			FIBPCurrentSectorIntegrals=Union[
+				Expand[
+					(IntegralRealization[#,maxDenominatorIndices]/.sectorCut)&/@formalIntegrals
+				]
+			];
+			
+			If[FIBPCurrentSectorIntegrals==={0},
+				Continue[];  (* This FIBP seeds to a lower sector in DenominatorTypes*)
+			]; 
+			AppendTo[remainedFIBPlabels,i];
+			AppendTo[FIBPs1,FIBPs[[i]]];
+			AppendTo[CornerIBP,baseIBP];
+		];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[FIBPs]," Formal IBPs are generated; ",Length[FIBPs1]," Formal IBPs are used. ",Length[FIBPs]-Length[FIBPs1]," Formal IBPs are removed. "(*,AbsoluteTime[]-timer*)];];
+		FIBPs=FIBPs1;
+		(*end of MaxMemoryUsed*)];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  IBPs for lower sectors removed. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+	];
 of course, modified default that KillCornerSubsecFIBPs->True
 
 --------------------------------
@@ -1291,6 +1325,16 @@ zihao:
 I used Dispatch in NeatIBPToKira.wl. The unbearable slow speed is now a history. Say, I accelerated it by 100 times. Yeah.
 
 v1.0.5.2
+
+-----------------
+2024.10.17
+modified terminology in the codes:
+NCorner means numerator-corner, i.e. numerator=1
+DCorner means denominator-corner, i.e. no multiple props in deno.
+
+introduced FIBPs00 and VectorList00, to make the module AdditionalIBPs and SimplifySyzygyVectorsByCut consistent.
+
+ 
 
 
 

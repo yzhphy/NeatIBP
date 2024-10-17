@@ -245,7 +245,7 @@ SingularIdeal[propIndex_,cutIndex_]:=Module[{cut,FF1,SingularIdeal},
 ];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (* Sector Tools*)
 
 
@@ -319,7 +319,7 @@ SectorElimination[sector_]:=(G@@Table[If[sector[[i]]>0,PatternTest[Pattern[ToExp
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Integral Ordering*)
 
 
@@ -506,7 +506,7 @@ SingularWpOrderingString[lengthList_,OptionsPattern[]]:=Module[{inputWeight,weig
 
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Singular GB*)
 
 
@@ -1053,7 +1053,7 @@ SingularLiftToGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,va
 (*SimplifyByCut*)
 
 
-Options[SimplifyByCut]={sectorNumber->0,ReportLayer->2,CornerOnly->False,SimplifyMethod->SimplifyByCutMethod,FurtherSelection->FurtherSyzygyVectorsSelection,Modulus->0,SkipLift->SkipLiftInLiftSelection};
+Options[SimplifyByCut]={sectorNumber->0,ReportLayer->2,DCornerOnly->False,SimplifyMethod->SimplifyByCutMethod,FurtherSelection->FurtherSyzygyVectorsSelection,Modulus->0,SkipLift->SkipLiftInLiftSelection};
 SimplifyByCut[vectorsInput_,cutIndices_,OptionsPattern[]]:=Module[
 {vectors,vectorsCutted,sortedVectorIndices,vectorsSorted,vectorsCuttedSorted,vectorsInputSorted,i,
 tmp,syzygyVectorAbsDegrees,syzygyVectorISPDegrees,syzygyVectorPropDegrees,FurtherSelectionETC,FurtherSelectionTimer,
@@ -1067,8 +1067,8 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 	PrintAndLog["#",secNo,ReportIndent[reportLayer],"Reforming vector lists..."];
 	memoryUsed=MaxMemoryUsed[
 	vectors=vectorsInput;
-	If[OptionValue[CornerOnly],
-		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"CornerOnly mode, skip."]
+	If[OptionValue[DCornerOnly],
+		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"DCornerOnly mode, skip."]
 	,
 		For[ind1=1,ind1<=Length[vectors],ind1++,
 			For[ind2=1,ind2<=Length[cutIndices],ind2++,
@@ -1461,7 +1461,7 @@ pivots[matrix_]:=Module[{ARLonglist},
 ];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Symmetry *)
 
 
@@ -1584,7 +1584,7 @@ SectorMaps[sectors_]:=Module[
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Integral Maps*)
 
 
@@ -1823,7 +1823,7 @@ LPSymmetryQ[integral1_,integral2_]:=Module[
 ]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Azuritino*)
 
 
@@ -2243,16 +2243,19 @@ ReduceTowards[rIBPs_,targets_,irredIntegrals_]:=Module[
 
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*FindIBPs (to seed by more denominator degrees)*)
 
 
-Options[FindIBPs]={Verbosity->1,DenominatorLift->1,AdditionalDegree->4,SelfSymmetryZMaps->{},FunctionTitle->"[AdditionalIBPs]:"};
+Options[FindIBPs]={
+	Verbosity->1,DenominatorLift->1,AdditionalDegree->4,SelfSymmetryZMaps->{},FunctionTitle->"[AdditionalIBPs]:"\:ff0c
+	FIHead->FI0,ZMHead->ZM0
+};
 FindIBPs[sector_,targets0_,MIs_,(*basicnIBPs_,basicSectorIntegrals_,*)FIBPs_,DenominatorTypes0_,OptionsPattern[]]:=Module[
 {timer,memoryUsed,nFIBPFunctions,nFIBPs,secNo,IBPISPdegrees,sectorCut,targets,numeratorMaxDeg,DenominatorTypes1,DenominatorTypes,NewDenominatorTypes,nIBPs,rawIBPs,
 denLift,numDeg,denShifts,i,denShift,NewrawIBPs,NewnIBPs,seeds,newSymmetryRelations,zMaps,SectorIntegrals,result,breakQ,redIndex,irredIndex,rIBPs,irredIntegrals,
 WellAddressedIntegrals,targetsReduced,allSkipQ,timer2,memoryUsed2,IBPDenominatorDegreeList,IBPNumeratorDegreeList,leafCounts,byteCounts,IBPIndex,newMIs,liftedDenominatorTypes,
-NewDenominatorTypesList,j,NewSectorIntegrals,nIBPsUnCut,NewnIBPsUnCut
+NewDenominatorTypesList,j,NewSectorIntegrals,nIBPsUnCut,NewnIBPsUnCut,FIhead,ZMhead
 },
 	
 	targets=Complement[targets0,MIs];
@@ -2423,7 +2426,10 @@ FullForm]\);(*?*)
 	nIBPs=nIBPs[[IBPIndex]];
 	nIBPsUnCut=nIBPsUnCut[[IBPIndex]];
 	
-	rawIBPs=rawIBPs/.FI->FI0/.ZM->ZM0;(*ZM0 is same as ZM, just for labelling. FI0 is different from FI*)
+	(*rawIBPs=rawIBPs/.FI->FI0/.ZM->ZM0;*)(*ZM0 is same as ZM, just for labelling. FI0 is different from FI*)
+	FIhead=OptionValue[FIHead];
+	ZMhead=OptionValue[ZMHead];
+	rawIBPs=rawIBPs/.FI->FIhead/.ZM->ZMhead;(*allow using other labels*)
 	result={rawIBPs,nIBPsUnCut,nIBPs(*this is cutted*),targetsReduced,newMIs};
 	(*end of MaxMemoryUsed*)];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t\t  ","Finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
@@ -2434,119 +2440,12 @@ FullForm]\);(*?*)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
 
 Options[SectorAnalyze]:={SeedingMethod->"Zurich",Verbosity->0,AdditionalDegree->SeedingAdditionalDegree,DirectInitialSteps->2,TestOnly->False,
-ZurichInitialSteps->3,ModuleIntersectionMethod->"Singular",SectorMappingRules->{},Cut->{},KillCornerSubsecFIBPs->True
+ZurichInitialSteps->3,ModuleIntersectionMethod->"Singular",SectorMappingRules->{},Cut->{},KillNCornerSubsecFIBPs->FIBPsNCornerKill
 };
 SectorAnalyze[sector_,OptionsPattern[]]:=Module[{secheight,secindex,VectorList,timer,FIBPs,numshifts,r,s,LocalTargets,DenominatorTypes,
 i,sectorCut,FIBPs1,CornerIBP,baseIBP,propLocus,ISPLocus,BaikovCut,rawIBPs={},nIBPs={},MIs={},step,newIBPs,seeds,integrals,SectorIntegrals,redIndex,irredIndex,rIBPs,
@@ -2555,7 +2454,7 @@ IBPISPdegrees,NewrawIBPs,NewnIBPs,timer2,M1,M1ext,M2,sectorMaps,mappedSectors,ta
 zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctions,newSymmetryRelations,VectorList1,irredIntegrals,FIBPs0,FIBPISPDegree0,
 redundantMIs,nFIBPs0,azuritinoMIFolder,nFIBPFunctions0,redundantMIsReduced,newMIs,FindIBPResult,redundantMIsToBeReduced,CompensationIBPDenominatorDegrees,
 reduceTowards,remainedFIBPlabels,usedVectors,usedFIBPs,additionalResultFolder,memoryUsed3,timer3,nIBPsCutted,NewnIBPsCutted,newSymmetryRelationsCutted,NewSectorIntegrals,
-NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimplifiedByCutWithCornerOnly
+NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimplifiedByCutWithDCornerOnly,VectorList00,FIBPs00
 },
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
@@ -2564,7 +2463,7 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 	
 	
 	
-	
+	FIBPs00=None;
 	LocalTargets=ReductionTasks[sector];
 	PrintAndLog["Target integrals: ",LocalTargets//Length];
 	If[LocalTargets=={},
@@ -2757,18 +2656,34 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 		memoryUsed=MaxMemoryUsed[
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Simplifying vector list by cut..."]];
 		VectorListSimplifiedByCut=SimplifyByCut[VectorList,secindex,
-			CornerOnly->And[(DenominatorTypes==={sector}),AllowingCornerOnlyModeInSimplifyByCut],
+			DCornerOnly->And[(DenominatorTypes==={sector}),AllowingDCornerOnlyModeInSimplifyByCut],
 			sectorNumber->secNo,
 			Modulus->FiniteFieldModulus2
 		];
+		If[!StrictDenominatorPowerIndices,VectorList00=VectorList];
+		(*Terminology (very easy to be confused, so I write it here)
+			simplify by cut: SBC, kill N corner:KNC
+			1.SBC yes, KNC yes, VecListfromSingular---->FIBPs00---(SBC)--\[Rule] FIBPs0 ---(KNC)--\[Rule] FIBPs 
+			2.SBC no , KNC yes, VecListfromSingular----------------------\[Rule] FIBPs0 ---(KNC)--\[Rule] FIBPs 
+			3.SBC yes, KNC no , VecListfromSingular---->FIBPs00---(SBC)----FIBPs0----(do nothing)---\[Rule] FIBPs 
+			4.SBC no , KNC no , VecListfromSingular-----------------------\[Rule]FIBPs0----(do nothing)---\[Rule] FIBPs 
+			This is just the logical relation, in codes, FIBPs0 is generated by VectorList after SBC
+			
+		*)
 		VectorList=VectorListSimplifiedByCut;
-		If[!StrictDenominatorPowerIndices,FIBPs0=FIBPs];
+		
 		(*end of MaxMemoryUsed*)];
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  "," Finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	];
 	
 	If[ExportAllSyzygyVectors,
 		ConvenientExport[outputPath<>"results/additional_outputs/all_syzygy_vectors/"<>ToString[secNo]<>".txt",VectorList//InputForm//ToString];
+	];
+	If[ExportAllSyzygyVectorsBeforeSimplification,
+		ConvenientExport[
+			outputPath<>"results/additional_outputs/all_syzygy_vectors_before_simplification/"<>ToString[secNo]<>".txt",
+			VectorList00//InputForm//ToString
+		];
 	];
 	
 	(*ProbeIntermediateResult["VectorList",secNo,VectorList];(*debug2023*)*)
@@ -2790,8 +2705,9 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 	(* But this will wrongly kill some IBPs that generates IBPs not for lower sectors at non-corner seed*)
 	(* I (zihao) suggest we turn off this step, the subsec IBPs will be automatically removed in the next steps so it is not needed here to do so*)
 	(* In the new versions, this step is modified and on.*)
+	(* According to dev_log the above comments seem to be updated at 2023.4.6*)
 	
-	If[OptionValue[KillCornerSubsecFIBPs],
+	If[OptionValue[KillNCornerSubsecFIBPs],
 		timer=AbsoluteTime[];
 		memoryUsed=MaxMemoryUsed[
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing FIBPs for lower sectors seeding with DenominatorTypes..."]];
@@ -2805,7 +2721,8 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 				Continue[];  (* This IBP corresponds to a lower sector *)
 			]; *)
 			
-			maxDenominatorIndices=Max/@Transpose[DenominatorTypes];(*WARNING: why use max here? what if there is a term (m1-2)G[...], then m1=2\[Rule]subsecIBP but m1=1 not \[Rule] subsecIBP *)
+			maxDenominatorIndices=Max/@Transpose[DenominatorTypes];
+			(*WARNING: why use max here? what if there is a term (m1-2)G[...], then m1=2\[Rule]subsecIBP but m1=1 not \[Rule] subsecIBP *)
 			formalIntegrals=Cases[Variables[FIBPs[[i]]],_G];
 			
 			FIBPCurrentSectorIntegrals=Union[
@@ -2814,7 +2731,7 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 				]
 			];
 			
-			If[FIBPCurrentSectorIntegrals==={0},
+			If[DeleteCases[FIBPCurrentSectorIntegrals,0]==={},
 				Continue[];  (* This FIBP seeds to a lower sector in DenominatorTypes*)
 			]; 
 			AppendTo[remainedFIBPlabels,i];
@@ -2826,7 +2743,7 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 		(*end of MaxMemoryUsed*)];
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  IBPs for lower sectors removed. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	];
-	If[ExportCornerKilledFIBPs,
+	If[ExportNCornerKilledFIBPs,
 		ConvenientExport[outputPath<>"results/additional_outputs/corner_killed_FIBPs/"<>ToString[secNo]<>".txt",FIBPs//InputForm//ToString];
 	];
 	(*ProbeIntermediateResult["FIBPs",secNo,FIBPs];(*debug2023*)*)
@@ -3254,20 +3171,57 @@ FullForm]\);(*?*)
 			];
 			If[step==s+OptionValue[AdditionalDegree],
 				If[And[StrictDenominatorPowerIndices===False,AllowedDenominatorPowerLift>0],
-					PrintAndLog["#",secNo,"\t","[Notice]: Targets are still not reduced to MIs in the maximum step ",step,". Trying to find more IBPs by seeds with denominator powers lifted."];
+					PrintAndLog["#",secNo,"\t","[Notice]: Targets are still not reduced to MIs in the maximum step ",
+						step,". Trying to find more IBPs by seeds with denominator powers lifted."];
 					
-					(*FIBPs0 is the original FIBPs without killing corners*)
+					(*FIBPs0 is the original FIBPs without killing n corners*)
 					redundantMIs=ReduceTowards[rIBPs,LocalTargets,irredIntegrals];
 					If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ",Length[redundantMIs]," redundant MI(s) : ",redundantMIs];];
 					redundantMIsToBeReduced=Complement[redundantMIs,MIs];
-					timer=AbsoluteTime[];
-					memoryUsed=MaxMemoryUsed[
-					FindIBPResult=FindIBPs[
-						sector,redundantMIsToBeReduced,MIs,(*nIBPs,SectorIntegrals,*)FIBPs0,DenominatorTypes,
-						DenominatorLift->AllowedDenominatorPowerLift,AdditionalDegree->OptionValue[AdditionalDegree],SelfSymmetryZMaps->zMaps
+					
+					
+					If[SimplifySyzygyVectorsByCut,
+						(*
+							unfortunately, if SimplifySyzygyVectorsByCut has been used, we cannot use FIBPs0,
+							because it is still from simplified vector list,
+							the simplification, is based on an assumption:
+								sub-layer IBPs are deletable. (1)
+							(if we used DCornerOnly, it dose not change the statement, because it is based on:
+								sub-sector IBPs are deletable. (2)
+							but (2) is stronger than statement (1), so, (1) is (2)'s necessary condition,
+							so whatever we used DCornerOnly or not, we say (1)  must holds.
+							)
+							But, the reality is, (1) does not hold here. Otherwise, we will not reach this part of codes, would we?
+							So, we cannot use simplified vector list here.
+						*)
+						timer=AbsoluteTime[];
+						memoryUsed=MaxMemoryUsed[
+						If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  We cannot use FIBPs0 since it is from simplified vector list...."]];
+						If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Generating FIBPs00 from VectorList00..."]];
+						FIBPs00=IBPGenerator[#,secindex,Cut->OptionValue[Cut]]&/@VectorList00;
+						(*end of MaxMemoryUsed*)];
+						If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","FIBPs00 generated. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+						
+						memoryUsed=MaxMemoryUsed[
+						FindIBPResult=FindIBPs[
+							sector,redundantMIsToBeReduced,MIs,(*nIBPs,SectorIntegrals,*)FIBPs00,DenominatorTypes,
+							DenominatorLift->AllowedDenominatorPowerLift,AdditionalDegree->OptionValue[AdditionalDegree],SelfSymmetryZMaps->zMaps,
+							FIHead->FI00,ZMHead->ZM00
+						]
+						(*end of MaxMemoryUsed*)];
+						If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","AdditionalIBPs finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+					,
+						timer=AbsoluteTime[];
+						memoryUsed=MaxMemoryUsed[
+						FindIBPResult=FindIBPs[
+							sector,redundantMIsToBeReduced,MIs,(*nIBPs,SectorIntegrals,*)FIBPs0,DenominatorTypes,
+							DenominatorLift->AllowedDenominatorPowerLift,AdditionalDegree->OptionValue[AdditionalDegree],SelfSymmetryZMaps->zMaps
+						]
+						(*end of MaxMemoryUsed*)];
+						If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","AdditionalIBPs finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 					];
-					(*end of MaxMemoryUsed*)];
-					If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  ","FindIBPs finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+					
+					
 				
 					If[FindIBPResult===$Failed,
 						PrintAndLog["#",secNo,"\t","*** Failed to find more IBPs by seeds with denominator powers lifted."];
@@ -3291,7 +3245,7 @@ FullForm]\);(*?*)
 					
 					timer=AbsoluteTime[];
 					memoryUsed=MaxMemoryUsed[
-					If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Checking the result from FindIBPs..."];];
+					If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ","Checking the result from AdditionalIBPs..."];];
 					
 					
 					timer2=AbsoluteTime[];
@@ -3367,7 +3321,7 @@ FullForm]\);(*?*)
 		ConvenientExport[
 			outputPath<>"results/additional_outputs/complete_raw_IBPs_in_FI0/"<>ToString[secNo]<>".txt",
 			rawIBPs/.FI[x_]:>FI0[remainedFIBPlabels[[x]]]//InputForm//ToString
-		];
+		];(*Safe with FI00*)
 	];
 	If[ExportCompleteNIBPs,
 		ConvenientExport[
@@ -3414,6 +3368,7 @@ FullForm]\);(*?*)
 			outputPath<>"results/additional_outputs/subsec_removed_raw_IBPs_in_FI0/"<>ToString[secNo]<>".txt",
 			rawIBPs/.FI[x_]:>FI0[remainedFIBPlabels[[x]]]//InputForm//ToString
 		];
+		(*Safe with FI00*)
 	];
 	If[ExportSubsecRemovedNIBPs,
 		ConvenientExport[
@@ -3439,7 +3394,12 @@ FullForm]\);(*?*)
 	memoryUsed2=MaxMemoryUsed[
 	CompensationIBPDenominatorDegrees=Table[-1,Length[rawIBPs]];
 	For[i=1,i<=Length[rawIBPs],i++,
-		If[And[FreeQ[rawIBPs[[i]],FI0],FreeQ[rawIBPs[[i]],ZM0]],
+		If[And[
+			FreeQ[rawIBPs[[i]],FI0],
+			FreeQ[rawIBPs[[i]],ZM0],
+			FreeQ[rawIBPs[[i]],FI00],
+			FreeQ[rawIBPs[[i]],ZM00]
+		],
 			Continue[];
 		];
 		CompensationIBPDenominatorDegrees[[i]]=IBPSubSectorDenominatorDegree[nIBPs[[i]]]
@@ -3494,6 +3454,7 @@ FullForm]\);(*?*)
 			outputPath<>"results/additional_outputs/sorted_raw_IBPs_in_FI0/"<>ToString[secNo]<>".txt",
 			rawIBPs/.FI[x_]:>FI0[remainedFIBPlabels[[x]]]//InputForm//ToString
 		];
+		(*Safe with FI00*)
 	];
 	If[ExportSortedNIBPs,
 		ConvenientExport[
@@ -3547,6 +3508,7 @@ FullForm]\);(*?*)
 			outputPath<>"results/additional_outputs/independent_raw_IBPs_in_FI0/"<>ToString[secNo]<>".txt",
 			rawIBPs/.FI[x_]:>FI0[remainedFIBPlabels[[x]]]//InputForm//ToString
 		];
+		(*Safe with FI00*)
 	];
 	If[ExportIndependentNIBPs,
 		ConvenientExport[
@@ -3594,6 +3556,7 @@ FullForm]\);(*?*)
 			outputPath<>"results/additional_outputs/final_raw_IBPs_in_FI0/"<>ToString[secNo]<>".txt",
 			rawIBPs/.FI[x_]:>FI0[remainedFIBPlabels[[x]]]//InputForm//ToString
 		];
+		(*Safe with FI00*)
 	];
 	If[ExportFinalNIBPs,
 		ConvenientExport[
@@ -3611,16 +3574,19 @@ FullForm]\);(*?*)
 		usedVectors=Union[
 			Select[
 				rawIBPs[[All,1]]/.FI[x_]:>FI0[remainedFIBPlabels[[x]]],
-				Head[#]===FI0&
+				Or[Head[#]===FI0,Head[#]===FI00]&
 			]
 		]/.FI0[x_]:>VectorList[[x]];
+		If[FIBPs00=!=None,
+			usedVectors=usedVectors/.FI00[x_]:>VectorList00[[x]]
+		];
 		ConvenientExport[outputPath<>"results/additional_outputs/used_syzygy_vectors/"<>ToString[secNo]<>".txt",usedVectors//InputForm//ToString];
 	];
 	If[ExportUsedFIBPs===True,
 		usedFIBPs=Union[
 			Select[
 				rawIBPs[[All,1]],
-				Head[#]===FI0||Head[#]===FI&
+				Head[#]===FI||Head[#]===FI0||Head===FI00&
 			]
 		];
 		If[MemberQ[Head/@usedFIBPs,FI0],
@@ -3628,6 +3594,9 @@ FullForm]\);(*?*)
 		];
 		usedFIBPs=usedFIBPs/.{FI0[x_]:>FIBPs0[[x]],FI[x_]:>FIBPs[[x]]};
 		(*well, we assume if FI0 appears, FIBPs0 must be defined, if not , we cannot code so here*)
+		If[FIBPs00=!=None,
+			usedFIBPs=usedFIBPs/.FI00[x_]:>FIBPs00[[x]]
+		];
 		ConvenientExport[outputPath<>"results/additional_outputs/used_FIBPs/"<>ToString[secNo]<>".txt",usedFIBPs//InputForm//ToString];
 	];
 
@@ -3641,9 +3610,11 @@ FullForm]\);(*?*)
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Realizing raw IBPs..."]];
-	rawIBPs=rawIBPs/.FI0[i_]:>FIBPs0[[i]]/.FI[i_]:>FIBPs[[i]]/.IntegralR->IntegralRealization;   (* Only at this step, we obtain the analytic IBPs *)
+	rawIBPs=rawIBPs/.FI0[i_]:>FIBPs0[[i]]/.FI[i_]:>FIBPs[[i]];
+	If[FIBPs00=!=None,rawIBPs=rawIBPs/.FI00[i_]:>FIBPs00[[i]]];
+	rawIBPs=rawIBPs/.IntegralR->IntegralRealization;   (* Only at this step, we obtain the analytic IBPs *)
 	If[Not[NeedSymmetry===False],
-		rawIBPs=rawIBPs/.ZM0->ZM/.ZM[i_]:>(zMaps[[i]])/.SelfSymmetryR->SelfSymmetryRealization;
+		rawIBPs=rawIBPs/.ZM00->ZM/.ZM0->ZM/.ZM[i_]:>(zMaps[[i]])/.SelfSymmetryR->SelfSymmetryRealization;
 	];
 	(*end of MaxMemoryUsed*)];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Raw IBP realized. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
@@ -3729,6 +3700,12 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
+
+
+
+
 
 
 
