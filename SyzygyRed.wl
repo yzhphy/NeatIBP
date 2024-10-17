@@ -91,7 +91,7 @@ positivity[list_]:=If[Union[#>0&/@list]==Head[list][True],True,False];
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Baikov Representation*)
 
 
@@ -2248,7 +2248,7 @@ ReduceTowards[rIBPs_,targets_,irredIntegrals_]:=Module[
 
 
 Options[FindIBPs]={
-	Verbosity->1,DenominatorLift->1,AdditionalDegree->4,SelfSymmetryZMaps->{},FunctionTitle->"[AdditionalIBPs]:"\:ff0c
+	Verbosity->1,DenominatorLift->1,AdditionalDegree->4,SelfSymmetryZMaps->{},FunctionTitle->"[AdditionalIBPs]:",
 	FIHead->FI0,ZMHead->ZM0
 };
 FindIBPs[sector_,targets0_,MIs_,(*basicnIBPs_,basicSectorIntegrals_,*)FIBPs_,DenominatorTypes0_,OptionsPattern[]]:=Module[
@@ -2436,6 +2436,10 @@ FullForm]\);(*?*)
 	PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t Found ",Length[IBPIndex]," IBPs."];
 	result
 ]
+
+
+
+
 
 
 
@@ -3191,7 +3195,7 @@ FullForm]\);(*?*)
 							but (2) is stronger than statement (1), so, (1) is (2)'s necessary condition,
 							so whatever we used DCornerOnly or not, we say (1)  must holds.
 							)
-							But, the reality is, (1) does not hold here. Otherwise, we will not reach this part of codes, would we?
+							But, the reality is, (1) does not hold here. Otherwise, we will not reach this part of codes, would we? (possibly because we used degbound in Singular)
 							So, we cannot use simplified vector list here.
 						*)
 						timer=AbsoluteTime[];
@@ -3700,6 +3704,10 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
+
+
 
 
 
