@@ -1334,6 +1334,11 @@ DCorner means denominator-corner, i.e. no multiple props in deno.
 
 introduced FIBPs00 and VectorList00, to make the module AdditionalIBPs and SimplifySyzygyVectorsByCut consistent.
 
+--------
+2024.10.22
+I changed terminology: spc combine -> spc merge , in every parts of the codes.
+ the monitor will tell the user if the lost/unlabbeled message disappears soon, please ignore.
+
  
 
 

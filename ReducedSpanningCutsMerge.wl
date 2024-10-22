@@ -89,11 +89,11 @@ Switch[reducedIBPInput,
 	furtherPath="results/Kira_reduction_results/reduced_IBP_Table.txt";
 ,
 "FFNumerical",
-	Print["ReducedSpanningCutsCombine: Sorry, FFNumerical spanning cuts is still in developement. Exiting."];
+	Print["ReducedSpanningCutsMerge: Sorry, FFNumerical spanning cuts is still in developement. Exiting."];
 	Exit[];
 ,
 _,
-	Print["ReducedSpanningCutsCombine: Uncategorized IBP input: \"",reducedIBPInput,"\". Exiting. "];
+	Print["ReducedSpanningCutsMerge: Uncategorized IBP input: \"",reducedIBPInput,"\". Exiting. "];
 	Exit[];
 	
 ]
@@ -172,19 +172,19 @@ Print["\tTotal MI number: ",allMIs//Length]
 Print["\tFinished. Time used: ",Round[AbsoluteTime[]-timer]," second(s)."]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*bak*)
 (**)
 
 
-(*CombineFormulatedReducedIBP[targets_,IBPA_,IBPB_,cutsA_,cutsB_]:=Module[
+(*MergeFormulatedReducedIBP[targets_,IBPA_,IBPB_,cutsA_,cutsB_]:=Module[
 {IBPC,target,i,targetRedA,targetRedB,MIs,j,MI},
 	If[!SubsetQ[IBPA[[All,1]],targets],
-		Print["***CombineFormulatedReducedIBP: Lacking target(s) in IBPA."];
+		Print["***MergeFormulatedReducedIBP: Lacking target(s) in IBPA."];
 		Return[$Failed]
 	];
 	If[!SubsetQ[IBPB[[All,1]],targets],
-		Print["***CombineFormulatedReducedIBP: Lacking target(s) in IBPB."];
+		Print["***MergeFormulatedReducedIBP: Lacking target(s) in IBPB."];
 		Return[$Failed]
 	];
 	IBPC={};
@@ -203,11 +203,11 @@ Print["\tFinished. Time used: ",Round[AbsoluteTime[]-timer]," second(s)."]
 
 
 (* ::Section:: *)
-(*Combining IBPs*)
+(*Merging IBPs*)
 
 
 timer=AbsoluteTime[];
-Print["Combining IBP results..."];
+Print["Merging IBP results..."];
 
 
 IntegralCuttedQ[int_,cut_]:=MemberQ[Sign/@((int/.G->List)[[cut]]-1/2),-1]
@@ -216,16 +216,16 @@ IntegralCuttedQ[int_,cut_]:=MemberQ[Sign/@((int/.G->List)[[cut]]-1/2),-1]
 RandomNumericCheck[expr_]:=Module[{vars=Variables[expr]},Factor[expr/.(#->RandomPrime[Length[vars]*500]/RandomPrime[Length[vars]^2*1000]&/@vars)]]
 
 
-CombineReducedRedults//ClearAll
-Options[CombineReducedRedults]={ShortenedMode->False}
-CombineReducedRedults[OptionsPattern[]]:=Module[
+MergeReducedRedults//ClearAll
+Options[MergeReducedRedults]={ShortenedMode->False}
+MergeReducedRedults[OptionsPattern[]]:=Module[
 {i,j,k,coeff,newCoeff,reducedResult,target,MI,formulatedReducedIBP,
 cut,targetReducedFormulated,targetReducedFormulatedMIs,oldK,reducedResults
 },
 	reducedResults={};
 	For[i=1,i<=Length[targets],i++,
 		target=targets[[i]];
-		Print["\tCombining target ",target," (",i,"/",Length[targets],")..."];
+		Print["\tMerging target ",target," (",i,"/",Length[targets],")..."];
 		reducedResult={};
 		For[j=1,j<=Length[allMIs],j++,
 			MI=allMIs[[j]];
@@ -296,7 +296,7 @@ cut,targetReducedFormulated,targetReducedFormulatedMIs,oldK,reducedResults
 ]
 
 
-combinedIBPFormulated=CombineReducedRedults[ShortenedMode->shortenedMode]
+mergedIBPFormulated=MergeReducedRedults[ShortenedMode->shortenedMode]
 
 
 UnFormulateReducedIBP[formulatedIBP_]:=Rule[
@@ -309,7 +309,7 @@ UnFormulateReducedIBP[formulatedIBP_]:=Rule[
 ]
 
 
-combinedIBP=UnFormulateReducedIBP/@combinedIBPFormulated
+mergedIBP=UnFormulateReducedIBP/@mergedIBPFormulated
 
 
 (*GetCoeff[target_,MI_,cut_]:=Module[{reduced=target/.(FormulateReducedIBP/@GetReducedIBPs[cut])},
@@ -318,9 +318,9 @@ combinedIBP=UnFormulateReducedIBP/@combinedIBPFormulated
 
 
 
-exportPath=outputPath<>"results/reduced_IBP_spanning_cuts_combined/from_"<>reducedIBPInput<>"_reduction/"
+exportPath=outputPath<>"results/reduced_IBP_spanning_cuts_merged/from_"<>reducedIBPInput<>"_reduction/"
 If[!DirectoryQ[exportPath],CreateDirectory[exportPath]];
-Export[exportPath<>"IBPTable.txt",combinedIBP//InputForm//ToString]
+Export[exportPath<>"IBPTable.txt",mergedIBP//InputForm//ToString]
 
 
 Print["\tFinished. Time used: ",Round[AbsoluteTime[]-timer]," second(s)."]

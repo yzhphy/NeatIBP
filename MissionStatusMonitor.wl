@@ -114,7 +114,9 @@ missionLost,runningMissionUnregistered,actuallyRunningMissions,runningMissionMis
 		];
 		runningMissionMismatchMessage=StringJoinLined[
 			runningMissionMismatchMessage,
-			"The corresponding process(es) cannot be detected. Maybe they terminated unexpectedly."
+			"The corresponding process(es) cannot be detected.\n",
+			"If this message disappears soon, please ignore it.\n",
+			"If not, the process(es) may be terminated unexpectedly."
 		];
 	];
 	If[Length[runningMissionUnregistered]>0,
@@ -124,7 +126,8 @@ missionLost,runningMissionUnregistered,actuallyRunningMissions,runningMissionMis
 		];
 		runningMissionMismatchMessage=StringJoinLined[
 			runningMissionMismatchMessage,
-			"This error is unexpected. Please make sure you are not running 2 NeatIBP with the same outputPath."
+			"If this message disappears soon, please ignore it.\n",
+			"If not, there may be unexpected error. Please make sure you are not running 2 NeatIBP with the same outputPath."
 		];
 	];
 	If[And[runningMissionMismatchMessage===oldRunningMissionMismatchMessage,runningMissionMismatchMessage=!=""],Print[runningMissionMismatchMessage]];
@@ -206,6 +209,16 @@ runningMissionUnregistered},
 
 
 
+sectorUnlabelledStatusString="**sector unlabelled";
+sectorLostStatusString="**sector lost";
+sectorLostUnlabelledStatusString="**sector lost/unlabbelled";
+abnormalStatusStrings={
+	sectorUnlabelledStatusString,
+	sectorLostStatusString,
+	sectorLostUnlabelledStatusString
+}
+
+
 CutMissionInfo[cut_]:=Module[{cutString,path,info},
 	cutString=StringRiffle[ToString/@cut,"_"];
 	path=outputPath<>"tmp/spanning_cuts_missions/cut_"<>cutString<>"/outputs/"<>ReductionOutputName<>"/";
@@ -235,13 +248,13 @@ CutMissionInfoExtended[cut_]:=Module[{cutString,path,info,status,progress,totalS
 		];
 	,
 	{True,False},
-		status="**sector unlabelled";
+		status=sectorUnlabelledStatusString;
 	,
 	{False,True},
-		status="**sector lost";
+		status=sectorLostStatusString;
 	,
 	{False,False},
-		status="**sector lost/unlabbelled"
+		status=sectorLostUnlabelledStatusString;
 	];
 	If[status==="not started",
 		progress="-";
@@ -321,12 +334,20 @@ FineTable[table_]:=Module[{rows,columns,r,c,maxLengths,fineTable,entry,finalStri
 ]
 
 
-PrintCutsMissions[]:=Module[{displaystring},
+PrintCutsMissions[]:=Module[{displaystring,table},
 	displaystring="----------------------------------------------";
 	displaystring=displaystring<>"\n"<>TimeString[]<>"\n"<>displaystring;
 	(*displaystring=displaystring<>"\n"<>FineTable[CutMissionsInfoTable[]];*)
-	displaystring=displaystring<>"\n"<>FineTable[CutMissionsInfoTableExtended[]];
-	Print[displaystring]
+	table=CutMissionsInfoTableExtended[];
+	displaystring=displaystring<>"\n"<>FineTable[table];
+	Print[displaystring];
+	If[Intersection[
+		table[[2;;,2]],(*2 nd column, without its title (1st row)*)
+		abnormalStatusStrings
+	]=!={},
+		Print["Some cuts are reporting lost/unlabbeled sectors."];
+		Print["If this message disappears soon, it can be ignored."];
+	];
 ]
 
 

@@ -267,12 +267,12 @@ Switch[mode,
 			Exit[1];
 		];
 		If[UseShortenedIBPForKira===True,
-			IBPCombineSetting="-s "
+			IBPMergeSetting="-s "
 		,
-			IBPCombineSetting=""
+			IBPMergeSetting=""
 		];
 		script=script<>"\n"<>MathematicaCommand<>" -script "<>packagePath<>
-			"ReducedSpanningCutsCombine.wl "<>IBPCombineSetting<>"-Kira "<>outputPath<>"\n";
+			"ReducedSpanningCutsMerge.wl "<>IBPMergeSetting<>"-Kira "<>outputPath<>"\n";
 
 		
 		

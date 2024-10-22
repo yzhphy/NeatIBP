@@ -2444,6 +2444,8 @@ FullForm]\);(*?*)
 
 
 
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -3200,7 +3202,8 @@ FullForm]\);(*?*)
 						*)
 						timer=AbsoluteTime[];
 						memoryUsed=MaxMemoryUsed[
-						If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  We cannot use FIBPs0 since it is from simplified vector list...."]];
+						If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  We cannot use FIBPs0 since it is from simplified vector list."]];
+						If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  We use FIBPs00 to take place FIBPs0."]];
 						If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Generating FIBPs00 from VectorList00..."]];
 						FIBPs00=IBPGenerator[#,secindex,Cut->OptionValue[Cut]]&/@VectorList00;
 						(*end of MaxMemoryUsed*)];
@@ -3704,6 +3707,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 
