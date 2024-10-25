@@ -49,6 +49,7 @@ If[StringSplit[convertPath,""][[-1]]=!="/",convertPath=convertPath<>"/"]
 This function appears in many codes
 1. SyzygyRed.wl
 2. Several or all .wl codes in interfaces/Kira/interface/
+3. FFSolveIBP.wl, FFSpanningCutsConsistencyCheck.wl
 If you want to modifie this code, remember to modify all of them!
 *)
 PrintAndLog[x___]:=Module[{string,originalString},
@@ -67,7 +68,9 @@ PrintAndLog[x___]:=Module[{string,originalString},
 
 
 
-LogFile=convertPath<>"NeatIBPToKira_log.txt"
+LogPath=convertPath<>"tmp/log_files/"
+If[!DirectoryQ[LogPath],CreateDirectory[LogPath]];
+LogFile=LogPath<>"NeatIBPToKira.txt"
 
 
 (* ::Section:: *)

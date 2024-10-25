@@ -1356,7 +1356,21 @@ at several places in PrepareForSpanningCuts.wl
 
 --------------
 2024.10.25
-v1.0.5.3
+1.v1.0.5.3
+
+
+2.In 2024.4.13, I 
+Modified a sequential evaluation to parallelized in CheckIBP.wl.:Analyzing reduction results (step 2/3)
+It seems that I wished to fasterening this step...
+but, today I think it is because of using Position why this step is slow (I guessed by my experience, I did not test.)
+So, I cancelled ParallelTable here. and  Position -> Dispatch
+Cancelling ParallelTable is good for MMA kernel limiting.
+Also, in FFSolveIBP, I just cancel ParallelTable.
+
+
+3.modified kira interface log path
+
+4.log FFSolveIBP and consistency check
 
 
 

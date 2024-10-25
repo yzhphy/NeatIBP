@@ -43,11 +43,39 @@ TimeString[]:=Module[{at},at=FromAbsoluteTime[AbsoluteTime[]];StringRiffle[#,"_"
 If[StringSplit[checkPath,""][[-1]]=!="/",checkPath=checkPath<>"/"]
 
 
+(*
+This function appears in many codes
+1. SyzygyRed.wl
+2. Several or all .wl codes in interfaces/Kira/interface/
+3. FFSolveIBP.wl, FFSpanningCutsConsistencyCheck.wl
+If you want to modifie this code, remember to modify all of them!
+*)
+PrintAndLog[x___]:=Module[{string,originalString},
+	If[LogFile=!="",
+		string=StringRiffle[ToString/@{x},""];
+		(*Run["echo \""<>string<>"\" >> "<>LogFile]*)
+		If[FileExistsQ[LogFile],
+			originalString=Import[LogFile]<>"\n"
+		,
+			originalString=""
+		];
+		Export[LogFile,originalString<>string]
+	];
+	Print[x]
+]
+
+
+
+LogPath=checkPath<>"tmp/log_files/"
+If[!DirectoryQ[LogPath],CreateDirectory[LogPath]];
+LogFile=LogPath<>"FFSpanningCutsConsistencyCheck.txt"
+
+
 If[Get[packagePath<>"default_settings.txt"]===$Failed,Exit[0]]
 Get[checkPath<>"inputs/config.txt"]
 (*If[outputPath===Automatic,
 	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
-	Print["Output path has been set as "<>outputPath]
+	PrintAndLog["Output path has been set as "<>outputPath]
 ]*)
 outputPath=checkPath
 
@@ -68,9 +96,9 @@ SectorNumberToSectorIndex[num_]:=IntegerDigits[num,2,Length[Propagators]]//Rever
 
 
 
-Print["=================================================="];
-Print["Checking at ",checkPath]
-Print["-------------------------------------------------"]
+PrintAndLog["=================================================="];
+PrintAndLog["Checking at ",checkPath]
+PrintAndLog["-------------------------------------------------"]
 
 
 targetFileName=FileNameSplit[targetIntegralsFile][[-1]]
@@ -125,15 +153,15 @@ TargetReducedOnCut[target_,cut_]:=Module[{cutMIList,rules,targetReduced,MI,i,res
 
 timer=AbsoluteTime[];
 
-Print["\n=================================================="];
-Print["Reducing targets..."];
+PrintAndLog["\n=================================================="];
+PrintAndLog["Reducing targets..."];
 targets=Get[outputPath<>"inputs/"<>targetFileName];
 Get[outputPath<>"inputs/"<>kinematicsFileName];
 
 SDim=Length[Cases[Variables[{targets,allMIs}],_G][[1]]/.G->List];
 
 targetReducedTable=Table[TargetReducedOnCut[targets[[i]],#]&/@spanningCuts,{i,Length[targets]}];
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
 
 
 
@@ -141,7 +169,7 @@ Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
 
 
 timer=AbsoluteTime[]
-Print["Analyzing reduced table"];
+PrintAndLog["Analyzing reduced table"];
 consistencyChecks=Table[targetReducedTable[[i,All,k]],{i,Length[targets]},{k,Length[allMIs]}];
 checkConclusions=Table[
 	conclusion[
@@ -156,16 +184,16 @@ checkConclusions=Table[
 ]//Flatten
 inconsistency=Select[checkConclusions,!(#[[5]])&];
 inconsistencySummary=(inconsistency/.conclusion->List)[[All,{1,2,4}]];
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
 
 
 
 
 
-Print["==========Check Report============"]
+PrintAndLog["==========Check Report============"]
 Export[outputPath<>"inconsistencySummary.txt",inconsistencySummary//InputForm//ToString];
 If[inconsistencySummary==={},
-	Print["Consistency check passed."];
+	PrintAndLog["Consistency check passed."];
 	(*create a check-pass certificate*)
 	(*for SpanningCutsIBPShorten.wl *)
 	(*only when it sees this certificate, it runs*)
@@ -174,20 +202,20 @@ If[inconsistencySummary==={},
 	Export[checkPath<>"results/spanning_cuts_consistency_check_passed_certificate.txt",md5code];
 ,
 	displayLimit=6;
-	Print["Consistency check **NOT** passed. Inconsistencies:"];
+	PrintAndLog["Consistency check **NOT** passed. Inconsistencies:"];
 	For[i=1,i<=Length[inconsistencySummary],i++,
-		Print[
+		PrintAndLog[
 			ToString[InputForm[inconsistencySummary[[i,1]]]]<>" reducing to "<>
 			ToString[InputForm[inconsistencySummary[[i,2]]]]<>":"
 		];
 		mismatchCuts=inconsistencySummary[[i,3]];
 		For[j=1,j<=Length[mismatchCuts],j++,
-			Print["\tcut "<>ToString[InputForm[mismatchCuts[[j]]]]]
+			PrintAndLog["\tcut "<>ToString[InputForm[mismatchCuts[[j]]]]]
 		];
 		
 		If[i>=displayLimit,
-			Print[" ... and "<>ToString[Length[inconsistencySummary]-displayLimit]<>" more "];
-			Print["see "<>outputPath<>" inconsistencySummary.txt"];
+			PrintAndLog[" ... and "<>ToString[Length[inconsistencySummary]-displayLimit]<>" more "];
+			PrintAndLog["see "<>outputPath<>" inconsistencySummary.txt"];
 			Break[]
 		]
 	]

@@ -43,11 +43,39 @@ TimeString[]:=Module[{at},at=FromAbsoluteTime[AbsoluteTime[]];StringRiffle[#,"_"
 If[StringSplit[checkPath,""][[-1]]=!="/",checkPath=checkPath<>"/"]
 
 
+(*
+This function appears in many codes
+1. SyzygyRed.wl
+2. Several or all .wl codes in interfaces/Kira/interface/
+3. FFSolveIBP.wl, FFSpanningCutsConsistencyCheck.wl
+If you want to modifie this code, remember to modify all of them!
+*)
+PrintAndLog[x___]:=Module[{string,originalString},
+	If[LogFile=!="",
+		string=StringRiffle[ToString/@{x},""];
+		(*Run["echo \""<>string<>"\" >> "<>LogFile]*)
+		If[FileExistsQ[LogFile],
+			originalString=Import[LogFile]<>"\n"
+		,
+			originalString=""
+		];
+		Export[LogFile,originalString<>string]
+	];
+	Print[x]
+]
+
+
+
+LogPath=checkPath<>"tmp/log_files/"
+If[!DirectoryQ[LogPath],CreateDirectory[LogPath]];
+LogFile=LogPath<>"FFSolveIBP.txt"
+
+
 If[Get[packagePath<>"default_settings.txt"]===$Failed,Exit[0]]
 Get[checkPath<>"inputs/config.txt"]
 (*If[outputPath===Automatic,
 	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
-	Print["Output path has been set as "<>outputPath]
+	PrintAndLog["Output path has been set as "<>outputPath]
 ]*)
 outputPath=checkPath
 
@@ -68,9 +96,9 @@ SectorNumberToSectorIndex[num_]:=IntegerDigits[num,2,Length[Propagators]]//Rever
 
 
 
-Print["=================================================="];
-Print["Solving IBPs on FF at ",checkPath]
-Print["-------------------------------------------------"]
+PrintAndLog["=================================================="];
+PrintAndLog["Solving IBPs on FF at ",checkPath]
+PrintAndLog["-------------------------------------------------"]
 
 
 targetFileName=FileNameSplit[targetIntegralsFile][[-1]]
@@ -78,7 +106,7 @@ kinematicsFileName=FileNameSplit[kinematicsFile][[-1]]
 
 
 timer=AbsoluteTime[];
-Print["Reading Results..."];
+PrintAndLog["Reading Results..."];
 MIs=Get[outputPath<>"results/MI_all.txt"];
 IBPs=Get[outputPath<>"results/IBP_all.txt"];
 integrals=Get[outputPath<>"results/OrderedIntegrals.txt"];
@@ -88,7 +116,7 @@ Get[outputPath<>"inputs/"<>kinematicsFileName];
 targets=Complement[targets,MIs];
 
 SDim=Length[Cases[Variables[IBPs],_G][[1]]/.G->List];
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
 
 vars=GenericPoint[[All,1]];
 
@@ -102,19 +130,19 @@ numerics=Join[GenericPoint,GenericD]
 
 
 timer=AbsoluteTime[];
-Print["Building Coefficient Matrix..."];
+PrintAndLog["Building Coefficient Matrix..."];
 ca=CoefficientArrays[IBPs/.numerics,integrals]
-If[Union[ArrayRules[ca[[1]]][[All,2]]]=!={0},Print["IBP relations involve integrals not listed in OrderedIntegrals.txt!"];Exit[0]]
+If[Union[ArrayRules[ca[[1]]][[All,2]]]=!={0},PrintAndLog["IBP relations involve integrals not listed in OrderedIntegrals.txt!"];Exit[0]]
 M=ca[[2]]
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 
 
 timer=AbsoluteTime[];
-Print["RowReducing..."];
+PrintAndLog["RowReducing..."];
 RM=SRSparseRowReduce[M,Modulus->FiniteFieldModulus]
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 
@@ -122,7 +150,7 @@ Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 timer=AbsoluteTime[];
-Print["Analyzing reduction results (step 1/3)..."];
+PrintAndLog["Analyzing reduction results (step 1/3)..."];
 ar=Select[ArrayRules[RM],#[[1]]=!={_,_}&];
 (*targetPositions=Flatten[Position[integrals,#]&/@targets]*)
 entriesAndValues=GatherBy[ar,#[[1,1]]&](*un sorted*)
@@ -145,19 +173,20 @@ RowToRule[row_]:=Module[{columns,pivotColumn,rhsEntries,rule},
 	rowEnrties=row[[1,2;;-1]];
 	-integrals[[rowEnrties[[All,2]]]].((#/.ar)&/@rowEnrties)
 ]*)
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 timer=AbsoluteTime[];
-Print["Analyzing reduction results (step 2/3)..."];
-LaunchKernels[]
+PrintAndLog["Analyzing reduction results (step 2/3)..."];
+(*LaunchKernels[];
 rules=ParallelTable[RowToRule[entriesAndValues[[i]]],{i,Length[entriesAndValues]},Method->"FinestGrained"];
-CloseKernels[]
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+CloseKernels[]*)
+rules=Table[RowToRule[entriesAndValues[[i]]],{i,Length[entriesAndValues]}]
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 timer=AbsoluteTime[];
-Print["Analyzing reduction results (step 3/3)..."];
+PrintAndLog["Analyzing reduction results (step 3/3)..."];
 sol=Select[rules,MemberQ[targets,#[[1]]]&]
 
 (*sol2=Solve[RM.integrals==0,integrals//Reverse]
@@ -167,24 +196,4 @@ Export[checkPath<>"/sol.txt",sol//InputForm//ToString]
 Export[checkPath<>"/rules.txt",rules//InputForm//ToString]
 Export[checkPath<>"/numerics.txt",numerics//InputForm//ToString]
 Export[checkPath<>"/FiniteFieldModulus.txt",FiniteFieldModulus//InputForm//ToString]
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
-
-
-(*Print["==========Check Report============"]
-Print["check point: "<>ToString[numerics//InputForm]];
-If[strangeIntegrals==={},
-	Print["All targets are reduced to MIs."]
-,
-	Print["Targets are NOT reduced to MIs. "<>ToString[Length[strangeIntegrals]]<>" ADDITIONAL integrals appearead in the results. They are:"];
-	If[Length[strangeIntegrals]<=10,
-		Print[strangeIntegrals//InputForm//ToString]
-	,
-		Print[StringReplace[strangeIntegrals[[1;;10]]//InputForm//ToString,"}"->",...}"]]
-	]
-]
-*)
-
-
-
-
-
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]

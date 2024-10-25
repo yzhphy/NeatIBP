@@ -38,6 +38,7 @@ ConvenientExport[path_,contents_]:=Module[{folder},
 This function appears in many codes
 1. SyzygyRed.wl
 2. Several or all .wl codes in interfaces/Kira/interface/
+3. FFSolveIBP.wl, FFSpanningCutsConsistencyCheck.wl
 If you want to modifie this code, remember to modify all of them!
 *)
 PrintAndLog[x___]:=Module[{string,originalString},
@@ -2459,6 +2460,10 @@ FullForm]\);(*?*)
 
 
 
+
+
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -3720,6 +3725,10 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
+
+
 
 
 
