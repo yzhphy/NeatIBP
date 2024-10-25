@@ -45,6 +45,31 @@ If[commandLineMode,
 If[StringSplit[convertPath,""][[-1]]=!="/",convertPath=convertPath<>"/"]
 
 
+(*
+This function appears in many codes
+1. SyzygyRed.wl
+2. Several or all .wl codes in interfaces/Kira/interface/
+If you want to modifie this code, remember to modify all of them!
+*)
+PrintAndLog[x___]:=Module[{string,originalString},
+	If[LogFile=!="",
+		string=StringRiffle[ToString/@{x},""];
+		(*Run["echo \""<>string<>"\" >> "<>LogFile]*)
+		If[FileExistsQ[LogFile],
+			originalString=Import[LogFile]<>"\n"
+		,
+			originalString=""
+		];
+		Export[LogFile,originalString<>string]
+	];
+	Print[x]
+]
+
+
+
+LogFile=convertPath<>"NeatIBPToKira_log.txt"
+
+
 (* ::Section:: *)
 (*Deal with mode*)
 
@@ -59,7 +84,7 @@ Switch[mode,
 	kiraUDSSubFolder="userSystemShortened/";
 ,
 _,
-	Print["***NeatIBPToKira.wl: Unkown mode ",mode, ". Exiting."];
+	PrintAndLog["***NeatIBPToKira.wl: Unkown mode ",mode, ". Exiting."];
 	Exit[];
 ]
 
@@ -69,13 +94,13 @@ _,
 
 
 timer=AbsoluteTime[];
-Print["Reading NeatIBP outputs... "];
+PrintAndLog["Reading NeatIBP outputs... "];
 
 
 NeatIBPOutputPath=convertPath<>"results/"
 
 
-Print["\tIBPFile: ",NeatIBPOutputPath<>inputIBPFileName]
+PrintAndLog["\tIBPFile: ",NeatIBPOutputPath<>inputIBPFileName]
 IBPs=Get[NeatIBPOutputPath<>inputIBPFileName]
 
 
@@ -93,7 +118,7 @@ reducelist=Get[convertPath<>"/inputs/targetIntegrals.txt"];
 kinevar=Select[Variables[IBPs],Head[#]=!=G&](*all the kinematics and d*)
 
 
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 (* ::Section:: *)
@@ -101,7 +126,7 @@ Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 timer=AbsoluteTime[];
-Print["Sorting IBPs using KIRA order..."];
+PrintAndLog["Sorting IBPs using KIRA order..."];
 
 
 PreKiraOrder[ibp_]:=Module[{Gs},
@@ -133,7 +158,7 @@ userdefinedinput=IBPs[[IBPsReordering]]
 presentIntegralsForEachUDI=presentIntegralsForEachIBP[[IBPsReordering]]
 
 
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 (* ::Subsection:: *)
@@ -165,7 +190,7 @@ SortIBPsForKira[ibps_,integrals_]:=Module[{preKiraOrders,maxLen,indices,kiraOrde
 (*userdefinedinput=SortIBPsForKira[IBPs,integrals]*)
 
 
-(*Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]*)
+(*PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]*)
 
 
 (* ::Section:: *)
@@ -177,7 +202,7 @@ SortIBPsForKira[ibps_,integrals_]:=Module[{preKiraOrders,maxLen,indices,kiraOrde
 
 
 (*timer=AbsoluteTime[];
-Print["Converting to KIRA input..."];*)
+PrintAndLog["Converting to KIRA input..."];*)
 
 
 
@@ -200,7 +225,7 @@ OneIBPtoKiraString[ibp_]:=Module[{ar,relatedIntegrals},
 	,"\n"]
 ]
 IBPstoKiraString[ibps_]:=StringRiffle[Table[
-	If[Mod[i,1000]===0,Print["\t\tconverting IBP to Kira expression... (",i,"/",Length[ibps],")"]];
+	If[Mod[i,1000]===0,PrintAndLog["\t\tconverting IBP to Kira expression... (",i,"/",Length[ibps],")"]];
 	OneIBPtoKiraString[ibps[[i]]],
 {i,Length[ibps]}],"\n\n"]
 
@@ -213,7 +238,7 @@ IBPstoKiraString[ibps_]:=StringRiffle[Table[
 
 
 timer=AbsoluteTime[];
-Print["Converting to KIRA input..."];
+PrintAndLog["Converting to KIRA input..."];
 
 
 integralsReversed=integrals//Reverse;
@@ -243,7 +268,7 @@ OneIBPtoKiraString[ibpIndex_]:=Module[{ar,relatedIntegralLabels,ibp},
 
 
 IBPstoKiraString[ibpIndices_]:=StringRiffle[Table[
-	If[Mod[i,1000]===0,Print["\t\tconverting IBP to Kira expression... (",i,"/",Length[ibpIndices],")"]];
+	If[Mod[i,1000]===0,PrintAndLog["\t\tconverting IBP to Kira expression... (",i,"/",Length[ibpIndices],")"]];
 	OneIBPtoKiraString[ibpIndices[[i]]],
 {i,Length[ibpIndices]}],"\n\n"]
 
@@ -265,11 +290,11 @@ basis=StringReplace[StringRiffle[ToString[InputForm[#]]&/@mlist,"\n\n"]," "->""]
 list=StringReplace[StringRiffle[ToString[InputForm[#]]&/@reducelist,"\n"]," "->""]
 
 
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 timer=AbsoluteTime[];
-Print["Writing into files..."];
+PrintAndLog["Writing into files..."];
 
 
 kiraInputFolder=convertPath<>"KiraIO/"
@@ -288,4 +313,4 @@ Export[kiraInputFolder<>"basis",basis,"Text"]
 Export[kiraInputFolder<>"list",list,"Text"]
 
 
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]

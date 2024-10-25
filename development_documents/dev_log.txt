@@ -1339,7 +1339,24 @@ introduced FIBPs00 and VectorList00, to make the module AdditionalIBPs and Simpl
 I changed terminology: spc combine -> spc merge , in every parts of the codes.
  the monitor will tell the user if the lost/unlabbeled message disappears soon, please ignore.
 
+------------
+2024.10.23
+1. added a tag file to tag that NeatIBP is finished
+2. logging kira interface
+
+
+-----------
+2024.10.24
+modified 
+TemporaryDirectory<>"/run_cut.sh "
+to
+TemporaryDirectory<>"run_cut.sh "
+at several places in PrepareForSpanningCuts.wl
  
+
+--------------
+2024.10.25
+v1.0.5.3
 
 
 

@@ -172,10 +172,10 @@ Module[{i,cut,stringTail,cutMissionPath,runAllCutsScript},
 		Run["cp "<>targetIntegralsFile<>" "cutMissionPath];
 		Switch[SpanningCutsEvaluationMode,
 		"Sequential",
-			runAllCutsScript=runAllCutsScript<>TemporaryDirectory<>"/run_cut.sh "<>cutMissionPath<>"\n";
+			runAllCutsScript=runAllCutsScript<>TemporaryDirectory<>"run_cut.sh "<>cutMissionPath<>"\n";
 		,
 		"Parallel",
-			runAllCutsScript=runAllCutsScript<>TemporaryDirectory<>"/run_cut.sh "<>cutMissionPath<>" &\n";
+			runAllCutsScript=runAllCutsScript<>TemporaryDirectory<>"run_cut.sh "<>cutMissionPath<>" &\n";
 		,
 		_,
 			PrintAndLog["Unkown evaluation mode, using sequential. "];

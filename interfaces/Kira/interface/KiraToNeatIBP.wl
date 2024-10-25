@@ -77,6 +77,34 @@ If[commandLineMode,
 Print["Generating NeatIBP input files from kira inputs..."]
 
 
+(*(*
+This function appears in many codes
+1. SyzygyRed.wl
+2. Several or all .wl codes in interfaces/Kira/interface/
+If you want to modifie this code, remember to modify all of them!
+*)
+PrintAndLog[x___]:=Module[{string,originalString},
+	If[LogFile=!="",
+		string=StringRiffle[ToString/@{x},""];
+		(*Run["echo \""<>string<>"\" >> "<>LogFile]*)
+		If[FileExistsQ[LogFile],
+			originalString=Import[LogFile]<>"\n"
+		,
+			originalString=""
+		];
+		Export[LogFile,originalString<>string]
+	];
+	Print[x]
+]
+*)
+(*LogFile=""*)
+(*lets equipe this part latter  
+or maybe, we donot use PrintAndLog in this .wl file--- 2024.10.23*)
+
+
+
+
+
 (* ::Section:: *)
 (*Check input and settings*)
 

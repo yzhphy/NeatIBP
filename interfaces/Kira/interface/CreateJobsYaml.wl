@@ -48,6 +48,31 @@ If[commandLineMode,
 If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
 
+(*
+This function appears in many codes
+1. SyzygyRed.wl
+2. Several or all .wl codes in interfaces/Kira/interface/
+If you want to modifie this code, remember to modify all of them!
+*)
+PrintAndLog[x___]:=Module[{string,originalString},
+	If[LogFile=!="",
+		string=StringRiffle[ToString/@{x},""];
+		(*Run["echo \""<>string<>"\" >> "<>LogFile]*)
+		If[FileExistsQ[LogFile],
+			originalString=Import[LogFile]<>"\n"
+		,
+			originalString=""
+		];
+		Export[LogFile,originalString<>string]
+	];
+	Print[x]
+]
+
+
+
+LogFile=outputPath<>"CreateJobsYaml_log.txt"
+
+
 jobYamlString="
 jobs:
   - reduce_user_defined_system:
@@ -85,7 +110,7 @@ Switch[mode,
 	jobYamlString=StringReplace[jobYamlString,"SUFFIX"->"Shortened"];
 ,
 _,
-	Print["***CreateJobsYaml.wl: Unkown mode ",mode, ". Exiting."];
+	PrintAndLog["***CreateJobsYaml.wl: Unkown mode ",mode, ". Exiting."];
 	Exit[];
 ]
 
@@ -107,7 +132,7 @@ If[Not[RunFireFlyInKira===False],
 
 
 If[!DirectoryQ[outputPath<>"KiraIO/"],
-	Print["***KiraIO folder ",outputPath<>"KiraIO/", " dose not exist. Exiting."];
+	PrintAndLog["***KiraIO folder ",outputPath<>"KiraIO/", " dose not exist. Exiting."];
 	Exit[];
 ]
 

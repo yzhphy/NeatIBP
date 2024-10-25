@@ -36,7 +36,32 @@ If[commandLineMode,
 
 
 
-Print["Reading Kira reduction results..."]
+(*
+This function appears in many codes
+1. SyzygyRed.wl
+2. Several or all .wl codes in interfaces/Kira/interface/
+If you want to modifie this code, remember to modify all of them!
+*)
+PrintAndLog[x___]:=Module[{string,originalString},
+	If[LogFile=!="",
+		string=StringRiffle[ToString/@{x},""];
+		(*Run["echo \""<>string<>"\" >> "<>LogFile]*)
+		If[FileExistsQ[LogFile],
+			originalString=Import[LogFile]<>"\n"
+		,
+			originalString=""
+		];
+		Export[LogFile,originalString<>string]
+	];
+	Print[x]
+]
+
+
+
+LogFile=outputPath<>"ReadKiraReductionResults_log.txt"
+
+
+PrintAndLog["Reading Kira reduction results..."]
 timer=AbsoluteTime[];
 
 
@@ -47,7 +72,7 @@ kiraList=Get[outputPath<>"KiraIO/results/Tuserweight/kira_list.m"]
 
 
 If[kiraList===$Failed,
-	Print["Failed to read kira reduction results in ",outputPath<>"KiraIO/results/Tuserweight/kira_list.m.  Exiting."];
+	PrintAndLog["Failed to read kira reduction results in ",outputPath<>"KiraIO/results/Tuserweight/kira_list.m.  Exiting."];
 	Exit[];
 ]
 
@@ -56,7 +81,7 @@ integrals=Get[outputPath<>"results/OrderedIntegrals.txt"];
 
 
 If[integrals===$Failed,
-	Print["Failed to read integrals in ",outputPath<>"results/OrderedIntegrals.txt.  Exiting."];
+	PrintAndLog["Failed to read integrals in ",outputPath<>"results/OrderedIntegrals.txt.  Exiting."];
 	Exit[];
 ]
 
@@ -69,4 +94,4 @@ If[!DirectoryQ[reductionResultsFolder],CreateDirectory[reductionResultsFolder]]
 Export[reductionResultsFolder<>"reduced_IBP_Table.txt",kiraListG//InputForm//ToString]
 
 
-Print["\tFinished. Time used: ",Round[AbsoluteTime[]-timer]," second(s)."]
+PrintAndLog["\tFinished. Time used: ",Round[AbsoluteTime[]-timer]," second(s)."]

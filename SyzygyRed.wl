@@ -34,6 +34,12 @@ ConvenientExport[path_,contents_]:=Module[{folder},
 
 
 
+(*
+This function appears in many codes
+1. SyzygyRed.wl
+2. Several or all .wl codes in interfaces/Kira/interface/
+If you want to modifie this code, remember to modify all of them!
+*)
 PrintAndLog[x___]:=Module[{string,originalString},
 	If[LogFile=!="",
 		string=StringRiffle[ToString/@{x},""];
@@ -47,6 +53,7 @@ PrintAndLog[x___]:=Module[{string,originalString},
 	];
 	Print[x]
 ]
+
 
 
 LT[exp_,var_,order_]:=MonomialList[exp,var,order][[1]];
@@ -2446,6 +2453,12 @@ FullForm]\);(*?*)
 
 
 
+
+
+
+
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -3707,6 +3720,12 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
+
+
+
+
 
 
 

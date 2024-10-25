@@ -64,7 +64,20 @@ SetDirectory[workingPath]
 TimeString[]:=Module[{at},at=FromAbsoluteTime[AbsoluteTime[]];StringRiffle[#,"_"]&[(ToString[Floor[#]]&/@at[[1,1;;6]])]<>"_"<>ToString[Floor[1000*(#-Floor[#])&[ at[[1,6]]]]]]
 
 
+finishedTagFile="results/NeatIBP_finished.tag"
+
+
+
+
+
+If[!FileExistsQ[outputPath<>"results/summary.txt"],
+	If[PerformIBPReduction===True,Print["Summary failed, cannot perform IBP reduction."]];
+	Exit[0];
+]
+
+
 If[PerformIBPReduction=!=True,
+	Export[outputPath<>finishedTagFile,"","Text"];
 	Exit[];
 ]
 
@@ -290,6 +303,10 @@ _,
 	Print["AssignIBPReduction.wl: unkown mode ", mode, ". Failed"];
 	Exit[];
 ]
+
+
+script=script<>" >> "<>outputPath<>finishedTagFile;
+
 
 
 Print[outputPath<>"tmp/assigned_reduction_script.sh"]

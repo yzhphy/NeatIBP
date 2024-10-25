@@ -190,3 +190,15 @@ Date: 2024.10.14
 	1. NeatIBPToKira.wl now is much faster.
 	2. Other bug fixings.
 
+
+[NeatIBP 1.0.5.3]
+Date: 2024.10.25
+	1. Modules AdditionalIBPs and SimplifySyzygyVectorsByCut made consistent
+	2. Some terminlogy stadarization
+	3. Minor changes for monitor.
+	4. Added a tag file to tag that NeatIBP is finished
+	5. Kira interface produces log files.
+
+
+
+

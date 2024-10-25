@@ -58,6 +58,14 @@ If[Intersection[StringSplit[outputPath,""],{" ","\t","\n","?","@","#","$","*","&
 If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
 
+
+
+
+If[!FileExistsQ[outputPath<>"results/summary.txt"],
+	Exit[0];(*summary failed*)
+]
+
+
 SetDirectory[workingPath]
 
 

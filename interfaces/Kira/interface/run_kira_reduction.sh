@@ -4,6 +4,7 @@
 
 #settings:
 #-s: use shortened IBP (in spanning cuts mode)
+#-f: force delete exsisting old kira tmp files
 
 ################ read args #####################
 
@@ -164,7 +165,7 @@ if
 then
 	$MathematicaCommand -script $KiraNeatIBPInterfacePath"NeatIBPToKira.wl" $modSettingS$NeatIBPOutputPath
 else
-	echo "***NeatIBP result files are not complete. We need："
+	echo "***NeatIBP result files are not complete. We need:"
 	echo "  1. "$IBPInput
 	echo "  2. MI_all.txt"
 	echo "  3. OrderedIntegrals.txt"
