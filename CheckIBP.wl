@@ -131,12 +131,15 @@ IntegralsReducedTowards[integral_]:=Module[{prePosition,position,row},
 ]
 Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
+
 timer=AbsoluteTime[];
 Print["Analyzing reduction results (step 2/3)..."];
 LaunchKernels[]
 targetTowards=ParallelTable[IntegralsReducedTowards[targets[[i]]],{i,Length[targets]},Method->"FinestGrained"];
 CloseKernels[]
 Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+
+
 timer=AbsoluteTime[];
 Print["Analyzing reduction results (step 3/3)..."];
 strangeIntegrals=Complement[Union[Flatten[targetTowards]],MIs]

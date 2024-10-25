@@ -147,12 +147,15 @@ RowToRule[row_]:=Module[{columns,pivotColumn,rhsEntries,rule},
 ]*)
 Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
+
 timer=AbsoluteTime[];
 Print["Analyzing reduction results (step 2/3)..."];
 LaunchKernels[]
 rules=ParallelTable[RowToRule[entriesAndValues[[i]]],{i,Length[entriesAndValues]},Method->"FinestGrained"];
 CloseKernels[]
 Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+
+
 timer=AbsoluteTime[];
 Print["Analyzing reduction results (step 3/3)..."];
 sol=Select[rules,MemberQ[targets,#[[1]]]&]
