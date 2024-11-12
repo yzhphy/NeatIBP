@@ -11,6 +11,7 @@ targetIntegralsFile = workingPath<>"targetIntegrals.txt";
 (*-----------dependency settings---------*)
 SingularApp = "/usr/bin/Singular";
 SparseRREF`SpaSMLibrary = "/usr/local/lib/libspasm.so";
+GNUParallelCommand="parallel";
 
 (*-----------directory settings----------*)
 ReductionOutputName="Untitled";
@@ -51,8 +52,10 @@ FineGrainedZurichSeeding=False;
 (*-----------usage settings--------------*)
 MemoryUsedLimit=Infinity;(*MB*)
 ThreadUsedLimit=Infinity;
+MathKernelLimit=Infinity;
 DeleteSingularScriptFiles=False;
 DeleteSingularResultFiles=True;
+MaxManagers=4;
 
 (*----------additional outputs-----------*)
 SilentExport=True;
@@ -89,8 +92,10 @@ ExportIndependentNIBPsCutted=False;
 
 (*----------spanning cuts related--------*)
 SpanningCutsMode=False;
-SpanningCutsEvaluationMode="Parallel";
+SpanningCutsEvaluationMode="Parallel";(*or "Sequential"*)
 ShortenIBPs=True;
+SpanningCutsConsistencyCheck=True;(*strongly recommended True*)
+
 
 (*-----------IBP Reduction related-------*)
 PerformIBPReduction=False;
@@ -153,6 +158,8 @@ FurtherSelectionTimeUsedLimit=Infinity;(*seconds*)
 FurtherSelectionSingularTimeConstrain=Infinity;(*seconds*)
 AllowInternet=True; (*One may disable this option to avoid the internet check of certain mathkernel functions, especially for downward supported versions of Mathematica*)
 ExternalMomentaGroupingMethod="MomentumSpace";
+IsASpanningCutsSubMission=False;(*to label whether this is a spanning cuts sub mission, do not set True if it is not! (will be auto-set as True in PrepareForSpanningCuts.wl for sub missions)*)
+
 
 (*--------sectorwise settings-------------*)
 SectorwiseSettings={};

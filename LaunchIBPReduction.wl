@@ -43,7 +43,23 @@ If[commandLineMode,
 If[Get[packagePath<>"default_settings.txt"]===$Failed,Exit[0]]
 
 
-If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting.";Exit[]]]
+If[Get[workingPath<>missionInput]===$Failed,Print[
+		"echo \"Unable to open config file "<>workingPath<>missionInput<>". Exiting.\""	
+	];
+	Exit[]
+]
+
+
+If[CutIndices==="spanning cuts",
+	(*PrintAndLog[
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"It is still supported, but it is recommended to use the equivalent, new gramma: \n";
+		"\tCutIndices={};\n",
+		"\tSpanningCutsMode=True;"
+	];*)(*not print in this .wl*)
+	CutIndices={};
+	SpanningCutsMode=True;
+]
 
 
 If[outputPath===Automatic,
@@ -73,14 +89,20 @@ TimeString[]:=Module[{at},at=FromAbsoluteTime[AbsoluteTime[]];StringRiffle[#,"_"
 
 
 If[PerformIBPReduction=!=True,
-	Exit[];
+	finishedTagFile="results/NeatIBP_finished.tag";
+	script="";
+	script=script<>"sleep 1.5"<>"\n";
+	(*
+		so that when the HQ sees NeatIBP_finished.tag
+		the math kernel is really vacant
+	*)
+	script=script<>" >> "<>outputPath<>finishedTagFile<>"\n";
+,
+	script=Import[outputPath<>"tmp/assigned_reduction_script.sh","Text"];
 ]
 
 
 
-
-
-script=Import[outputPath<>"tmp/assigned_reduction_script.sh","Text"]
 
 
 Print[script]

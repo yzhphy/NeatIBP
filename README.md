@@ -3,7 +3,7 @@
 NeatIBP is a mathematica package to generate small-sized integration-by-parts (IBP) relations for Feynman integral reduction.
 
 ## Version
-1.0.5.3
+1.0.5.4
 
 ## Dependencies
 **Singular**
@@ -17,6 +17,9 @@ https://www.singular.uni-kl.de/
 SpaSM is a C library developed to perform sparse gaussian elimination modulo a small prime p. Github repo. link:
 
 https://github.com/cbouilla/spasm
+
+**GNU parallel (optional, but recommended)**
+
 
 
 ## Installation

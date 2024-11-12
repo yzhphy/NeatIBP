@@ -18,22 +18,29 @@ If[commandLineMode,
 	Print["WARNING: program is not running in command line mode!"];
 	workingPath=NotebookDirectory[];
 	missionInput="example.txt"
-	(*LoopMomenta={l1,l2};
-	ExternalMomenta={k1,k2,k4};
-	Propagators={l1^2,(l1-k1)^2,(l1-k1-k2)^2,(l2+k1+k2)^2,(l2-k4)^2,l2^2,(l1+l2)^2,(l1+k4)^2,(l2+k1)^2};
-	Kinematics={k1^2->0,k2^2->0,k4^2->0,k1 k2->s/2,k1 k4->t/2,k2 k4->(-s/2-t/2)};
-	GenericPoint={s->-1,t->-3}; 
-	TargetIntegrals={G[1,1,1,1,1,1,1,-5,0],G[1,1,1,1,1,1,1,-4,-1],G[1,1,1,1,1,1,1,-1,-4]}*)
+	
 	
 ]
 
 
 (*AppendTo[$Path,workingPath];*)
 If[Get[packagePath<>"default_settings.txt"]===$Failed,Exit[0]]
-If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting.";Exit[]]]
-If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting.";Exit[]]]
+If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting."];Exit[]]
+If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting."];Exit[]]
 (*TargetIntegrals=Get[targetIntegralsFile]
-If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting.";Exit[]]]*)
+If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting."];Exit[]]*)
+
+
+If[CutIndices==="spanning cuts",
+	(*PrintAndLog[
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
+		"\tCutIndices={};\n",
+		"\tSpanningCutsMode=True;"
+	];*)(*not print in this wl*)
+	CutIndices={};
+	SpanningCutsMode=True;
+]
 
 
 If[outputPath===Automatic,
@@ -78,11 +85,13 @@ InitializationStatus[]:=If[FileExistsQ[tmpPath<>"initialization_failed.txt"],
 
 TimeString[]:=StringRiffle[#[[1;;3]],"."]<>" "<>StringRiffle[#[[4;;6]],":"]&[(ToString[Floor[#]]&/@FromAbsoluteTime[AbsoluteTime[]][[1,1;;6]])]
 ReprotString[list_,maxNum_]:=If[list==={},"",": "]<>If[Length[list]>maxNum,StringRiffle[ToString/@(list[[1;;maxNum]]),","]<>"...",StringRiffle[ToString/@(list),","]<>"."]
-StringJoinLined[a_,b_]:=If[a==="",b,a<>"\n"<>b]
+StringJoinLined[a_,b__]:=If[a==="",StringJoin@@({b}),a<>"\n"<>StringJoin@@({b})]
+
+
 oldRunningMissionMismatchMessage="";
 PrintStatus[]:=Module[
 {maxNum=6,missionWaitingSupersectors,missionComputationFinished,missionComputing,missionReadyToCompute,
-missionLost,runningMissionUnregistered,actuallyRunningMissions,runningMissionMismatchMessage},
+missionLost,runningMissionUnregistered,actuallyRunningMissions,runningMissionMismatchMessage,missionReportingFinished},
 	actuallyRunningMissions=ActuallyRunningMissions[];
 	Print["----------------------------------------------"];
 	Print[TimeString[]];
@@ -98,6 +107,15 @@ missionLost,runningMissionUnregistered,actuallyRunningMissions,runningMissionMis
 	missionComputationFinished=(
 			SortBy[Select[missionStatus,#[[2]]==="ComputationFinished"&],SectorOrdering[#[[1]]]&]//Reverse
 	)[[All,1]];
+	missionReportingFinished=(
+			SortBy[
+				Select[missionStatus,StringSplit[#[[2]],"\n"][[1]]==="ReportingFinished"&],
+				SectorOrdering[#[[1]]]&]//Reverse
+	)[[All,1]];
+	missionComputationFinished=SortBy[
+		Join[missionComputationFinished,missionReportingFinished],
+		SectorOrdering
+	]//Reverse;
 	
 	Print[Length[missionWaitingSupersectors]," sector(s) waiting super sector(s)",ReprotString[SectorNumber/@missionWaitingSupersectors,maxNum]];
 	Print[Length[missionReadyToCompute]," sector(s) ready to compute",ReprotString[SectorNumber/@missionReadyToCompute,maxNum]];
@@ -119,16 +137,19 @@ missionLost,runningMissionUnregistered,actuallyRunningMissions,runningMissionMis
 			"If not, the process(es) may be terminated unexpectedly."
 		];
 	];
+	
 	If[Length[runningMissionUnregistered]>0,
 		runningMissionMismatchMessage=StringJoinLined[
 			runningMissionMismatchMessage,
 			"******** \nError:\n"<>ToString[Length[runningMissionUnregistered]]<>" computing sector(s) unregistered"<>ReprotString[runningMissionUnregistered,maxNum]
 		];
+		
 		runningMissionMismatchMessage=StringJoinLined[
 			runningMissionMismatchMessage,
 			"If this message disappears soon, please ignore it.\n",
 			"If not, there may be unexpected error. Please make sure you are not running 2 NeatIBP with the same outputPath."
 		];
+		
 	];
 	If[And[runningMissionMismatchMessage===oldRunningMissionMismatchMessage,runningMissionMismatchMessage=!=""],Print[runningMissionMismatchMessage]];
 	oldRunningMissionMismatchMessage=runningMissionMismatchMessage;
@@ -166,7 +187,7 @@ ActuallyRunningMissions[]:=ActuallyRunningMissions[outputPath]
 
 MissionStatusInfo[path_]:=Module[
 {missionStatusPath,missionStatus,missionWaitingSupersectors,missionReadyToCompute,
-missionComputing,missionComputationFinished,actuallyRunningMissions,missionLost,
+missionComputing,missionComputationFinished,actuallyRunningMissions,missionLost,missionReportingFinished,
 runningMissionUnregistered},
 	actuallyRunningMissions=ActuallyRunningMissions[path];
 	missionStatusPath=path<>"/tmp/mission_status/";
@@ -183,6 +204,15 @@ runningMissionUnregistered},
 	missionComputationFinished=(
 			SortBy[Select[missionStatus,#[[2]]==="ComputationFinished"&],SectorOrdering[#[[1]]]&]//Reverse
 	)[[All,1]];
+	missionReportingFinished=(
+			SortBy[
+				Select[missionStatus,StringSplit[#[[2]],"\n"][[1]]==="ReportingFinished"&],
+				SectorOrdering[#[[1]]]&]//Reverse
+	)[[All,1]];
+	missionComputationFinished=SortBy[
+		Join[missionComputationFinished,missionReportingFinished],
+		SectorOrdering
+	]//Reverse;
 	missionLost=Complement[SectorNumber/@missionComputing,actuallyRunningMissions];
 	runningMissionUnregistered=Complement[actuallyRunningMissions,SectorNumber/@missionComputing];
 	
@@ -380,12 +410,13 @@ AllCutsFinishedQ[]:=Module[{cuts},
 
 mode="normal"
 While[True,
-	If[FileExistsQ[outputPath<>"tmp/spanning_cuts_mode.txt"]&&FileExistsQ[outputPath<>"tmp/run_all_cuts.sh"]&&mode=="normal",
+	If[FileExistsQ[outputPath<>"tmp/spanning_cuts_mode.txt"]&&FileExistsQ[outputPath<>"tmp/run_all_cuts.sh"]&&mode=="normal"&&InitializationStatus[]==="finished",
 		mode="spanning cuts";
 		Print["----------------------------------------------"];
 		Print[TimeString[]];
-		Print["Entering spanning cuts mode"];
-		Pause[3]
+		pausetime=5;
+		Print["Entering spanning cuts mode, waiting for ",pausetime,"s."];(*but...why?*)
+		Pause[pausetime]
 	];
 	If[mode==="normal",
 		If[!DirectoryQ[outputPath//ToString],Print["outputPath "<>ToString[outputPath]<>" does not exist."];Break[]];

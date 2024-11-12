@@ -80,6 +80,14 @@ then
 fi
 NeatIBPResultPath=$NeatIBPOutputPath"results/"
 
+############## check forbidden tag ##################
+if [ -e $NeatIBPOutputPath"IBP_reduction_forbidden.tag" ]
+then
+	echo "IBP reduction is forbidden at "$NeatIBPOutputPath
+	echo "forbidden message: "`cat $NeatIBPOutputPath"IBP_reduction_forbidden.tag"`
+	echo "Giving up rest steps."
+	exit 1
+fi
 			
 
 ############## check kira old results ##################

@@ -158,11 +158,16 @@ FormulateReducedIBP[reducedIBP_,OptionsPattern[]]:=Module[{MIs,integralHead},
 
 allMIs={};
 formulatedReducedIBPs={};
-Module[{i,j,cut,newFormulatedReducedIBP},
+Module[{i,j,cut,newFormulatedReducedIBP,gotReducedIBPs},
 	For[i=1,i<=Length[spanningCuts],i++,
 		Print["\t\treading spanning cuts (",i,"/",Length[spanningCuts],")"];
 		cut=spanningCuts[[i]];
-		newFormulatedReducedIBP=FormulateReducedIBP/@GetReducedIBPs[cut];
+		gotReducedIBPs=GetReducedIBPs[cut];
+		If[gotReducedIBPs===$Failed,
+			Print["Failed to read reduced IBPs for cut " ,cut,". Giving up the rest steps. "];
+			Exit[]
+		];
+		newFormulatedReducedIBP=FormulateReducedIBP/@gotReducedIBPs;
 		formulatedReducedIBPs=Append[formulatedReducedIBPs,newFormulatedReducedIBP];
 		allMIs=Append[allMIs,newFormulatedReducedIBP[[All,2,All,1]]];
 	]
@@ -172,7 +177,10 @@ Print["\tTotal MI number: ",allMIs//Length]
 Print["\tFinished. Time used: ",Round[AbsoluteTime[]-timer]," second(s)."]
 
 
-(* ::Subsection:: *)
+If[MemberQ[allMIs,$Failed],Print["Failed to read all MIs. Exit. "];Exit[]]
+
+
+(* ::Subsection::Closed:: *)
 (*bak*)
 (**)
 
@@ -321,6 +329,13 @@ mergedIBP=UnFormulateReducedIBP/@mergedIBPFormulated
 exportPath=outputPath<>"results/reduced_IBP_spanning_cuts_merged/from_"<>reducedIBPInput<>"_reduction/"
 If[!DirectoryQ[exportPath],CreateDirectory[exportPath]];
 Export[exportPath<>"IBPTable.txt",mergedIBP//InputForm//ToString]
+
+
+
+
+
+finishedTagFile="results/NeatIBP_finished.tag"
+Export[outputPath<>finishedTagFile,"","Text"];
 
 
 Print["\tFinished. Time used: ",Round[AbsoluteTime[]-timer]," second(s)."]

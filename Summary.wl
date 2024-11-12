@@ -1,5 +1,8 @@
 (* ::Package:: *)
 
+
+
+
 commandLineMode=True
 
 
@@ -57,13 +60,25 @@ SectorNumberToSectorIndex[num_]:=IntegerDigits[num,2,Length[Propagators]]//Rever
 
 (*AppendTo[$Path,workingPath];*)
 If[Get[packagePath<>"default_settings.txt"]===$Failed,Exit[0]]
-If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting.";Exit[]]]
-If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting.";Exit[]]]
+If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting."];Exit[]]
+If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting."];Exit[]]
 (*TargetIntegrals=Get[targetIntegralsFile]
-If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting.";Exit[]]]
+If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting."];Exit[]]
 
 *)
 
+
+
+If[CutIndices==="spanning cuts",
+	(*Print[
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
+		"\tCutIndices={};\n",
+		"\tSpanningCutsMode=True;"
+	];*)(*do not lolososo, bblailai too many times is annoying....*)
+	CutIndices={};
+	SpanningCutsMode=True;
+]
 
 
 If[outputPath===Automatic,
@@ -76,6 +91,16 @@ If[Intersection[StringSplit[outputPath,""],{" ","\t","\n","?","@","#","$","*","&
 
 ]
 If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
+
+
+tmpPath=outputPath<>"tmp/"
+
+
+If[FileExistsQ[tmpPath<>"summarized.tag"],
+	Export[tmpPath<>"once_summarized.tag","","Text"];(*once means ceng2 jing1*)
+	DeleteFile[tmpPath<>"summarized.tag"]
+];
+
 
 
 TemporaryDirectory=outputPath<>"tmp"
@@ -93,9 +118,6 @@ Print["Summarizing..."]
 
 
 
-
-
-tmpPath=outputPath<>"tmp/"
 
 
 ReportTotalTimeUsed[]:=Module[{startAbsTime,timeUsedString,timeUsed,seconds,minutes,hours},
@@ -150,16 +172,16 @@ If[FileExistsQ[tmpPath<>"spanning_cuts_mode.txt"],
 	];
 	PrintAndLog["\t Finished.\n All spanning cuts finished."];
 	ReportTotalTimeUsed[];
+	(*same code in the end of this wl file*)
+	If[PerformIBPReduction===True,
+		Export[outputPath<>"tmp/summarized.tag","","Text"];
+	];
 	Exit[0];
 ]
+
+
+
 TemporaryDirectory=tmpPath
-
-
-
-
-
-(* ::Input:: *)
-(**)
 
 
 missionStatusFolder=tmpPath<>"mission_status/"
@@ -368,4 +390,14 @@ For[i=1,i<=Length[fileNamesIBP],i++,
 ReportTotalTimeUsed[];
 
 
+
+
+
+
+
+
+(*same code in spanning cuts part of this wl file*)
+If[PerformIBPReduction===True,
+	Export[outputPath<>"tmp/summarized.tag","","Text"];
+]
 

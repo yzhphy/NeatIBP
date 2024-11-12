@@ -16,6 +16,8 @@ else
 	fi
 fi
 
+
+
 $MathematicaCommand -script $packagePath/Initialization.wl $AbsMissionInput
 $MathematicaCommand -script $packagePath/AllMissionCompleteQ.wl $AbsMissionInput | $ShellProcessor
 $MathematicaCommand -script $packagePath/Summary.wl $AbsMissionInput

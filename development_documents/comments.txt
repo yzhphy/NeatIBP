@@ -59,6 +59,8 @@ Some user may still need cut (partially, like {1,2}) in spanning cut mode
 we need a handbook
 
 ==========Important=================
+if we want to support NeedSymmetry in SpanningCutsMode, we should consider the comment in Ini.wl at 2024.11.11
+
 issue in the dev_log.txt at 2022.0923 [II] needs to be considered.
 
 seeding denominators by denominator types is very very risky, what if FIBP decends all denominator indices? The seeding will never end because it dose not cover enough denominator degree!

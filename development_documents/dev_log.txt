@@ -1373,6 +1373,55 @@ Also, in FFSolveIBP, I just cancel ParallelTable.
 4.log FFSolveIBP and consistency check
 
 
+----------------
+2024.10.26
+1.log AssignIBPReduction.wl FFSpanningCutsIBPShorten.wl
+
+---------------
+2024.10.28
+1.Use SpanningCutsMode=True to set NeatIBP into spanning cuts mode. No longer recommend gramma CutIndices="spanning cuts". Although it is still supported.
+2.Based on this, let NeatIBP runs spanning cuts with in case that there exist cut indices. (i.e. CutIndices={1,2,3...}; SpanningCutsMode=True)
+
+--------------
+2024.10.30
+1. set consistence check as mandatory even not at -s mode in IBP reduction.(unless the user set SpanningCutsConsistencyCheck=!=True, which is not default.)
+
+2.commented out:
+string=StringReplace[string,{"CutIndices="~~Shortest[x__]~~"\n"->"\n"}]
+in 
+PrepareForSpanningCuts.wl
+because it is not needed and cause bug
+why:
+(*CutIndices="spanning cuts";*)
+will become:
+(*
+leaving a half comment bracket... causing Syntax error
+
+---------------
+2024.10.31
+1. added 
+If[FileExistsQ[#],DeleteFile[#]]&[outputPath<>"tmp/"<>"initialization_failed.txt"]
+In
+Initialization.wl
+otherwise, after a given up attempt of initializing, the outputPath will be labelled initialization_failed forever.
+
+2.In Monitor.wl
+modified
+If[FileExistsQ[outputPath<>"tmp/spanning_cuts_mode.txt"]&&FileExistsQ[outputPath<>"tmp/run_all_cuts.sh"]&&mode=="normal",
+to
+If[FileExistsQ[outputPath<>"tmp/spanning_cuts_mode.txt"]&&FileExistsQ[outputPath<>"tmp/run_all_cuts.sh"]&&mode=="normal"&&InitializationStatus[]==="finished",
+
+---------------
+2024.11.5
+1.modification in Analyze_Sector.wl for WorkerAllocationSystem.
+2.In M....Monitor.wl, modified
+StringJoinLined[a_,b_]:=If[a==="",b,a<>"\n"<>b]
+to
+StringJoinLined[a_,b__]:=If[a==="",StringJoin@@({b}),a<>"\n"<>StringJoin@@({b})]
+
+
+
+
 
 
 

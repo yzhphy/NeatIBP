@@ -38,7 +38,8 @@ ConvenientExport[path_,contents_]:=Module[{folder},
 This function appears in many codes
 1. SyzygyRed.wl
 2. Several or all .wl codes in interfaces/Kira/interface/
-3. FFSolveIBP.wl, FFSpanningCutsConsistencyCheck.wl
+3. FFSolveIBP.wl, FFSpanningCutsConsistencyCheck.wl, AssignIBPReduction.wl,FFSpanningCutsIBPShorten.wl
+4. Analyze_Sectors.wl (but here, it also gets SyzygyRed.wl, thus there is overwitting)
 If you want to modifie this code, remember to modify all of them!
 *)
 PrintAndLog[x___]:=Module[{string,originalString},
@@ -1527,7 +1528,8 @@ FindSymmetry[sec1_,sec2_]:=Module[{zs,G1,G2,zs1,zs2,zPerms,result},
 FindSymmetry[sec_]:=FindSymmetry[sec,sec]
 
 
-SectorMaps[sectors_]:=Module[
+Options[SectorMaps]={MaxKernelNumber->Infinity}
+SectorMaps[sectors_,OptionsPattern[]]:=Module[
 {
 	undeterminedSectors,uniqueSectors,mappedSectors,sectorMaps,newUniqueSector,mappedUndeterminedSectorIndices,
 	i,maps,selectedMap,newTestingSector,listOfMaps
@@ -1538,7 +1540,12 @@ SectorMaps[sectors_]:=Module[
 	sectorMaps={};
 	If[ParallelInFindingSectorMaps,
 		Print["\tLaunching kernels..."];
-		LaunchKernels[Min[$ProcessorCount,ThreadUsedLimit]];
+		LaunchKernels[Min[
+			OptionValue[MaxKernelNumber],
+			MathKernelLimit-1,
+			$ProcessorCount,
+			ThreadUsedLimit
+		]];
 		Print["\tDone."]
 	];
 	While[True,
@@ -2041,10 +2048,11 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries,L
 (*Main *)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*SimpleIBP*)
 
 
+(*what for?*)
 Options[SimpleIBP]:={Verbosity->0,TestOnly->False,SeedingMethod->"Zurich"};
 SimpleIBP[OptionsPattern[]]:=Module[{RelavantSectors,i,Sectors,timeUsed},
 	If[Head[Global`TargetIntegrals]=!=List,PrintAndLog["The variable 'TargetIntegrals' is not set."]; Return[];];
@@ -2251,7 +2259,7 @@ ReduceTowards[rIBPs_,targets_,irredIntegrals_]:=Module[
 
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*FindIBPs (to seed by more denominator degrees)*)
 
 
@@ -2444,6 +2452,16 @@ FullForm]\);(*?*)
 	PrintAndLog["#",secNo,""<>OptionValue[FunctionTitle]<>"\t Found ",Length[IBPIndex]," IBPs."];
 	result
 ]
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3725,6 +3743,16 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -8,7 +8,7 @@ commandLineMode=True
 
 If[commandLineMode,
 	packagePath=DirectoryName[$InputFileName];
-	
+	If[StringSplit[packagePath,""][[-1]]=!="/",packagePath=packagePath<>"/"];
 	AbsMissionInput=$CommandLine[[-1]];
 	workingPath=DirectoryName[AbsMissionInput];
 	missionInput=FileNameSplit[AbsMissionInput][[-1]];
@@ -36,10 +36,22 @@ If[commandLineMode,
 
 (*AppendTo[$Path,workingPath];*)
 If[Get[packagePath<>"default_settings.txt"]===$Failed,Exit[0]]
-If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting.";Exit[]]]
-If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting.";Exit[]]]
+If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting.";]Exit[]]
+If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting."];Exit[]]
 TargetIntegrals=Get[targetIntegralsFile]
-If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting.";Exit[]]]
+If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting."];Exit[]]
+
+
+If[CutIndices==="spanning cuts",
+	(*Print[
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
+		"\tCutIndices={};\n",
+		"\tSpanningCutsMode=True;"
+	];*)(*do not lolososo, bblailai too many times is annoying....*)
+	CutIndices={};
+	SpanningCutsMode=True;
+]
 
 
 If[outputPath===Automatic,
@@ -132,9 +144,12 @@ If[Length[uncuttableIndices]>0,
 
 ModifiedConfig[file_,cut_]:=Module[{string},
 	string=Import[file];
-	string=StringReplace[string,{"CutIndices="~~Shortest[x__]~~"\n"->"\n"}];
+	(*string=StringReplace[string,{"CutIndices="~~Shortest[x__]~~"\n"->"\n"}];*)(*no need and cause bug, see dev log for reason. 2024.10.30*)
 	string=string<>"\n\n(*-----actual cuts-----*)\nCutIndices="<>ToString[InputForm[cut]]<>";\n";
+	string=string<>"\n\n(*-----turn off spanning cuts mode in individual cuts-----*)\nSpanningCutsMode=False;\n";
+	string=string<>"\n\n(*-----label as sub mission-----*)\nIsASpanningCutsSubMission=True;\n";
 	string=string<>"\n\n(*-----turn off IBP reduction in individual cuts-----*)\nPerformIBPReduction=False;\n";
+	(*actually we can also turn off symmetry here... but, currently not needed.---2024.10.28*)
 	(*string//Print;*)
 	string
 ]
@@ -156,10 +171,16 @@ Run["chmod +x "<>TemporaryDirectory<>"run_cut.sh"]
 
 
 (*we may need to recreate spanningCutsMissionMainPath by default, considering what if this is a 2nd time running? *)
-Module[{i,cut,stringTail,cutMissionPath,runAllCutsScript},
+Options[PrepareSPC]={KernelDistributionHQ->False}
+PrepareSPC[]:=Module[{i,cut,stringTail,cutMissionPath,runAllCutsScript},
 	PrintAndLog["Creating spanning cuts missions..."];
 	spanningCutsMissionMainPath=TemporaryDirectory<>"spanning_cuts_missions/";
-	runAllCutsScript="";
+	If[OptionValue[KernelDistributionHQ],
+		runAllCutsScript=MathematicaCommand<>" -script "<>packagePath<>"KernelDistributionHQ.wl "<>AbsMissionInput<>" &\n";
+	,
+		runAllCutsScript="";
+	];
+	
 	If[!DirectoryQ[#],CreateDirectory[#]]&[spanningCutsMissionMainPath];
 	For[i=1,i<=Length[spanningCuts],i++,
 		cut=spanningCuts[[i]];
@@ -170,12 +191,20 @@ Module[{i,cut,stringTail,cutMissionPath,runAllCutsScript},
 		Export[cutMissionPath<>missionInput,ModifiedConfig[workingPath<>missionInput,cut]];
 		Run["cp "<>kinematicsFile<>" "cutMissionPath];
 		Run["cp "<>targetIntegralsFile<>" "cutMissionPath];
+		If[OptionValue[KernelDistributionHQ],
+			Export[cutMissionPath<>"pause.tag","","Text"];
+		];
 		Switch[SpanningCutsEvaluationMode,
 		"Sequential",
 			runAllCutsScript=runAllCutsScript<>TemporaryDirectory<>"run_cut.sh "<>cutMissionPath<>"\n";
 		,
 		"Parallel",
-			runAllCutsScript=runAllCutsScript<>TemporaryDirectory<>"run_cut.sh "<>cutMissionPath<>" &\n";
+			If[OptionValue[KernelDistributionHQ],
+				runAllCutsScript=runAllCutsScript<>packagePath<>"paused_command.sh "<>cutMissionPath<>"pause.tag "<>
+					"\""<>TemporaryDirectory<>"run_cut.sh "<>cutMissionPath<>" \"cut mission "<>ToString[InputForm[cut]]<>":\" &\n";
+			,
+				runAllCutsScript=runAllCutsScript<>TemporaryDirectory<>"run_cut.sh "<>cutMissionPath<>" &\n";
+			]
 		,
 		_,
 			PrintAndLog["Unkown evaluation mode, using sequential. "];
@@ -188,6 +217,13 @@ Module[{i,cut,stringTail,cutMissionPath,runAllCutsScript},
 ]
 
 
+
+
+If[MathKernelLimit<Infinity&&SpanningCutsEvaluationMode==="Parallel",
+	PrepareSPC[KernelDistributionHQ->True]
+,
+	PrepareSPC[]
+]
 
 
 PrintAndLog["Finished. Time used: ",Round[AbsoluteTime[]-timer]," second(s)."]

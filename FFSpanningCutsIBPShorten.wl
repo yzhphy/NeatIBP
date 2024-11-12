@@ -31,14 +31,14 @@ If[commandLineMode,
 		Print["\t\t redefining working path as current working folder: ",workingPath,"."];
 	];*)
 	workingPath=Directory[]<>"/";(*is this really used?*)
-	checkPath=$CommandLine[[-1]];
+	outputPath=$CommandLine[[-1]];
 	MathematicaCommand=Import[packagePath<>"/preload/MathematicaCommand.txt"];
 	ShellProcessor=Import[packagePath<>"/preload/ShellProcessor.txt"];
 	,
 	Print["WARNING: program is not running in command line mode!"];
 	workingPath=NotebookDirectory[];
 	packagePath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/";
-	checkPath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples_private/Examples_in_the_paper/NP7-spanning_cuts_test/outputs/2l4pNP7_spanning_cuts_test-5"
+	outputPath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples_private/Examples_in_the_paper/NP7-spanning_cuts_test/outputs/2l4pNP7_spanning_cuts_test-5"
 	
 ]
 
@@ -49,12 +49,38 @@ If[commandLineMode,
 
 
 
-If[StringSplit[checkPath,""][[-1]]=!="/",checkPath=checkPath<>"/"]
+If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
 
-md5code=Get[checkPath<>"results/spanning_cuts_consistency_check_passed_certificate.txt"];
-If[md5code=!=Hash[Import[checkPath<>"results/summary.txt","Text"],"MD5"],
-	Print["*****The spanning cuts results in "<>checkPath<>" has not passed consistency check! Cannot shorthen IBP. \n*****Exiting..."];
+(*
+This function appears in many codes
+see in SyzygyRed.wl for where they are
+If you want to modifie this code, remember to modify all of them!
+*)
+PrintAndLog[x___]:=Module[{string,originalString},
+	If[LogFile=!="",
+		string=StringRiffle[ToString/@{x},""];
+		(*Run["echo \""<>string<>"\" >> "<>LogFile]*)
+		If[FileExistsQ[LogFile],
+			originalString=Import[LogFile]<>"\n"
+		,
+			originalString=""
+		];
+		Export[LogFile,originalString<>string]
+	];
+	Print[x]
+]
+
+
+
+LogPath=outputPath<>"tmp/log_files/"
+If[!DirectoryQ[LogPath],CreateDirectory[LogPath]];
+LogFile=LogPath<>"FFSpanningCutsIBPShorten.txt"
+
+
+md5code=Get[outputPath<>"results/spanning_cuts_consistency_check_passed_certificate.txt"];
+If[md5code=!=Hash[Import[outputPath<>"results/summary.txt","Text"],"MD5"],
+	PrintAndLog["*****The spanning cuts results in "<>outputPath<>" has not passed consistency check! Cannot shorthen IBP. \n*****Exiting..."];
 	Exit[0];
 ]
 
@@ -69,12 +95,24 @@ TimeString[]:=Module[{at},at=FromAbsoluteTime[AbsoluteTime[]];StringRiffle[#,"_"
 
 
 If[Get[packagePath<>"default_settings.txt"]===$Failed,Exit[0]]
-Get[checkPath<>"inputs/config.txt"]
+Get[outputPath<>"inputs/config.txt"]
 (*If[outputPath===Automatic,
 	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
-	Print["Output path has been set as "<>outputPath]
+	PrintAndLog["Output path has been set as "<>outputPath]
 ]*)
-outputPath=checkPath
+
+
+
+If[CutIndices==="spanning cuts",
+	PrintAndLog[
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
+		"\tCutIndices={};\n",
+		"\tSpanningCutsMode=True;"
+	];
+	CutIndices={};
+	SpanningCutsMode=True;
+]
 
 
 TemporaryDirectory=outputPath<>"tmp"
@@ -93,9 +131,9 @@ SectorNumberToSectorIndex[num_]:=IntegerDigits[num,2,Length[Propagators]]//Rever
 
 
 
-Print["=================================================="];
-Print["Shortening IBPs at ",checkPath]
-Print["-------------------------------------------------"]
+PrintAndLog["=================================================="];
+PrintAndLog["Shortening IBPs at ",outputPath]
+PrintAndLog["-------------------------------------------------"]
 
 
 targetFileName=FileNameSplit[targetIntegralsFile][[-1]]
@@ -109,7 +147,7 @@ spanningCuts=Get[outputPath<>"tmp/spanningCuts.txt"]
 
 
 
-Print["Reading IBPs..."];
+PrintAndLog["Reading IBPs..."];
 timer=AbsoluteTime[];
 For[i=1,i<=Length[spanningCuts],i++,
 	cut=spanningCuts[[i]];
@@ -118,14 +156,14 @@ For[i=1,i<=Length[spanningCuts],i++,
 	cutIBPs[cut]=Get[cutFolder<>"results/IBP_all.txt"];
 	cutMIs[cut]=Get[cutFolder<>"results/MI_all.txt"];
 ]
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
 
 
 
 
 
 timer=AbsoluteTime[];
-Print["Sorting cuts..."];
+PrintAndLog["Sorting cuts..."];
 CutOrdering[cut_]:={
 	Length[cutIBPs[cut]],
 	Length[Cases[Variables[cutIBPs[cut]],_G]],
@@ -133,7 +171,7 @@ CutOrdering[cut_]:={
 	LeafCount[cutIBPs[cut]]
 }
 spanningCutsSorted=SortBy[spanningCuts,CutOrdering];
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
 
 (*
 targets=Get[outputPath<>"inputs/"<>targetFileName];
@@ -142,7 +180,7 @@ Get[outputPath<>"inputs/"<>kinematicsFileName];
 SDim=Length[Cases[Variables[{targets,allMIs}],_G][[1]]/.G->List];
 
 targetReducedTable=Table[TargetReducedOnCut[targets[[i]],#]&/@spanningCuts,{i,Length[targets]}];
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
 *)
 
 
@@ -152,7 +190,7 @@ Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
 
 For[i=1,i<=Length[spanningCutsSorted],i++,
 	timer=AbsoluteTime[];
-	Print["Shortening IBPs on cut "<>ToString[InputForm[cut]]<>" (",i,"/",Length[spanningCutsSorted],")"];
+	PrintAndLog["Shortening IBPs on cut "<>ToString[InputForm[cut]]<>" (",i,"/",Length[spanningCutsSorted],")"];
 	cut=spanningCutsSorted[[i]];
 	formerCuts=spanningCutsSorted[[1;;i-1]];
 	eliminatableMIs=Flatten[cutMIs/@formerCuts]//Union;
@@ -161,7 +199,7 @@ For[i=1,i<=Length[spanningCutsSorted],i++,
 	cutFolder=outputPath<>"results/results_spanning_cuts/cut_"<>
 		StringRiffle[ToString/@cut,"_"]<>"/";
 	Export[cutFolder<>"results/IBP_all_shortened.txt",currentCutIBPsShortened//InputForm//ToString];
-	Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
+	PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
 ]
 
 
@@ -169,6 +207,6 @@ For[i=1,i<=Length[spanningCutsSorted],i++,
 
 
 
-Print["==========================\nspanning cuts IBP shorten finished."]
-Export[checkPath<>"tmp/spanning_cuts_IBP_shorten_finished.txt",""]
+PrintAndLog["==========================\nspanning cuts IBP shorten finished."]
+Export[outputPath<>"tmp/spanning_cuts_IBP_shorten_finished.txt",""]
 

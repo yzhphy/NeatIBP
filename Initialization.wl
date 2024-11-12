@@ -101,10 +101,10 @@ If[Intersection[StringSplit[workingPath,""],{" ","\t","\n","?","@","#","$","*","
 {"log.txt","log1.txt","log2.txt","log3.txt","log4.txt"}*)
 (*AppendTo[$Path,workingPath];*)
 If[Get[packagePath<>"default_settings.txt"]===$Failed,Exit[0]]
-If[Get[workingPath<>missionInput]===$Failed,Print["****  Unable to open config file "<>workingPath<>missionInput<>". Exiting.";Exit[]]]
-If[Get[kinematicsFile]===$Failed,Print["****  Unable to open kinematics file "<>kinematicsFile<>". Exiting.";Exit[]]]
+If[Get[workingPath<>missionInput]===$Failed,Print["****  Unable to open config file "<>workingPath<>missionInput<>". Exiting."];Exit[]]
+If[Get[kinematicsFile]===$Failed,Print["****  Unable to open kinematics file "<>kinematicsFile<>". Exiting."];Exit[]]
 TargetIntegrals=Get[targetIntegralsFile]
-If[TargetIntegrals===$Failed,Print["****  Unable to open target intergals file "<>targetIntegralsFile<>". Exiting.";Exit[]]]
+If[TargetIntegrals===$Failed,Print["****  Unable to open target intergals file "<>targetIntegralsFile<>". Exiting."];Exit[]]
 
 
 
@@ -130,10 +130,14 @@ If[Intersection[StringSplit[outputPath,""],{" ","\t","\n","?","@","#","$","*","&
 If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
 (*If[FileExistsQ[#],Run["rm "<>#]]&[outputPath<>"tmp/"<>"initialized.txt"];*)
+
+If[FileExistsQ[#],DeleteFile[#]]&[outputPath<>"tmp/"<>"initialization_failed.txt"]
 If[FileExistsQ[outputPath<>"tmp/"<>"initialized.txt"],
 	Export[outputPath<>"tmp/"<>"once_initialized.txt",""];
 	Run["rm "<>outputPath<>"tmp/"<>"initialized.txt"]
-];
+];(*here once means cengjing initialized in the past*)
+
+
 
 
 finishedTagFile="results/NeatIBP_finished.tag"
@@ -199,6 +203,9 @@ Type in anything to abort.
 	
 	Exit[0];
 ]
+
+
+
 Run["mkdir -p "<>outputPath]
 inputBackupPath=outputPath<>"inputs/"
 Run["mkdir -p "<>inputBackupPath]
@@ -278,6 +285,22 @@ If[allProtectedNamesDisappearQ===False,
 
 
 (* ::Subsection:: *)
+(*spanning cuts terminology*)
+
+
+If[CutIndices==="spanning cuts",
+	PrintAndLog[
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"It is still supported, but it is recommended to use the equivalent, new gramma: \n";
+		"\tCutIndices={};\n",
+		"\tSpanningCutsMode=True;"
+	];
+	CutIndices={};
+	SpanningCutsMode=True;
+]
+
+
+(* ::Subsection:: *)
 (*Other Validations*)
 
 
@@ -286,7 +309,7 @@ If[!SubsetQ[GenericPoint[[All,1]],inputParameters],
 	PrintAndLog[
 		"****  GenericPoint dose not cover all scalar variables. Not covered variables: ",
 		Complement[inputParameters,GenericPoint[[All,1]]],
-		" Exiting..."
+		". Exiting..."
 	];
 	Exit[0];
 ]
@@ -312,8 +335,8 @@ If[Variables[TensorProduct[ExternalMomenta,ExternalMomenta]/.Kinematics/.Generic
 ]
 
 
-If[Head[CutIndices]=!=List&&!MemberQ[{"spanning cuts"},CutIndices],
-	PrintAndLog["****  Unexpected cut indices. Exiting..."];
+If[Head[CutIndices]=!=List(*&&!MemberQ[{"spanning cuts"},CutIndices]*),
+	PrintAndLog["****  Unexpected cut indices ",CutIndices,". Exiting..."];
 	Exit[0]
 ]
 
@@ -355,10 +378,15 @@ If[CutIndices=!={}&&NeedSymmetry,
 	PrintAndLog["****  Please turn off symmetry if there is any cut indices. Exiting..."];
 	Exit[0]
 ]
+If[SpanningCutsMode===True&&NeedSymmetry,
+	PrintAndLog["****  Please turn off symmetry in spanning cuts mode. Exiting..."];
+	Exit[0]
+]
 
 
 
-If[(CutIndices==="spanning cuts")&&(automaticOutputPath===False),
+If[
+(*(CutIndices==="spanning cuts")*)(SpanningCutsMode===True)&&(automaticOutputPath===False),
 	PrintAndLog["****  In spanning cuts mode, outputPath must be set to be Automatic. Exiting..."];(*I think this is unecessary, we can modify the config for the cut missions*)
 	Exit[0]
 ]
@@ -423,7 +451,12 @@ CutableQ[integral_,cut_]:=!MemberQ[Union[Sign/@((List@@integral[[cut]])-1)],1](*
 CuttedQ[integral_,cut_]:=MemberQ[Union[Sign/@((List@@integral[[cut]])-1)],-1](* index that are cut <1 then return True*)
 
 
-If[CutIndices=!="spanning cuts",
+If[(*CutIndices=!="spanning cuts"*)True,
+(*this layer of If, I think, is just for making sure that we do not meet string[[i]],
+just a gramma problem.
+In new gramma of spc, this is not longer a problem.
+---2024.10.26
+  *)
 	If[MemberQ[CutableQ[#,CutIndices]&/@TargetIntegrals,False],
 		PrintAndLog["****  Sorry, this version dose not support cutting indices larger than 1. Please remove corresponding target integrals with such multiple propagators.\nExiting..."];
 		Exit[0];
@@ -454,6 +487,41 @@ If[Union[(Length[Propagators]===Length[#])&/@TargetIntegrals]=!={True},
 ]
 
 
+If[SpanningCutsMode===True&&ShortenIBPs===True&&SpanningCutsConsistencyCheck=!=True,
+	PrintAndLog["****  Wrong setting: In spanning cuts mode, if you set ShortenIBPs=True, you must also set SpanningCutsConsistencyCheck=True."];
+	Exit[0];
+]
+
+
+If[WorkerAllocationSystem=!=And[MathKernelLimit<Infinity,SpanningCutsMode],
+	PrintAndLog[
+		"****  Wrong WorkerAllocationSystem: ",
+		WorkerAllocationSystem,". Required: ",
+		And[MathKernelLimit<Infinity,SpanningCutsMode],
+		"\nBecause: MathKernelLimit="MathKernelLimit,"and SpanningCutsMode=",SpanningCutsMode
+	];
+	Exit[0];
+]
+
+
+If[MathKernelLimit<3,
+	PrintAndLog["****  Too-few MathKernelLimit: ",MathKernelLimit, ". MathKernelLimit should be at least 3."];
+	Exit[0];
+]
+If[And[!IntegerQ[MathKernelLimit],MathKernelLimit=!=Infinity],
+	PrintAndLog["**** Wrong MathKernelLimit: ",MathKernelLimit, ". MathKernelLimit must be an integer or Infinity."];
+	Exit[0];
+]
+If[MaxManagers<1,
+	PrintAndLog["****  Too-few MaxManagers: ",MaxManagers, ". MaxManagers should be at least 1."];
+	Exit[0];
+]
+If[MathKernelLimit<2*MaxManagers+1,
+	PrintAndLog["****  Too-large MaxManagers: ",MaxManagers, ". MaxManagers should be no greater than (MaxManagers-1)/2=",(MaxManagers-1)/2];
+	Exit[0];
+]
+
+
 (* ::Section:: *)
 (*Other file read and writes*)
 
@@ -479,11 +547,28 @@ reductionTasksFolder=TemporaryDirectory<>"reduction_tasks/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[reductionTasksFolder]
 
 
+If[MatheKernelLimit<Infinity&&IsASpanningCutsSubMission,
+	If[!DirectoryQ[#],CreateDirectory[#]]&[TemporaryDirectory<>"worker_kernels/"];
+	If[!DirectoryQ[#],CreateDirectory[#]]&[TemporaryDirectory<>"worker_kernels/recieved_kernels/"];
+	If[!DirectoryQ[#],CreateDirectory[#]]&[TemporaryDirectory<>"worker_kernels/occupied_kernels/"];
+	If[!DirectoryQ[#],CreateDirectory[#]]&[TemporaryDirectory<>"worker_kernels/submitting_kernels/"];
+]
+
+
 (* ::Section:: *)
 (*The rest steps*)
 
 
-If[CutIndices=!={}&&CutIndices=!="spanning cuts",
+If[CutIndices=!={}&&(*CutIndices=!="spanning cuts"*)(*(SpanningCutsMode=!=True)*)True,
+(*
+2024.10.29:
+shall we ask SpanningCutsMode=!=True?
+because we want IBPs such that all 'cutted' integrals=0 be distributed into results/ folder of each cuts, 
+not the results/ folder root path of spc.
+Oh but this is actually not troublesome, because in sub spc folders, the targetIntegrals are full target lists.
+(which is to say, in spanning cuts mode, initialization only export the list of cuts (and some tags), other outputs are useless.)
+in order to keep the same as the following codes, we remove this requirement.
+*)
 	
 	PrintAndLog["Removing target integrals vanishing on cut "<>ToString[InputForm[CutIndices]]];
 	timer=AbsoluteTime[];
@@ -510,7 +595,10 @@ Sectors=SortBy[Union[Sector/@TargetIntegrals],SectorOrdering]//Reverse;
 
 RelavantSectors=SubsectorAllFinder[Sectors];
 
-If[CutIndices=!={}&&CutIndices=!="spanning cuts",
+If[CutIndices=!={}&&(*CutIndices=!="spanning cuts"*)(*(SpanningCutsMode=!=True)*)True,
+(*it seems that we should not ask SpanningCutsMode=!=True here
+so I modified it as True
+*)
 	RelavantSectors=Select[RelavantSectors,!CuttedQ[#,CutIndices]&]
 ];
 
@@ -521,7 +609,7 @@ PrintAndLog["\t",Length[NonZeroSectors]," non-zero sector(s) are found."];
 ZeroTargets=Select[Global`TargetIntegrals,MemberQ[Global`ZeroSectors,Sector[#]]&];
 ReductionTargets=Complement[Global`TargetIntegrals,Global`ZeroTargets];
 ReductionTasks=Association[Table[NonZeroSectors[[i]]->Select[ReductionTargets,NonZeroSectors[[i]]==Sector[#]&],{i,1,Length[NonZeroSectors]}]];
-ZeroSectorRemoval=SectorElimination/@ZeroSectors;
+ZeroSectorRemoval=SectorElimination/@ZeroSectors;(*what for?*)
 IBPList=Association[Table[NonZeroSectors[[i]]->{},{i,1,Length[NonZeroSectors]}]];
 MIList=Association[Table[NonZeroSectors[[i]]->{},{i,1,Length[NonZeroSectors]}]];
 PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
@@ -551,12 +639,21 @@ If[NeedSymmetry===False,
 	PrintAndLog["\tSymmetry is off, skip."];
 	{uniqueSectors,mappedSectors,sectorMaps}={NonZeroSectors,{},{}}
 ,
+	(*If[MathKernelLimit<Infinity,];*)
+	(*
+	2024.11.11:
+		It seems that we should worry about the parallelization in finding symmetries in spanning cuts mode,
+		where there are many Ini.wl running and if 2 ini runs this part of code in the same time
+		the MathKernelLimit will be exceeded.
+		But actually we need not to worry, as long as NeedSymmetry is not supported in SpanningCutsMode
+	*)
+	
 	{uniqueSectors,mappedSectors,sectorMaps}=SectorMaps[NonZeroSectors];
 	
 ]
 Export[outputPath<>"tmp/sectorMaps.txt",sectorMaps//InputForm//ToString]
 PrintAndLog["\t",Length[mappedSectors]," mapped sector(s) found."];
-PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
+PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s). "]
 
 
 
@@ -711,7 +808,10 @@ tmpPath=outputPath<>"tmp/";
 If[!DirectoryQ[#],Run["mkdir -p "<>#]]&[tmpPath];
 
 
-If[CutIndices==="spanning cuts",Export[tmpPath<>"spanning_cuts_mode.txt",""]]
+If[(*CutIndices==="spanning cuts"*)(SpanningCutsMode===True),
+	PrintAndLog["Spanning cuts mode."];
+	Export[tmpPath<>"spanning_cuts_mode.txt",""]
+]
 
 Export[tmpPath<>"initialized.txt",""]
 PrintAndLog["Initialization Finished."]

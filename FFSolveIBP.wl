@@ -45,9 +45,7 @@ If[StringSplit[checkPath,""][[-1]]=!="/",checkPath=checkPath<>"/"]
 
 (*
 This function appears in many codes
-1. SyzygyRed.wl
-2. Several or all .wl codes in interfaces/Kira/interface/
-3. FFSolveIBP.wl, FFSpanningCutsConsistencyCheck.wl
+see in SyzygyRed.wl for where they are
 If you want to modifie this code, remember to modify all of them!
 *)
 PrintAndLog[x___]:=Module[{string,originalString},
@@ -78,6 +76,18 @@ Get[checkPath<>"inputs/config.txt"]
 	PrintAndLog["Output path has been set as "<>outputPath]
 ]*)
 outputPath=checkPath
+
+
+If[CutIndices==="spanning cuts",
+	PrintAndLog[
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
+		"\tCutIndices={};\n",
+		"\tSpanningCutsMode=True;"
+	];
+	CutIndices={};
+	SpanningCutsMode=True;
+]
 
 
 TemporaryDirectory=outputPath<>"tmp"

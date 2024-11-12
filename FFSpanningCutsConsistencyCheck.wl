@@ -45,9 +45,7 @@ If[StringSplit[checkPath,""][[-1]]=!="/",checkPath=checkPath<>"/"]
 
 (*
 This function appears in many codes
-1. SyzygyRed.wl
-2. Several or all .wl codes in interfaces/Kira/interface/
-3. FFSolveIBP.wl, FFSpanningCutsConsistencyCheck.wl
+see in SyzygyRed.wl for where they are
 If you want to modifie this code, remember to modify all of them!
 *)
 PrintAndLog[x___]:=Module[{string,originalString},
@@ -78,6 +76,18 @@ Get[checkPath<>"inputs/config.txt"]
 	PrintAndLog["Output path has been set as "<>outputPath]
 ]*)
 outputPath=checkPath
+
+
+If[CutIndices==="spanning cuts",
+	PrintAndLog[
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
+		"\tCutIndices={};\n",
+		"\tSpanningCutsMode=True;"
+	];
+	CutIndices={};
+	SpanningCutsMode=True;
+]
 
 
 TemporaryDirectory=outputPath<>"tmp"
@@ -201,6 +211,12 @@ If[inconsistencySummary==={},
 	md5code=Hash[Import[checkPath<>"results/summary.txt","Text"],"MD5"];
 	Export[checkPath<>"results/spanning_cuts_consistency_check_passed_certificate.txt",md5code];
 ,
+	For[i=1,i<=Length[spanningCuts],i++,
+		cut=spanningCuts[[i]];
+		cutFolder=outputPath<>"results/results_spanning_cuts/cut_"<>
+			StringRiffle[ToString/@cut,"_"]<>"/";
+		Export[cutFolder<>"IBP_reduction_forbidden.tag","Spanning cuts consistency check **NOT** passed.","Text"];
+	];
 	displayLimit=6;
 	PrintAndLog["Consistency check **NOT** passed. Inconsistencies:"];
 	For[i=1,i<=Length[inconsistencySummary],i++,

@@ -252,7 +252,32 @@ CountIndentSpaces[line_]:=Module[{chars,i},
 	While[True,
 		If[chars[[i]]===" ",i+=1,Break[]];
 	];
-	i-1
+	(*i-1*)(*modified at 2024.10.29*)
+	If[chars[[i]]==="-",
+		Return[-(i-1)-1]
+		(*remember, -1 means 0 spaces with a "-" in the front*)
+		(*remember, -2 means 1 spaces with a "-" in the front*)
+		(* we do so because we need to distinguish case that 0 indent spacs with and without "-"*)
+	,
+		Return[(i-1)]
+	]
+	(*use a minus sign to label that there is a "-" in the frount*)
+]
+
+
+(*added at 2024.10.29
+how to deal with - (hyphen) :
+if a line is beginning with hyphen, find its root layer indent number i such that:
+	i <= number of indent this line
+	i is the maximum of all possible number 
+and then, put it to the next layer of the root.
+
+*)
+LineLayers[lineIndentSpaces_]:=Module[
+{indentSpacesSet,lineLayers},
+	indentSpacesSet=Sort[Select[lineIndentSpaces,#>=0&]//Union];
+	lineLayers={};
+	For
 ]
 
 
@@ -268,8 +293,9 @@ layer,content
 	lines=StringSplit[str,"\n"];
 	lines=Select[lines,Complement[StringSplit[#,""],{" "}]=!={}&];(*remove space lines*)
 	lineIndentSpaces=CountIndentSpaces/@lines;
-	indentSpacesSet=Sort[lineIndentSpaces//Union];
-	lineLayers=Position[indentSpacesSet,#]&/@lineIndentSpaces//Flatten;
+	(*indentSpacesSet=Sort[lineIndentSpaces//Union];
+	lineLayers=Position[indentSpacesSet,#]&/@lineIndentSpaces//Flatten;commented out at 2024.10.29*)
+	lineLayers=LineLayers[lineIndentSpaces];(*added at 2024.10.29*)
 	(*Print[lineIndentSpaces];*)
 	(*start to reed data into tree structure*)
 	dataTree=Node[Null,{}];
@@ -474,12 +500,14 @@ YamlNodeAnalyze[content_,subnodes_]:=Module[{strSeg,key,value,listEntry},
 
 
 YamlDataTreeAnalyze[dataTree_]:=dataTree/.Node->YamlNodeAnalyze
-YamlFileAnalyze::BraceOccurred="This version dose not support brace bracket `1` in yaml files. Failed.";
+YamlFileAnalyze::BraceOccurred="This version dose not support brace bracket `1` in yaml files. Failed."
+YamlFileAnalyze::TableOccurred="This version dose not support \\t in yaml files. Failed.";
 YamlFileAnalyze[file_]:=Module[{str},
 	str=Import[file,"Text"];
 	If[str===$Failed,Return[$Failed]];
 	If[StringContainsQ[str,"{"],Message[YamlFileAnalyze::BraceOccurred,"{"];Return[$Failed]];
 	If[StringContainsQ[str,"}"],Message[YamlFileAnalyze::BraceOccurred,"}"];Return[$Failed]];
+	If[StringContainsQ[str,"\t"],Message[YamlFileAnalyze::TableOccurred];Return[$Failed]];
 	str//YamlStringAnalyze//YamlDataTreeAnalyze
 ]
 

@@ -52,6 +52,25 @@ Get[checkPath<>"inputs/config.txt"]
 outputPath=checkPath
 
 
+If[CutIndices==="spanning cuts",
+	Print[(*not supporting PrintAndLog yet*)
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
+		"\tCutIndices={};\n",
+		"\tSpanningCutsMode=True;"
+	];
+	CutIndices={};
+	SpanningCutsMode=True;
+]
+(*
+but actually it is not possible to have this
+because we does not support to CheckIBP at a root outputPath of spc 
+but maybe in the future we should support this, it is convenient for user
+---2024.10.26
+
+*)
+
+
 TemporaryDirectory=outputPath<>"tmp"
 
 (*Get[packagePath<>"SyzygyRed.wl"]*)

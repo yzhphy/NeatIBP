@@ -21,12 +21,6 @@ If[commandLineMode,
 	Print["WARNING: program is not running in command line mode!"];
 	workingPath=NotebookDirectory[];
 	missionInput="example.txt"
-	(*LoopMomenta={l1,l2};
-	ExternalMomenta={k1,k2,k4};
-	Propagators={l1^2,(l1-k1)^2,(l1-k1-k2)^2,(l2+k1+k2)^2,(l2-k4)^2,l2^2,(l1+l2)^2,(l1+k4)^2,(l2+k1)^2};
-	Kinematics={k1^2->0,k2^2->0,k4^2->0,k1 k2->s/2,k1 k4->t/2,k2 k4->(-s/2-t/2)};
-	GenericPoint={s->-1,t->-3}; 
-	TargetIntegrals={G[1,1,1,1,1,1,1,-5,0],G[1,1,1,1,1,1,1,-4,-1],G[1,1,1,1,1,1,1,-1,-4]}*)
 	
 ]
 
@@ -36,10 +30,22 @@ If[commandLineMode,
 
 (*AppendTo[$Path,workingPath];*)
 If[Get[packagePath<>"default_settings.txt"]===$Failed,Exit[0]]
-If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting.";Exit[]]]
-If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting.";Exit[]]]
+If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting."];Exit[]]
+If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting."];Exit[]]
 (*TargetIntegrals=Get[targetIntegralsFile]
-If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting.";Exit[]]]*)
+If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting."];Exit[]]*)
+
+
+If[CutIndices==="spanning cuts",
+	(*PrintAndLog[
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
+		"\tCutIndices={};\n",
+		"\tSpanningCutsMode=True;"
+	];*)(*not print in this wl*)
+	CutIndices={};
+	SpanningCutsMode=True;
+]
 
 
 If[outputPath===Automatic,
@@ -126,19 +132,80 @@ MissionLimitByMemory[Length[missionReadyToCompute],Round[MemoryAvailable[]/(1024
 TimeString[]:=StringRiffle[#[[1;;3]],"."]<>" "<>StringRiffle[#[[4;;6]],":"]&[(ToString[Round[#]]&/@FromAbsoluteTime[AbsoluteTime[]][[1,1;;6]])]
 
 
+ProcessRunningQ[commandLine_]:=Module[{ps},
+	ps=Select[
+		StringSplit[RunProcess[StringSplit["ps -ef"]]["StandardOutput"],"\n"],
+		StringContainsQ[#,commandLine]&
+	];
+	ps=!={}
+]
+
+
+
+
+
+If[MathKernelLimit<Infinity&&IsASpanningCutsSubMission,
+	WKFolder=outputPath<>"tmp/worker_kernels/";
+	SubmittingKernelsFolder=WKFolder<>"submitting_kernels/";
+	OccupiedKernelsFolder=WKFolder<>"occupied_kernels/";
+	RecievedKernelsFolder=WKFolder<>"recieved_kernels/";
+]
+
+
+
 reportClock=0
 While[True,
 	Pause[0.5];
-	missionStatus=((ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex)->Get[#])&/@FileNames[All,missionStatusFolder];
+	missionStatus=(
+		(
+			ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex
+		)->Get[#]
+	)&/@FileNames[All,missionStatusFolder];
 	NonZeroSectors=missionStatus[[All,1]];
 	If[Complement[Union[missionStatus[[All,2]]],{"ComputationFinished"(*,"Computing"*)}]==={},
 		script="echo \"finished!\"\n";
 		Break[];
 	];
+	
+	
+	missionReportingFinished=(
+		SortBy[
+			Select[
+				missionStatus,
+				StringSplit[#[[2]],"\n"][[1]]==="ReportingFinished"&
+			],
+			SectorOrdering[#[[1]]]&
+		]//Reverse
+	)[[All,1]];
+	While[True,
+		If[missionReportingFinished==={},Break[]];
+		actuallyFinishedMissions=Select[
+			missionReportingFinished,
+			Not[ProcessRunningQ[StringSplit[#/.missionStatus,"\n"][[2]]]]&
+		];
+		missionReportingFinished=Complement[missionReportingFinished,actuallyFinishedMissions];
+		Export[
+			missionStatusFolder<>ToString[#//SectorNumber]<>".txt",
+			"ComputationFinished"//InputForm//ToString
+		]&/@actuallyFinishedMissions;
+		If[MathKernelLimit<Infinity&&IsASpanningCutsSubMission,
+			occupiedKernels=FileNames[All,OccupiedKernelsFolder];
+			If[Length[occupiedKernels]<Length[actuallyFinishedMissions],
+				Print["echo \"MissionStatusChecker: ERROR20241112 at "<>outputPath<>"\""];
+				Exit[1];
+			];
+			freeKernels=occupiedKernels[[;;Length[actuallyFinishedMissions]]];
+			Run["mv "<>#<>" "<>VacantKernelsFolder]&/@freeKernels
+		]
+	];
+	missionStatus=(
+		(
+			ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex
+		)->Get[#]
+	)&/@FileNames[All,missionStatusFolder];
 	missionWaitingSupersectors=(
 			SortBy[Select[missionStatus,#[[2]]==="WaitingSupersectors"&],SectorOrdering[#[[1]]]&]//Reverse
 	)[[All,1]];
-
 	newReadySectors=Select[missionWaitingSupersectors,DeleteCases[Union[SuperSectors[#]/.missionStatus],"ComputationFinished"]==={}&];
 	newReadySectorNumbers=SectorNumber/@newReadySectors;
 	Export[missionStatusFolder<>ToString[#]<>".txt","ReadyToCompute"//InputForm//ToString]&/@newReadySectorNumbers;
@@ -158,10 +225,12 @@ While[True,
 	numOfNewComputingMissions=Min[
 		Length[missionReadyToCompute],
 		ThreadUsedLimit-Length[missionComputing],
+		MathKernelLimit-1-Length[missionComputing],
 		Max[MissionLimitByMemory[Length[missionReadyToCompute]+Length[missionComputing],MemoryUsedLimit]-Length[missionComputing],0]
 		(*Max[MissionLimitByMemory[Length[missionReadyToCompute],Round[MemoryAvailable[]/(1024^2)]-MinMemoryReserved]-Length[missionComputing],0]*)
 	];
-	If[reportClock==0,
+	
+	If[reportClock==0&&(debugMode===True),
 		Run["echo \""<>
 			TimeString[]<>"\t"<>
 			ToString[InputForm[{
@@ -174,6 +243,26 @@ While[True,
 		]
 	];
 	reportClock=Mod[reportClock+1,1000];
+	
+	If[MathKernelLimit<Infinity,
+		wasPath=outputPath<>"tmp/worker_allocations/";
+		If[!DirectoryQ[wasPath],CreateDirectory[wasPath]];(*no need actually I think*)
+		workersGranted=Select[
+			FileNames[All,wasPath],
+			StringSplit[FileNameSplit[#][[-1]],"_"][[1]]==="worker"&
+		];
+		
+		Export[wasPath<>"workers_requested.txt",ToString[numOfNewComputingMissions]];
+		If[!FileExistsQ[wasPath<>"workers_granted.txt"],
+			Print["echo "<>"\"lacking workers_granted.txt in "<>wasPath<>". Exit.\""];
+			Exit[1];
+		];
+		workersRequested=numOfNewComputingMissions+Length[missionComputing];
+		;
+		numOfNewComputingMissions=Min[workersGranted,numOfNewComputingMissions];
+	
+	];
+	
 	If[numOfNewComputingMissions>0,
 		newComputingSectors=missionReadyToCompute[[1;;numOfNewComputingMissions]];
 		newComputingSectorNumbers=SectorNumber/@newComputingSectors;
@@ -188,5 +277,7 @@ While[True,
 ]
 
 
-Print[script]
+
 Run["echo \""<>script<>"\" >> "<>outputPath<>"tmp/log3.txt"]
+script="sleep 1.5\n"<>script (*to makesure that when script runs, this wl really ends.*)
+Print[script]

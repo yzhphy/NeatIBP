@@ -48,15 +48,11 @@ If[commandLineMode,
 
 
 
-
-
-
-
-
-
-
-
-
+(*
+This function appears in many codes
+see in SyzygyRed.wl for where they are
+If you want to modifie this code, remember to modify all of them!
+*)
 LogFile="";
 PrintAndLog[x___]:=Module[{string,originalString},
 	If[LogFile=!="",
@@ -119,9 +115,21 @@ If[SectorwiseSettings=!={},
 ]
 
 
-If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting.";Exit[]]]
+If[CutIndices==="spanning cuts",
+	PrintAndLog[
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
+		"\tCutIndices={};\n",
+		"\tSpanningCutsMode=True;"
+	];
+	CutIndices={};
+	SpanningCutsMode=True;
+]
+
+
+If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinematicsFile<>". Exiting."];Exit[]]
 (*TargetIntegrals=Get[targetIntegralsFile]
-If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting.";Exit[]]]
+If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting."];Exit[]]
 TargetIntegrals//Clear;*)
 (*PrintAndLog[sectorID,missionInput,Propagators//InputForm//ToString]
 PrintAndLog[Head/@{sectorID,missionInput,Propagators//InputForm}]
@@ -307,7 +315,7 @@ If[sectorID=!=-1,
 			ReductionTasks[NonZeroSectors[[i]]]//InputForm//ToString
 		]
 	];
-	Export[missionStatusFolder<>ToString[sectorID]<>".txt","ComputationFinished"//InputForm//ToString]
+	
 (*	AllMissionSectors=SortBy[(
 		(ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex)
 		&/@FileNames[All,missionStatusFolder]
@@ -375,3 +383,26 @@ ToString[InputForm[Round[MaxMemoryUsed[]/(1024^2)]]]<>" MB."
 
 
 Run["echo \""<>reportString<>"\" >> "<>outputPath<>"tmp/log.txt"]
+
+
+If[sectorID=!=-1,
+	report="ReportingFinished\n"<>StringRiffle[$CommandLine," "]<>"";
+	(*Export[missionStatusFolder<>ToString[sectorID]<>".txt","ComputationFinished"//InputForm//ToString]*)
+	Export[missionStatusFolder<>ToString[sectorID]<>".txt",report//InputForm//ToString];
+	
+]
+(*
+2024.11.5
+here, we make this change because:
+	we will not let Analyze_Sectors.wl to write "ComputationFinished" into status.
+	This work will done by the MissionStatusChecker.wl in its main While loop, 
+	to detect that the process (recorded as command line command) really ends.
+	Thus, we can prevent unlabelled sectors. 
+	"ComputationFinished" will be labelled after Analyze_Sectors.wl really finished.
+	The reason is, unlabelled sector is harmful to WorkerAllocationSystem. 
+	It will make the system UNDERESTIMATE the workers in use 
+	and grant workers for a manager more than MathKernelLimit
+	Then everything is breaking down.
+	So we are here to prevent the above.
+
+*)

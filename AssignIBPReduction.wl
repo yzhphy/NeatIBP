@@ -43,7 +43,7 @@ If[commandLineMode,
 If[Get[packagePath<>"default_settings.txt"]===$Failed,Exit[0]]
 
 
-If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting.";Exit[]]]
+If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting."];Exit[]]
 
 
 If[outputPath===Automatic,
@@ -64,20 +64,48 @@ SetDirectory[workingPath]
 TimeString[]:=Module[{at},at=FromAbsoluteTime[AbsoluteTime[]];StringRiffle[#,"_"]&[(ToString[Floor[#]]&/@at[[1,1;;6]])]<>"_"<>ToString[Floor[1000*(#-Floor[#])&[ at[[1,6]]]]]]
 
 
-finishedTagFile="results/NeatIBP_finished.tag"
-
-
-
-
-
-If[!FileExistsQ[outputPath<>"results/summary.txt"],
-	If[PerformIBPReduction===True,Print["Summary failed, cannot perform IBP reduction."]];
-	Exit[0];
+(*
+This function appears in many codes
+see in SyzygyRed.wl for where they are
+If you want to modifie this code, remember to modify all of them!
+*)
+PrintAndLog[x___]:=Module[{string,originalString},
+	If[LogFile=!="",
+		string=StringRiffle[ToString/@{x},""];
+		(*Run["echo \""<>string<>"\" >> "<>LogFile]*)
+		If[FileExistsQ[LogFile],
+			originalString=Import[LogFile]<>"\n"
+		,
+			originalString=""
+		];
+		Export[LogFile,originalString<>string]
+	];
+	Print[x]
 ]
 
 
+
+LogPath=outputPath<>"tmp/log_files/"
+If[!DirectoryQ[LogPath],CreateDirectory[LogPath]];
+LogFile=LogPath<>"AssignIBPReduction.txt"
+
+
+If[CutIndices==="spanning cuts",
+	PrintAndLog[
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
+		"\tCutIndices={};\n",
+		"\tSpanningCutsMode=True;"
+	];
+	CutIndices={};
+	SpanningCutsMode=True;
+]
+
+
+finishedTagFile="results/NeatIBP_finished.tag"
 If[PerformIBPReduction=!=True,
-	Export[outputPath<>finishedTagFile,"","Text"];
+	(*Export[outputPath<>finishedTagFile,"","Text"];*)
+	(*moved this part to LaunchIBPReduction.wl*)
 	Exit[];
 ]
 
@@ -85,14 +113,38 @@ If[PerformIBPReduction=!=True,
 
 
 
-If[CutIndices==="spanning cuts",
+If[FileExistsQ[outputPath<>"tmp/once_summarized.tag"],
+	Export[outputPath<>"tmp/summarized.tag","","Text"]
+]
+If[!FileExistsQ[outputPath<>"tmp/summarized.tag"],
+	Export[
+		outputPath<>"tmp/assigned_reduction_script.sh",
+		"echo \"Did not found "<>outputPath<>"tmp/summarized.tag"<>". Possibly NeatIBP did not finish properly. Give up performing IBP reduction.\"",
+		"Text"
+	];
+	Exit[0];
+]
+
+
+(*If[!FileExistsQ[outputPath<>"tmp/IBP_reduction_permission.tag"],
+	Export[
+		outputPath<>"tmp/assigned_reduction_script.sh",
+		"echo \"Did not found permission tag from Summary.wl. Possibly NeatIBP did not finish properly. Give up performing IBP reduction.\"",
+		"Text"
+	];
+	Exit[];
+]
+*)
+
+
+If[(*CutIndices==="spanning cuts"*)SpanningCutsMode===True,
 	If[
 		DirectoryQ[outputPath<>"results/results_spanning_cuts/"]&&
 		FileExistsQ[outputPath<>"tmp/spanning_cuts_mode.txt"]
 	,
 		mode="spanning cuts";
 	,
-		Print[outputPath," does not look like a spanning cuts folder. Failed."];
+		PrintAndLog[outputPath," does not look like a spanning cuts folder. Failed."];
 		Exit[];
 	]
 ,
@@ -127,11 +179,11 @@ Switch[mode,
 			,""]
 		," "];
 		If[!FileExistsQ[FermatPath],
-			Print["***File at ",FermatPath," does not exist. Exiting."];
+			PrintAndLog["***File at ",FermatPath," does not exist. Exiting."];
 			Exit[];
 		];
 		If[FileNameSplit[FermatPath][[-1]]=!="fer64",
-			Print["***FermatPath ",FermatPath," should be specified to \"fer64\". Exiting."];
+			PrintAndLog["***FermatPath ",FermatPath," should be specified to \"fer64\". Exiting."];
 			Exit[];
 		];
 		If[Count[
@@ -140,7 +192,7 @@ Switch[mode,
 				FileNameSplit[#][[-1]]==="kira"&
 			]
 		,True]<1,
-			Print["***KiraCommand \"",KiraCommand,"\" is not an correct kira command. Please check. Exiting."];
+			PrintAndLog["***KiraCommand \"",KiraCommand,"\" is not an correct kira command. Please check. Exiting."];
 			Exit[];
 		];(*kira command may include some settings*)
 		Switch[EnvVarSetter,
@@ -153,12 +205,12 @@ Switch[mode,
 			(*script=script<>"\n"<>"setenv KiraCommand \""<>KiraCommand<>"\"";*)
 		,
 		_,
-			Print[" ***EnvVarSetter \"",EnvVarSetter,"\" is not supported yet."];
-			Print["Valid values:"];
-			Print["\t1. export"];
-			Print["\t2. setenv"];
-			Print["Please check the spelling or contact the developers of NeatIBP."];
-			Print["Exiting."];
+			PrintAndLog[" ***EnvVarSetter \"",EnvVarSetter,"\" is not supported yet."];
+			PrintAndLog["Valid values:"];
+			PrintAndLog["\t1. export"];
+			PrintAndLog["\t2. setenv"];
+			PrintAndLog["Please check the spelling or contact the developers of NeatIBP."];
+			PrintAndLog["Exiting."];
 			Exit[];
 		];
 		If[ForceRemoveExistingKiraResults===True,
@@ -175,11 +227,11 @@ Switch[mode,
 	,
 	_,
 		(*this should have been excluded by initialization, but... better double checked*)
-		Print["***Err: Unkown IBPReductionMethod ",IBPReductionMethod];(*we'd better use PrintAndLog*)
+		PrintAndLog["***Err: Unkown IBPReductionMethod ",IBPReductionMethod];(*we'd better use PrintAndLog. 2024.10.26: yes, we used.*)
 		Exit[];
 	];
 ,
-"spanning cuts",
+"spanning cuts",(*here "spanning cuts" is refering to mode, not CutIndices, so it is kept here --- 2024.10.26*)
 	Switch[IBPReductionMethod,
 	"None",
 		script="echo \"IBPReductionMethod=None, will not perform IBP reduction.\"\n";
@@ -192,11 +244,11 @@ Switch[mode,
 			,""]
 		," "];
 		If[!FileExistsQ[FermatPath],
-			Print["***File at ",FermatPath," does not exist. Exiting."];
+			PrintAndLog["***File at ",FermatPath," does not exist. Exiting."];
 			Exit[];
 		];
 		If[FileNameSplit[FermatPath][[-1]]=!="fer64",
-			Print["***FermatPath ",FermatPath," should be specified to \"fer64\". Exiting."];
+			PrintAndLog["***FermatPath ",FermatPath," should be specified to \"fer64\". Exiting."];
 			Exit[];
 		];
 		If[Count[
@@ -205,7 +257,7 @@ Switch[mode,
 				FileNameSplit[#][[-1]]==="kira"&
 			]
 		,True]<1,
-			Print["***KiraCommand \"",KiraCommand,"\" is not an correct kira command. Please check. Exiting."];
+			PrintAndLog["***KiraCommand \"",KiraCommand,"\" is not an correct kira command. Please check. Exiting."];
 			Exit[];
 		];(*kira command may include some settings*)
 		Switch[EnvVarSetter,
@@ -218,12 +270,12 @@ Switch[mode,
 			(*script=script<>"\n"<>"setenv KiraCommand \""<>KiraCommand<>"\"";*)
 		,
 		_,
-			Print[" ***EnvVarSetter \"",EnvVarSetter,"\" is not supported yet."];
-			Print["Valid values:"];
-			Print["\t1. export"];
-			Print["\t2. setenv"];
-			Print["Please check the spelling or contact the developers of NeatIBP."];
-			Print["Exiting."];
+			PrintAndLog[" ***EnvVarSetter \"",EnvVarSetter,"\" is not supported yet."];
+			PrintAndLog["Valid values:"];
+			PrintAndLog["\t1. export"];
+			PrintAndLog["\t2. setenv"];
+			PrintAndLog["Please check the spelling or contact the developers of NeatIBP."];
+			PrintAndLog["Exiting."];
 			Exit[];
 		];
 		If[ForceRemoveExistingKiraResults===True,
@@ -231,10 +283,13 @@ Switch[mode,
 		,
 			kiraScriptSetting="-f "
 		];
-		If[UseShortenedIBPForKira===True,
-			kiraScriptSetting=kiraScriptSetting<>"-s ";
+		If[SpanningCutsConsistencyCheck===True,
 			script=script<>"\n"<>MathematicaCommand<>" -script "<>packagePath<>
 				"FFSpanningCutsConsistencyCheck.wl "<>outputPath<>"\n";
+		];
+
+		If[UseShortenedIBPForKira===True,
+			kiraScriptSetting=kiraScriptSetting<>"-s ";
 			script=script<>MathematicaCommand<>" -script "<>packagePath<>
 				"FFSpanningCutsIBPShorten.wl "<>outputPath<>"\n";
 			script=script<>shortenFinishQScript<>"\n\n";
@@ -276,7 +331,7 @@ Switch[mode,
 			];
 		,
 		_,
-			Print["**** Err: ParallelKiraReductionForSpanningCuts must be True or False. Exiting."];
+			PrintAndLog["**** Err: ParallelKiraReductionForSpanningCuts must be True or False. Exiting."];
 			Exit[1];
 		];
 		If[UseShortenedIBPForKira===True,
@@ -295,21 +350,24 @@ Switch[mode,
 	,
 	_,
 		(*this should have been excluded by initialization, but... better double checked*)
-		Print["***Err: Unkown IBPReductionMethod ",IBPReductionMethod];(*we'd better use PrintAndLog*)
+		PrintAndLog["***Err: Unkown IBPReductionMethod ",IBPReductionMethod];(*we'd better use PrintAndLog. 2024.10.26: yes we used.*)
 		Exit[];
 	];
 ,
 _,
-	Print["AssignIBPReduction.wl: unkown mode ", mode, ". Failed"];
+	PrintAndLog["AssignIBPReduction.wl: unkown mode ", mode, ". Failed"];
 	Exit[];
 ]
 
 
-script=script<>" >> "<>outputPath<>finishedTagFile;
+If[Not[SpanningCutsMode===True],
+	script=script<>" >> "<>outputPath<>finishedTagFile
+]
 
 
 
-Print[outputPath<>"tmp/assigned_reduction_script.sh"]
+
+PrintAndLog[outputPath<>"tmp/assigned_reduction_script.sh"]
 
 
 Export[outputPath<>"tmp/assigned_reduction_script.sh",script,"Text"]

@@ -50,9 +50,7 @@ If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
 (*
 This function appears in many codes
-1. SyzygyRed.wl
-2. Several or all .wl codes in interfaces/Kira/interface/
-3. FFSolveIBP.wl, FFSpanningCutsConsistencyCheck.wl
+see in SyzygyRed.wl for where they are
 If you want to modifie this code, remember to modify all of them!
 *)
 PrintAndLog[x___]:=Module[{string,originalString},
