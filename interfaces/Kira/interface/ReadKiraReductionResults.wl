@@ -90,12 +90,30 @@ If[integrals===$Failed,
 ]
 
 
+targetListStr=Import[outputPath<>"KiraIO/list","Text"]
+If[targetListStr===$Failed,
+	PrintAndLog["Failed to read targets in ",outputPath<>"KiraIO/list.  Exiting."];
+	Exit[];
+]
+targetList=ToExpression/@DeleteCases[
+	StringSplit[StringReplace[targetListStr," "->""],"\n"],
+	""
+]
+
+	
+
+
+
 kiraListG=kiraList/.Tuserweight[x_]:>integrals[[-x]]
+targetListG=targetList/.Tuserweight[x_]:>integrals[[-x]]
+
+
+IBPTable=#->(#/.kiraListG)&/@targetListG
 
 
 reductionResultsFolder=outputPath<>"results/Kira_reduction_results/"
 If[!DirectoryQ[reductionResultsFolder],CreateDirectory[reductionResultsFolder]]
-Export[reductionResultsFolder<>"reduced_IBP_Table.txt",kiraListG//InputForm//ToString]
+Export[reductionResultsFolder<>"reduced_IBP_Table.txt",IBPTable//InputForm//ToString]
 
 
 PrintAndLog["\tFinished. Time used: ",Round[AbsoluteTime[]-timer]," second(s)."]

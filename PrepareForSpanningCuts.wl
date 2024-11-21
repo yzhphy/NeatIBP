@@ -44,7 +44,7 @@ If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targ
 
 If[CutIndices==="spanning cuts",
 	(*Print[
-		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.1.0.0.\n",
 		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
 		"\tCutIndices={};\n",
 		"\tSpanningCutsMode=True;"
@@ -172,7 +172,7 @@ Run["chmod +x "<>TemporaryDirectory<>"run_cut.sh"]
 
 (*we may need to recreate spanningCutsMissionMainPath by default, considering what if this is a 2nd time running? *)
 Options[PrepareSPC]={KernelDistributionHQ->False}
-PrepareSPC[]:=Module[{i,cut,stringTail,cutMissionPath,runAllCutsScript},
+PrepareSPC[OptionsPattern[]]:=Module[{i,cut,stringTail,cutMissionPath,runAllCutsScript},
 	PrintAndLog["Creating spanning cuts missions..."];
 	spanningCutsMissionMainPath=TemporaryDirectory<>"spanning_cuts_missions/";
 	If[OptionValue[KernelDistributionHQ],
@@ -201,7 +201,7 @@ PrepareSPC[]:=Module[{i,cut,stringTail,cutMissionPath,runAllCutsScript},
 		"Parallel",
 			If[OptionValue[KernelDistributionHQ],
 				runAllCutsScript=runAllCutsScript<>packagePath<>"paused_command.sh "<>cutMissionPath<>"pause.tag "<>
-					"\""<>TemporaryDirectory<>"run_cut.sh "<>cutMissionPath<>" \"cut mission "<>ToString[InputForm[cut]]<>":\" &\n";
+					"\""<>TemporaryDirectory<>"run_cut.sh "<>cutMissionPath<>"\" \"cut mission "<>ToString[InputForm[cut]]<>": \" &\n";
 			,
 				runAllCutsScript=runAllCutsScript<>TemporaryDirectory<>"run_cut.sh "<>cutMissionPath<>" &\n";
 			]

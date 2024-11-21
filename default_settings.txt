@@ -53,9 +53,11 @@ FineGrainedZurichSeeding=False;
 MemoryUsedLimit=Infinity;(*MB*)
 ThreadUsedLimit=Infinity;
 MathKernelLimit=Infinity;
+MaxManagers=4;
 DeleteSingularScriptFiles=False;
 DeleteSingularResultFiles=True;
-MaxManagers=4;
+UseGNUParallel=False;
+
 
 (*----------additional outputs-----------*)
 SilentExport=True;
@@ -95,7 +97,9 @@ SpanningCutsMode=False;
 SpanningCutsEvaluationMode="Parallel";(*or "Sequential"*)
 ShortenIBPs=True;
 SpanningCutsConsistencyCheck=True;(*strongly recommended True*)
-
+ConsistencyCheckParalleliation=False;
+ConsistencyCheckParallelizationMethod="Naive";(*or "GNUParallel"*)
+ConsistencyCheckParallelJobNumber=Infinity;
 
 (*-----------IBP Reduction related-------*)
 PerformIBPReduction=False;
@@ -109,21 +113,22 @@ options:
 "Kira": using Kira
 
 *)
+SPCIBPReductionParallelization=True;
+SPCIBPReductionParallelizationMethod="Naive";(*or "GNUParallel"*)
+SPCIBPReductionParallelJobNumber=Infinity;
+UseShortenedIBP=True;(*only valid for spanning cuts mode*)
 
 (*---Kira setting---*)
 KiraCommand=""
 FermatPath=""
-UseShortenedIBPForKira=True;(*only valid for spanning cuts mode*)
 ForceRemoveExistingKiraResults=False;
-ParallelKiraReductionForSpanningCuts=True;
-ParallelKiraJobNumber=Infinity;
 RunFireFlyInKira=True;
 
 
 
 (*--------developer settings-------------*)
-debugMode=False;
-developerMode=False;
+DebugMode=False;
+DeveloperMode=False;
 seedingViaFIBPFunction=True;
 FIBPsNCornerKill=True;
 SowAndReap=True;(*of the Zuirch seeding in the main body of NeatIBP*)

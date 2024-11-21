@@ -33,7 +33,7 @@ If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targ
 
 If[CutIndices==="spanning cuts",
 	(*PrintAndLog[
-		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.1.0.0.\n",
 		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
 		"\tCutIndices={};\n",
 		"\tSpanningCutsMode=True;"
@@ -93,13 +93,15 @@ PrintStatus[]:=Module[
 {maxNum=6,missionWaitingSupersectors,missionComputationFinished,missionComputing,missionReadyToCompute,
 missionLost,runningMissionUnregistered,actuallyRunningMissions,runningMissionMismatchMessage,missionReportingFinished},
 	actuallyRunningMissions=ActuallyRunningMissions[];
+	missionStatus={ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex,Get[#]}&/@FileNames[All,missionStatusFolder];
+	(*although status already read outside, read it here again, to avoid miss report of lost sectors --- 2024.11.12*)
 	Print["----------------------------------------------"];
 	Print[TimeString[]];
 	missionWaitingSupersectors=(
 			SortBy[Select[missionStatus,#[[2]]==="WaitingSupersectors"&],SectorOrdering[#[[1]]]&]//Reverse
 	)[[All,1]];
 	missionReadyToCompute=(
-			SortBy[Select[missionStatus,#[[2]]==="ReadyToCompute"&],SectorOrdering[#[[1]]]&]//Reverse
+			SortBy[Select[missionStatus,#[[2]]==="ReadyToCompute"||#[[2]]==="AboutToCompute"&],SectorOrdering[#[[1]]]&]//Reverse
 	)[[All,1]];
 	missionComputing=(
 			SortBy[Select[missionStatus,#[[2]]==="Computing"&],SectorOrdering[#[[1]]]&]//Reverse
@@ -126,6 +128,9 @@ missionLost,runningMissionUnregistered,actuallyRunningMissions,runningMissionMis
 	runningMissionUnregistered=Complement[actuallyRunningMissions,SectorNumber/@missionComputing];
 	runningMissionMismatchMessage="";
 	If[Length[missionLost]>0,
+		Print[SectorNumber/@actuallyRunningMissions];
+		Print[SectorNumber/@missionComputing];
+		Print[missionComputing/.(#[[1]]->#[[2]]&/@missionStatus)];
 		runningMissionMismatchMessage=StringJoinLined[
 			runningMissionMismatchMessage,
 			"******** \nWarning:\n"<>ToString[Length[missionLost]]<>" sector(s) lost"<>ReprotString[missionLost,maxNum]
@@ -196,7 +201,7 @@ runningMissionUnregistered},
 			SortBy[Select[missionStatus,#[[2]]==="WaitingSupersectors"&],SectorOrdering[#[[1]]]&]//Reverse
 	)[[All,1]];
 	missionReadyToCompute=(
-			SortBy[Select[missionStatus,#[[2]]==="ReadyToCompute"&],SectorOrdering[#[[1]]]&]//Reverse
+			SortBy[Select[missionStatus,#[[2]]==="ReadyToCompute"||#[[2]]==="AboutToCompute"&],SectorOrdering[#[[1]]]&]//Reverse
 	)[[All,1]];
 	missionComputing=(
 			SortBy[Select[missionStatus,#[[2]]==="Computing"&],SectorOrdering[#[[1]]]&]//Reverse
@@ -364,10 +369,33 @@ FineTable[table_]:=Module[{rows,columns,r,c,maxLengths,fineTable,entry,finalStri
 ]
 
 
+HQKernelReport[]:=Module[
+{activatedManagers,vacantKernels,managerKernelsPath,vacantKernelsPath},
+	managerKernelsPath=outputPath<>"tmp/kernels_at_HQ/manager_kernels/";
+	vacantKernelsPath=outputPath<>"tmp/kernels_at_HQ/vacant_kernels/";
+	If[DirectoryQ[vacantKernelsPath],
+		vacantKernels=FileNames[All,vacantKernelsPath]//Length;
+	,
+		vacantKernels=0;
+	];
+	If[DirectoryQ[managerKernelsPath],
+		activatedManagers=FileNames[All,managerKernelsPath]//Length;
+	,
+		activatedManagers=0;
+	];
+	"\nKernel details:"<>"   #vacant_kernels = "<>ToString[vacantKernels]<>
+	"   #activated_managers = "<>ToString[activatedManagers]<>"\n---------"
+]
+
+
+
+
+
 PrintCutsMissions[]:=Module[{displaystring,table},
 	displaystring="----------------------------------------------";
 	displaystring=displaystring<>"\n"<>TimeString[]<>"\n"<>displaystring;
 	(*displaystring=displaystring<>"\n"<>FineTable[CutMissionsInfoTable[]];*)
+	If[MathKernelLimit<Infinity,displaystring=displaystring<>HQKernelReport[]];
 	table=CutMissionsInfoTableExtended[];
 	displaystring=displaystring<>"\n"<>FineTable[table];
 	Print[displaystring];
@@ -421,6 +449,7 @@ While[True,
 	If[mode==="normal",
 		If[!DirectoryQ[outputPath//ToString],Print["outputPath "<>ToString[outputPath]<>" does not exist."];Break[]];
 		missionStatus={ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex,Get[#]}&/@FileNames[All,missionStatusFolder];
+		(*added this read status step into the PrintStatus[] function, let it read again, to avoid miss report of lost sectors --- 2024.11.12 *)
 		initializationStatus=InitializationStatus[];
 		If[initializationStatus==="finished",PrintStatus[]];
 		If[initializationStatus==="in progress",PrintWaitInitialization[]];

@@ -19,8 +19,14 @@ If[commandLineMode,
 	ShellProcessor=Import[packagePath<>"/preload/ShellProcessor.txt"];
 	,
 	Print["WARNING: program is not running in command line mode!"];
-	workingPath=NotebookDirectory[];
-	missionInput="example.txt"
+	packagePath=NotebookDirectory[];
+	AbsMissionInput="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples_private/dbox/config.txt";
+	workingPath=DirectoryName[AbsMissionInput];
+	missionInput=FileNameSplit[AbsMissionInput][[-1]];
+	(*workingPath=Directory[]<>"/";
+	missionInput=$CommandLine[[-1]];*)
+	MathematicaCommand=Import[packagePath<>"/preload/MathematicaCommand.txt"];
+	ShellProcessor=Import[packagePath<>"/preload/ShellProcessor.txt"];
 	
 ]
 
@@ -38,7 +44,7 @@ If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targ
 
 If[CutIndices==="spanning cuts",
 	(*PrintAndLog[
-		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.1.0.0.\n",
 		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
 		"\tCutIndices={};\n",
 		"\tSpanningCutsMode=True;"
@@ -87,15 +93,17 @@ spanningCuts=Get[outputPath<>"tmp/spanningCuts.txt"];
 CutFolder[cut_]:=outputPath<>"tmp/spanning_cuts_missions/cut_"<>StringRiffle[ToString/@cut,"_"]<>"/"
 
 
-
 StartCut[cut_]:=DeleteFile[CutFolder[cut]<>"pause.tag"]
 
 
+CutOutputFolder[cut_]:=CutFolder[cut]<>"outputs/"<>ReductionOutputName<>"/"
+
+
 finishedTagFile="results/NeatIBP_finished.tag"
-CutFinishedQ[cut_]:=FileExistsQ[CutFolder[cut]<>finishedTagFile]
+CutFinishedQ[cut_]:=FileExistsQ[CutOutputFolder[cut]<>finishedTagFile]
 
 
-CutWKFolder[cut_]:=CutFolder[cut]<>"tmp/worker_kernels/"
+CutWKFolder[cut_]:=CutOutputFolder[cut]<>"tmp/worker_kernels/"
 
 
 HQFolder=outputPath<>"tmp/kernels_at_HQ/"
@@ -103,6 +111,12 @@ If[!DirectoryQ[#],CreateDirectory[#]]&[HQFolder]
 If[!DirectoryQ[#],CreateDirectory[#]]&[HQFolder<>"vacant_kernels/"]
 If[!DirectoryQ[#],CreateDirectory[#]]&[HQFolder<>"manager_kernels/"]
 Export[HQFolder<>"vacant_kernels/kernel_"<>ToString[#],"","Text"]&/@Range[MathKernelLimit-1](*HQ kernel is ommited*)
+
+
+
+
+
+
 
 
 CollectCutSubmittingKernels[cut_]:=Module[{cutSubmittingKernelsFolder,submittingKernels},
@@ -126,6 +140,7 @@ HQManagerKernels[]:=FileNames[All,HQFolder<>"manager_kernels/"]
 
 ReadCutRequestedKernels[cut_]:=Module[{cutRequestedKernelsFile,occupiedKernels},
 	cutRequestedKernelsFile=CutWKFolder[cut]<>"requested_kernels.txt";
+	(*Print[cutRequestedKernelsFile];*)
 	If[!FileExistsQ[cutRequestedKernelsFile],Return[0]];
 	Get[cutRequestedKernelsFile]
 ]
@@ -139,10 +154,13 @@ Module[
 		For[i=1,i<=Length[spanningCuts],i++,
 			cut=spanningCuts[[i]];
 			status=CutMissionStatus[[i]];
+			
 			Switch[status,
 			"NotStarted",
 				vacantKernelsHQ=HQVacantKernels[];
-				If[Count[CutMissionStatus]<MaxManagers&&Length[vacantKernelsHQ]>1,
+				(*Print["vacantKernelsHQ: ", vacantKernelsHQ];
+				Print["vacantKernelsHQ: ", vacantKernelsHQ];*)
+				If[Count[CutMissionStatus,"Running"]<MaxManagers&&Length[vacantKernelsHQ]>1,
 					CutMissionStatus[[i]]="Running";
 					Run["mv "<>vacantKernelsHQ[[1]]<>" "<>HQFolder<>"manager_kernels/"];
 					(*actually we do not care about which manager kernel is for which cut
@@ -165,6 +183,8 @@ Module[
 				,
 					(*if not finished*)
 					requestedKernels=ReadCutRequestedKernels[cut]-CountCutRecievedKernels[cut];
+					(*Print["cut: ", cut];
+					Print["requestedKernels:",requestedKernels];*)
 					vacantKernelsHQ=HQVacantKernels[];
 					If[Length[vacantKernelsHQ]>=requestedKernels,
 						grantingKernels=vacantKernelsHQ[[;;requestedKernels]];
@@ -176,8 +196,13 @@ Module[
 				
 				]
 			]
-		]
+		];
+		If[DeleteCases[CutMissionStatus,"Finished"]==={},Break[]];
+		Pause[0.3]
 	]
 	
 	
 ]
+
+
+

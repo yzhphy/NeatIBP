@@ -80,7 +80,7 @@ outputPath=checkPath
 
 If[CutIndices==="spanning cuts",
 	PrintAndLog[
-		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.1.0.0.\n",
 		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
 		"\tCutIndices={};\n",
 		"\tSpanningCutsMode=True;"
@@ -119,12 +119,69 @@ spanningCuts=Get[outputPath<>"tmp/spanningCuts.txt"]
 
 
 
-For[i=1,i<=Length[spanningCuts],i++,
-	cut=spanningCuts[[i]];
-	solveFolder=outputPath<>"results/results_spanning_cuts/cut_"<>
-		StringRiffle[ToString/@cut,"_"]<>"/";
-	Run[MathematicaCommand<>" -script "<>packagePath<>"FFSolveIBP.wl "<>solveFolder];
+If[ConsistencyCheckParallelization,
+	For[i=1,i<=Length[spanningCuts],i++,
+		cut=spanningCuts[[i]];
+		solveFolder=outputPath<>"results/results_spanning_cuts/cut_"<>
+			StringRiffle[ToString/@cut,"_"]<>"/";
+		Run[MathematicaCommand<>" -script "<>packagePath<>"FFSolveIBP.wl "<>solveFolder];
+	];
+,
+	jobNumber=Min[
+		MathKernelLimit-1,
+		ThreadUsedLimit,
+		ConsistencyCheckParallelJobNumber
+	];
+	parallelCheckScript="";
+	Switch[ConsistencyCheckParallelizationMethod,
+	"Naive",
+		For[i=1,i<=Length[spanningCuts],i++,
+			cut=spanningCuts[[i]];
+			solveFolder=outputPath<>"results/results_spanning_cuts/cut_"<>
+				StringRiffle[ToString/@cut,"_"]<>"/";
+			parallelCheckScript=parallelCheckScript<>"\n"<>
+				MathematicaCommand<>" -script "<>packagePath<>"FFSolveIBP.wl "<>solveFolder<>" &\n";
+			If[jobNumber=!=Infinity,
+				If[Mod[i,jobNumber]===0,
+					parallelCheckScript=parallelCheckScript<>"wait\n";
+				];
+			];
+		];
+		If[jobNumber===Infinity,
+			parallelCheckScript=parallelCheckScript<>"wait\n";
+		,
+			If[Mod[i,jobNumber]=!=0,
+				parallelCheckScript=parallelCheckScript<>"wait\n";
+			]
+		];
+		Run[parallelCheckScript];
+	,
+	"GNUParallel",
+		If[UseGNUParallel=!=True,
+			PrintAndLog["**** Err: Must set UseGNUParallel=True if you want to use GNU parallel. Exit."];
+			Exit[1];
+		];
+		For[i=1,i<=Length[spanningCuts],i++,
+			cut=spanningCuts[[i]];
+			solveFolder=outputPath<>"results/results_spanning_cuts/cut_"<>
+				StringRiffle[ToString/@cut,"_"]<>"/";
+			parallelCheckScript=parallelCheckScript<>"\n"<>
+				MathematicaCommand<>" -script "<>packagePath<>"FFSolveIBP.wl "<>solveFolder<>"\n";
+		];
+		Export[outputPath<>"tmp/GNU_parallel_consistency_check_script.txt",parallelCheckScript,"Text"];
+		If[jobNumber===Infinity,
+			Run["cat "<>outputPath<>"tmp/GNU_parallel_consistency_check_script.txt | "<>GNUParallelCommand<>" --ungroup"<>"\n"];
+		,
+			Run["cat "<>outputPath<>"tmp/GNU_parallel_consistency_check_script.txt | "<>GNUParallelCommand<>" --ungroup -j "<>ToString[jobNumber]<>"\n"];
+		];
+		
+	,
+	_,
+		PrintAndLog["**** Err: ConsistencyCheckParallelizationMethod must be one of the following: \"Naive\" or \"GNUParallel\". Exiting."];
+		Exit[1];
+	];		
 ]
+	
 
 
 For[i=1,i<=Length[spanningCuts],i++,

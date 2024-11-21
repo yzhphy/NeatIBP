@@ -116,12 +116,12 @@ If[SectorwiseSettings=!={},
 
 
 If[CutIndices==="spanning cuts",
-	PrintAndLog[
-		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+	(*PrintAndLog[
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.1.0.0.\n",
 		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
 		"\tCutIndices={};\n",
 		"\tSpanningCutsMode=True;"
-	];
+	];*)
 	CutIndices={};
 	SpanningCutsMode=True;
 ]
@@ -152,6 +152,13 @@ If[StringSplit[outputPath,""][[-1]]=!="/",outputPath=outputPath<>"/"]
 
 
 
+missionStatusFolder=outputPath<>"tmp/mission_status/"
+
+
+(*Export[missionStatusFolder<>ToString[sectorID]<>".txt","Computing"//InputForm//ToString]*)
+(* modify the status to "Computing" using MissionStatusChecker printed script*)
+
+
 LogPath=outputPath<>"tmp/log_files/"
 If[sectorID=!=-1,
 	LogFile=LogPath<>ToString[sectorID]<>".txt";
@@ -161,7 +168,7 @@ PrintAndLog["===================================="]
 If[sectorID=!=-1,PrintAndLog["Sector ",sectorID," starting at ",TimeString[],"."]]
 
 
-missionStatusFolder=outputPath<>"tmp/mission_status/"
+
 
 
 revalantIntegralsFolder=outputPath<>"tmp/relavant_integrals/"

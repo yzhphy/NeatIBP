@@ -94,28 +94,31 @@ TimeString[]:=Module[{at},at=FromAbsoluteTime[AbsoluteTime[]];StringRiffle[#,"_"
 
 
 
+outputPath1=outputPath
 If[Get[packagePath<>"default_settings.txt"]===$Failed,Exit[0]]
+outputPath=outputPath1
 Get[outputPath<>"inputs/config.txt"]
+outputPath=outputPath1
 (*If[outputPath===Automatic,
 	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
 	PrintAndLog["Output path has been set as "<>outputPath]
-]*)
-
+]
+*)
 
 
 If[CutIndices==="spanning cuts",
-	PrintAndLog[
-		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+	(*PrintAndLog[
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.1.0.0.\n",
 		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
 		"\tCutIndices={};\n",
 		"\tSpanningCutsMode=True;"
-	];
+	];*)
 	CutIndices={};
 	SpanningCutsMode=True;
 ]
 
 
-TemporaryDirectory=outputPath<>"tmp"
+(*TemporaryDirectory=outputPath<>"tmp"*)
 
 (*Get[packagePath<>"SyzygyRed.wl"]*)
 

@@ -91,12 +91,12 @@ LogFile=LogPath<>"AssignIBPReduction.txt"
 
 
 If[CutIndices==="spanning cuts",
-	PrintAndLog[
-		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+	(*PrintAndLog[
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.1.0.0.\n",
 		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
 		"\tCutIndices={};\n",
 		"\tSpanningCutsMode=True;"
-	];
+	];*)
 	CutIndices={};
 	SpanningCutsMode=True;
 ]
@@ -124,6 +124,9 @@ If[!FileExistsQ[outputPath<>"tmp/summarized.tag"],
 	];
 	Exit[0];
 ]
+
+
+
 
 
 (*If[!FileExistsQ[outputPath<>"tmp/IBP_reduction_permission.tag"],
@@ -288,7 +291,7 @@ Switch[mode,
 				"FFSpanningCutsConsistencyCheck.wl "<>outputPath<>"\n";
 		];
 
-		If[UseShortenedIBPForKira===True,
+		If[UseShortenedIBP===True,
 			kiraScriptSetting=kiraScriptSetting<>"-s ";
 			script=script<>MathematicaCommand<>" -script "<>packagePath<>
 				"FFSpanningCutsIBPShorten.wl "<>outputPath<>"\n";
@@ -296,29 +299,57 @@ Switch[mode,
 
 		];
 		spanningCuts=Get[outputPath<>"tmp/spanningCuts.txt"];
-		Switch[ParallelKiraReductionForSpanningCuts,
+		Switch[SPCIBPReductionParallelization,
 		True,
-			For[i=1,i<=Length[spanningCuts],i++,
-				cut=spanningCuts[[i]];
-				cutString="cut_"<>StringRiffle[ToString/@cut,"_"];
-				cutPath=outputPath<>"results/results_spanning_cuts/"<>cutString<>"/";
-				script=script<>ShellProcessor<>" "<>packagePath<>
-					"interfaces/Kira/interface/run_kira_reduction.sh"<>" "<>
-					kiraScriptSetting<>"\""<>KiraCommandRefined<>"\" "<>cutPath<>" &\n";
-				If[ParallelKiraJobNumber=!=Infinity,
-					If[Mod[i,ParallelKiraJobNumber]===0,
-						script=script<>"wait\n";
+			Switch[SPCIBPReductionParallelizationMethod,
+			"Naive",
+				For[i=1,i<=Length[spanningCuts],i++,
+					cut=spanningCuts[[i]];
+					cutString="cut_"<>StringRiffle[ToString/@cut,"_"];
+					cutPath=outputPath<>"results/results_spanning_cuts/"<>cutString<>"/";
+					script=script<>ShellProcessor<>" "<>packagePath<>
+						"interfaces/Kira/interface/run_kira_reduction.sh"<>" "<>
+						kiraScriptSetting<>"\""<>KiraCommandRefined<>"\" "<>cutPath<>" &\n";
+					If[SPCIBPReductionParallelJobNumber=!=Infinity,
+						If[Mod[i,SPCIBPReductionParallelJobNumber]===0,
+							script=script<>"wait\n";
+						];
 					];
 				];
-			];
-			If[ParallelKiraJobNumber===Infinity,
-				script=script<>"wait\n";
-			,
-				If[Mod[i,ParallelKiraJobNumber]=!=0,
+				If[SPCIBPReductionParallelJobNumber===Infinity,
 					script=script<>"wait\n";
-				]
-			];
-			
+				,
+					If[Mod[i,SPCIBPReductionParallelJobNumber]=!=0,
+						script=script<>"wait\n";
+					]
+				];
+			,
+			"GNUParallel",
+				If[UseGNUParallel=!=True,
+					PrintAndLog["**** Err: Must set UseGNUParallel=True if you want to use GNU parallel. Exit."];
+					Exit[1];
+				];
+				GNUParallelScript="";
+				For[i=1,i<=Length[spanningCuts],i++,
+					cut=spanningCuts[[i]];
+					cutString="cut_"<>StringRiffle[ToString/@cut,"_"];
+					cutPath=outputPath<>"results/results_spanning_cuts/"<>cutString<>"/";
+					GNUParallelScript=GNUParallelScript<>ShellProcessor<>" "<>packagePath<>
+						"interfaces/Kira/interface/run_kira_reduction.sh"<>" "<>
+						kiraScriptSetting<>"\""<>KiraCommandRefined<>"\" "<>cutPath<>"\n";
+				];
+				Export[outputPath<>"tmp/GNU_parallel_reduction_script.txt",GNUParallelScript,"Text"];
+				If[SPCIBPReductionParallelJobNumber===Infinity,
+					script=script<>"\ncat "<>outputPath<>"tmp/GNU_parallel_reduction_script.txt | "<>GNUParallelCommand<>" --ungroup"<>"\n";
+				,\:4e09
+					script=script<>"\ncat "<>outputPath<>"tmp/GNU_parallel_reduction_script.txt | "<>GNUParallelCommand<>" --ungroup -j "<>ToString[SPCIBPReductionParallelJobNumber]<>"\n";
+				];
+				
+			,
+			_,
+				PrintAndLog["**** Err: SPCIBPReductionParallelizationMethod must be one of the following: \"Naive\" or \"GNUParallel\". Exiting."];
+				Exit[1];
+			]	
 		,
 		False,
 			For[i=1,i<=Length[spanningCuts],i++,
@@ -331,10 +362,10 @@ Switch[mode,
 			];
 		,
 		_,
-			PrintAndLog["**** Err: ParallelKiraReductionForSpanningCuts must be True or False. Exiting."];
+			PrintAndLog["**** Err: SPCIBPReductionParallelization must be True or False. Exiting."];
 			Exit[1];
 		];
-		If[UseShortenedIBPForKira===True,
+		If[UseShortenedIBP===True,
 			IBPMergeSetting="-s "
 		,
 			IBPMergeSetting=""

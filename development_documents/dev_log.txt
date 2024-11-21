@@ -1420,6 +1420,122 @@ to
 StringJoinLined[a_,b__]:=If[a==="",StringJoin@@({b}),a<>"\n"<>StringJoin@@({b})]
 
 
+---------------------------
+2024.11.12
+1. Constructing the Kernel Distribution System
+2. In Monitor.wl, in normal mode, I added a "read status" step into the PrintStaus[] Function to avoid miss-report of lost sectors.
+
+----------------------------
+2024.11.13
+Introduced a new status "AboutToCompute"
+When MissionStatusChecker start an Analyze_Sector, it will be modified as "AboutToCompute"
+Then modify the status to "Computing" using MissionStatusChecker printed script
+
+the status "AboutToCompute"  is interpreted as "Computing" in MissionStatusChecker.wl
+but interpreted as "ReadyToCompute" in MissionStatusMonitor.wl
+
+my purpose is:
+a.do not let the Monitor miss report lost sectors
+b.do not let the StatusChecker miss think an  mission is not computing before the corredponding Analyze_Sector.wl label its status as "Computing".
+
+------------------------
+2024.11.14
+Finished the implementation and testing of Kernel Distribution System 
+
+-----------------------
+2024.11.19
+1. Supporting GNUParallel in SPCIBPReduction
+2. Setting terminology adjustment, some original Kira settings are actually IBPReduction setting, 
+what are new:
+SPCIBPReductionParallelization=True;
+SPCIBPReductionParallelizationMethod="Naive";(*or "GNUParallel"*)
+SPCIBPReductionParallelJobNumber=Infinity;
+UseShortenedIBP=True;(*only valid for spanning cuts mode*)
+
+
+-----------------------
+2024.11.20
+1.Supporting GNUParallel in Consistency Check
+
+-----------------------
+2024.11.21
+1. Fixing a bug:
+If a target a itselt is MI, the IBP reduction will not give a rule a->a, so we have to add it manually. The modifications include:
+
+1.1 In FFSolveIBP.wl
+added
+targets0=targets
+
+and modified
+sol=Select[rules,MemberQ[targets,#[[1]]]&]
+to
+sol=#->(#/.rules)&/@targets0;
+
+(but this seems to be not influencing consistency check, since consistency check uses rules.txt not sol.txt)
+
+1.2 In CheckIBP.wl
+added relavant codes:
+If[IBPs==={},
+	Print["There is no IBP relations."];
+	strangeIntegrals=targets;(*because we already have targets=Complement[targets,MIs] in the above*)
+	CheckReport[];
+	Exit[];
+]
+and 
+If[MemberQ[MIs,integral],Return[{integral}]];
+
+1.3 In ReadKiraReductionResults.wl added:
+targetListStr=Import[outputPath<>"KiraIO/list","Text"]
+If[targetListStr===$Failed,
+	PrintAndLog["Failed to read targets in ",outputPath<>"KiraIO/list.  Exiting."];
+	Exit[];
+]
+targetList=ToExpression/@DeleteCases[
+	StringSplit[StringReplace[targetListStr," "->""],"\n"],
+	""
+]
+and
+targetListG=targetList/.Tuserweight[x_]:>integrals[[-x]]
+and
+IBPTable=#->(#/.kiraListG)&/@targetListG
+and modified
+Export[reductionResultsFolder<>"reduced_IBP_Table.txt",kiraListG//InputForm//ToString]
+to
+Export[reductionResultsFolder<>"reduced_IBP_Table.txt",IBPTable//InputForm//ToString]
+
+1.4
+Should also modify ReducedSpanningCutsMerge.wl
+Oh but we already have an ensurence that
+If[MemberQ[targetReducedFormulatedMIs,MI],
+	newCoeff=MI/.targetReducedFormulated
+,
+	newCoeff=0
+];
+I think we need not to worry about this.
+
+
+p.s. The OrderedIntegrals has considered this issue in former development, i.e. 
+integralList=IntegralList[Join[IBPs,MIs]]
+
+2. Fixied a long-lasting Azuritino MI report problem
+2.1 Quit a sector if local target === {}, this sentence is moved out of a MemoryUsed[], so that the Return[] works for AnalyzeSector[] rather than MemoryUsed[].
+2.2 modified 
+Get[azuritinoMIFolder<>ToString[#]<>".txt"]
+to
+If[FileExistsQ[azuritinoMIFolder<>ToString[#]<>".txt"],
+	Get[azuritinoMIFolder<>ToString[#]<>".txt"]
+,
+	{}
+]
+In Summary.wl
+
+
+
+
+
+
+
+
 
 
 

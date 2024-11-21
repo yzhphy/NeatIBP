@@ -42,7 +42,7 @@ If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targ
 
 If[CutIndices==="spanning cuts",
 	(*PrintAndLog[
-		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.1.0.0.\n",
 		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
 		"\tCutIndices={};\n",
 		"\tSpanningCutsMode=True;"
@@ -50,6 +50,7 @@ If[CutIndices==="spanning cuts",
 	CutIndices={};
 	SpanningCutsMode=True;
 ]
+
 
 
 (*getSparseRREF=True

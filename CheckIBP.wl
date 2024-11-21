@@ -54,7 +54,7 @@ outputPath=checkPath
 
 If[CutIndices==="spanning cuts",
 	Print[(*not supporting PrintAndLog yet*)
-		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.1.0.0.\n",
 		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
 		"\tCutIndices={};\n",
 		"\tSpanningCutsMode=True;"
@@ -106,18 +106,45 @@ Get[outputPath<>"inputs/"<>kinematicsFileName];
 
 targets=Complement[targets,MIs];
 
-SDim=Length[Cases[Variables[IBPs],_G][[1]]/.G->List];
-Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
+(*SDim=Length[Cases[Variables[IBPs],_G][[1]]/.G->List];*)
+SDim=Length[Cases[Variables[MIs],_G][[1]]/.G->List];(*a bear joke problem, 2024.11.21*)
+
 
 vars=GenericPoint[[All,1]];
 
 (*random check points*)
 numerics=#->RandomPrime[50*Length[vars]^2]/RandomPrime[150*Length[vars]^2]&/@Join[vars,{d}];
+Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
 
 
 
 
 
+
+CheckReport[]:=(
+Print["==========Check Report============"];
+Print["check point: "<>ToString[numerics//InputForm]];
+If[strangeIntegrals==={},
+	Print["All targets are reduced to MIs."]
+,
+	Print["Targets are NOT reduced to MIs. "<>ToString[Length[strangeIntegrals]]<>" ADDITIONAL integrals appearead in the results. They are:"];
+	If[Length[strangeIntegrals]<=10,
+		Print[strangeIntegrals//InputForm//ToString]
+	,
+		Print[StringReplace[strangeIntegrals[[1;;10]]//InputForm//ToString,"}"->",...}"]]
+	]
+]
+)
+
+
+If[IBPs==={},
+	Print["There is no IBP relations."];
+	strangeIntegrals=targets;(*because we already have targets=Complement[targets,MIs] in the above*)
+	CheckReport[];
+	Exit[];
+
+
+]
 
 
 timer=AbsoluteTime[];
@@ -146,6 +173,7 @@ IntegralsReducedTowards[integral_]:=Module[{(*prePosition,*)position,row},
 	(*prePosition=Flatten[Position[integrals,integral]];
 	If[Length[prePosition]=!=1,Return[$Failed]];
 	position=Flatten[prePosition][[1]];*)
+	If[MemberQ[MIs,integral],Return[{integral}]];
 	position=integral/.integralToPosition;
 	row=Select[entries,#[[1,2]]===position&];
 	integrals[[row[[1,2;;-1,2]]]]
@@ -169,18 +197,9 @@ strangeIntegrals=Complement[Union[Flatten[targetTowards]],MIs]
 Print["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
-Print["==========Check Report============"]
-Print["check point: "<>ToString[numerics//InputForm]];
-If[strangeIntegrals==={},
-	Print["All targets are reduced to MIs."]
-,
-	Print["Targets are NOT reduced to MIs. "<>ToString[Length[strangeIntegrals]]<>" ADDITIONAL integrals appearead in the results. They are:"];
-	If[Length[strangeIntegrals]<=10,
-		Print[strangeIntegrals//InputForm//ToString]
-	,
-		Print[StringReplace[strangeIntegrals[[1;;10]]//InputForm//ToString,"}"->",...}"]]
-	]
-]
+CheckReport[]
+
+
 
 
 

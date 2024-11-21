@@ -32,7 +32,7 @@ If[commandLineMode,
 	(*resultsPath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples_private/Examples_Kira+NeatIBP/config-tenniscourt/config/massless/massless-tenniscourt/massless-tenniscourt/spc/outputs/tenniscort-mslss-spc/results/";*)
 	shortenedMode=True;
 	reducedIBPInputSetting="-Kira";
-	outputPath="/home/zihao/NeatIBP/examples_private/kira_interface/examples/dbox-demo/outputs/kira-spc/"
+	outputPath=""
 	
 ]
 
@@ -224,9 +224,9 @@ IntegralCuttedQ[int_,cut_]:=MemberQ[Sign/@((int/.G->List)[[cut]]-1/2),-1]
 RandomNumericCheck[expr_]:=Module[{vars=Variables[expr]},Factor[expr/.(#->RandomPrime[Length[vars]*500]/RandomPrime[Length[vars]^2*1000]&/@vars)]]
 
 
-MergeReducedRedults//ClearAll
-Options[MergeReducedRedults]={ShortenedMode->False}
-MergeReducedRedults[OptionsPattern[]]:=Module[
+MergeReducedResults//ClearAll
+Options[MergeReducedResults]={ShortenedMode->False}
+MergeReducedResults[OptionsPattern[]]:=Module[
 {i,j,k,coeff,newCoeff,reducedResult,target,MI,formulatedReducedIBP,
 cut,targetReducedFormulated,targetReducedFormulatedMIs,oldK,reducedResults
 },
@@ -237,7 +237,7 @@ cut,targetReducedFormulated,targetReducedFormulatedMIs,oldK,reducedResults
 		reducedResult={};
 		For[j=1,j<=Length[allMIs],j++,
 			MI=allMIs[[j]];
-			coeff="ND";
+			coeff="ND";(*not determined*)
 			For[k=1,k<=Length[spanningCuts],k++,
 			
 				cut=spanningCuts[[k]];
@@ -259,7 +259,7 @@ cut,targetReducedFormulated,targetReducedFormulatedMIs,oldK,reducedResults
 					]
 				,
 					If[RandomNumericCheck[newCoeff]=!=0,
-						Print["\t***** Err: MI ",MI," should vanish on cut ",cut,"with nonzero coefficient, but it appears in the reduction result of ", target,"."];
+						Print["\t***** Err: MI ",MI," should vanish on cut ",cut,", but it appears in the reduction result of ", target,"."];
 						coeff=$Failed;
 						Break[]
 					,
@@ -304,10 +304,10 @@ cut,targetReducedFormulated,targetReducedFormulatedMIs,oldK,reducedResults
 ]
 
 
-mergedIBPFormulated=MergeReducedRedults[ShortenedMode->shortenedMode]
+mergedIBPFormulated=MergeReducedResults[ShortenedMode->shortenedMode]
 
 
-UnFormulateReducedIBP[formulatedIBP_]:=Rule[
+DeFormulateReducedIBP[formulatedIBP_]:=Rule[
 	formulatedIBP[[1]],
 	Sum[
 		(formulatedIBP[[2,i,2]])*
@@ -317,7 +317,7 @@ UnFormulateReducedIBP[formulatedIBP_]:=Rule[
 ]
 
 
-mergedIBP=UnFormulateReducedIBP/@mergedIBPFormulated
+mergedIBP=DeFormulateReducedIBP/@mergedIBPFormulated
 
 
 (*GetCoeff[target_,MI_,cut_]:=Module[{reduced=target/.(FormulateReducedIBP/@GetReducedIBPs[cut])},

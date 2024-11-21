@@ -60,10 +60,10 @@ readmeTextLines=Import[packagePath<>"README.md"];
 versionNumber=DeleteCases[StringSplit[StringSplit[readmeTextLines,"## Version"][[2]],"\n"],""][[1]];
 Print["================================================================
 NeatIBP version "<>versionNumber<>"
-by: Janko Boehm, Rourou Ma, Hefeng Xu, Zihao Wu and Yang Zhang.
+by: Janko Boehm, Rourou Ma, Johann Usovitsch, Hefeng Xu, Yingxuan Xu, Zihao Wu and Yang Zhang.
 ================================================================"];
-If[developerMode===True,Print["*** developer mode is on ***"]]
-If[debugMode===True,Print["*** debug mode is on ***"]]
+If[DeveloperMode===True,Print["*** developer mode is on ***"]]
+If[DebugMode===True,Print["*** debug mode is on ***"]]
 
 
 
@@ -243,6 +243,9 @@ Export[TemporaryDirectory<>"start_abs_time.txt",AbsoluteTime[]//InputForm//ToStr
 (*Validating Inputs*)
 
 
+ErrorLine[]:=PrintAndLog["******************************************************************"];
+
+
 (* ::Subsection:: *)
 (*Variable Name Protection*)
 
@@ -273,13 +276,16 @@ Module[{name,i,checkFreeResult},
 		name=ProtectedNames[[i]];
 		checkFreeResult=CheckFree[name];
 		If[Length[checkFreeResult]>0,
+			ErrorLine[];
 			PrintAndLog["****  Protected symbol \"",name,"\" appear in the following input(s):\n\t", checkFreeResult];
 			allProtectedNamesDisappearQ=False;
 		]
 	]
 ]
 If[allProtectedNamesDisappearQ===False,
+	ErrorLine[];
 	PrintAndLog["****  Please raname the above symbol(s) in your input(s). Exiting..."];
+	ErrorLine[];
 	Exit[0];
 ]
 
@@ -290,13 +296,14 @@ If[allProtectedNamesDisappearQ===False,
 
 If[CutIndices==="spanning cuts",
 	PrintAndLog[
-		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
-		"It is still supported, but it is recommended to use the equivalent, new gramma: \n";
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.1.0.0.\n",
+		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
 		"\tCutIndices={};\n",
 		"\tSpanningCutsMode=True;"
 	];
 	CutIndices={};
 	SpanningCutsMode=True;
+	Pause[3];
 ]
 
 
@@ -304,69 +311,105 @@ If[CutIndices==="spanning cuts",
 (*Other Validations*)
 
 
+OptionCheck[settingStr_,optionList_]:=Module[{settingValue=ToExpression[settingStr]},
+	If[!MemberQ[optionList,settingValue],
+		ErrorLine[];
+		PrintAndLog["****** Wrong setting ",settingStr,"=",settingValue//InputForm//ToString,". It should be one of the following: ",optionList//InputForm//ToString,"."];
+		ErrorLine[];
+		Exit[0]
+	]
+]
+
+
+If[ToString[debugMode]=!="debugMode",
+	ErrorLine[];
+	PrintAndLog["*** It seems that you have set debugMode=",debugMode,". In the version v1.1.0.0 and later, please use DebugMode=",debugMode," (capital D) instead. Sorry for the inconvenience."];
+	ErrorLine[];
+	Exit[0];
+]
+
+
 inputParameters=Complement[Variables[{Propagators,Kinematics[[All,2]]}],LoopMomenta,ExternalMomenta];
 If[!SubsetQ[GenericPoint[[All,1]],inputParameters],
+	ErrorLine[];
 	PrintAndLog[
 		"****  GenericPoint dose not cover all scalar variables. Not covered variables: ",
 		Complement[inputParameters,GenericPoint[[All,1]]],
 		". Exiting..."
 	];
+	ErrorLine[];
 	Exit[0];
 ]
 If[Variables[inputParameters/.GenericPoint]=!={},
+	ErrorLine[];
 	PrintAndLog["****  GenericPoint ",GenericPoint," is not properly defined. Exiting..."];
+	ErrorLine[];
 	Exit[0];
 ]
 If[Variables[d/.GenericD]=!={},
+	ErrorLine[];
 	PrintAndLog["****  GenericD ",GenericD," is not defined or not properly defined. Exiting..."];
+	ErrorLine[];
 	Exit[0];
 ]
 If[ParameterRepermute===True,
 	If[Sort[ParameterRepermuteIndex]=!=Range[Length[inputParameters]],
+		ErrorLine[];
 		PrintAndLog["****  ParameterRepermuteIndex ",ParameterRepermuteIndex," is not a well-defined permutation with length ",Length[inputParameters],". Exiting..."];
+		ErrorLine[];
 		Exit[0];
 	]
 ]
 
 
 If[Variables[TensorProduct[ExternalMomenta,ExternalMomenta]/.Kinematics/.GenericPoint]=!={},
+	ErrorLine[];
 	PrintAndLog["****  Kinematics replacement ",Kinematics," is not enough for external momenta ",ExternalMomenta,". Exiting..."];
+	ErrorLine[];
 	Exit[0];
 ]
 
 
 If[Head[CutIndices]=!=List(*&&!MemberQ[{"spanning cuts"},CutIndices]*),
+	ErrorLine[];
 	PrintAndLog["****  Unexpected cut indices ",CutIndices,". Exiting..."];
+	ErrorLine[];
 	Exit[0]
 ]
 
 
-(*If[And[MemberQ[{"spanning cuts"},CutIndices],Not[developerMode===True]],
-	PrintAndLog["****  In the current version, spanning cuts mode is under developement. There may lurks unknown bugs. Please set developerMode=True if you want to try. Exiting..."];
+(*If[And[MemberQ[{"spanning cuts"},CutIndices],Not[DeveloperMode===True]],
+	PrintAndLog["****  In the current version, spanning cuts mode is under developement. There may lurks unknown bugs. Please set DeveloperMode=True if you want to try. Exiting..."];
 	Exit[0]
 ]*)
-If[And[FlexibleNeatIBPIntersectionDegreeBound,Not[developerMode===True]],
-	PrintAndLog["****  In current version, FlexibleNeatIBPIntersectionDegreeBound is under developement. There may lurks unknown bugs. Please set developerMode=True if you want to try. Exiting..."];
+If[And[FlexibleNeatIBPIntersectionDegreeBound,Not[DeveloperMode===True]],
+	ErrorLine[];
+	PrintAndLog["****  In current version, FlexibleNeatIBPIntersectionDegreeBound is under developement. There may lurks unknown bugs. Please set DeveloperMode=True if you want to try. Exiting..."];
+	ErrorLine[];
 	Exit[0]
 ]
 
-If[And[Not[kinematicsFile===workingPath<>"kinematics.txt"],Not[developerMode===True]],
+If[And[Not[kinematicsFile===workingPath<>"kinematics.txt"],Not[DeveloperMode===True]],
+	ErrorLine[];
 	PrintAndLog["****  Sorry, in current version, we do not recommend non-default value of kinematicsFile. We recommend that you keep it as workingPath<>\"kinematics.txt\". "];
-	PrintAndLog["****  If you really want to use this non-default file name, please set developerMode=True, then run again."];
+	PrintAndLog["****  If you really want to use this non-default file name, please set DeveloperMode=True, then run again."];
 	PrintAndLog["****  But, we need to tell you that, this may bring disfunctioning of some of the modules of NeatIBP."];
+	ErrorLine[];
 	Exit[0]
 ]
 
-If[And[Not[targetIntegralsFile===workingPath<>"targetIntegrals.txt"],Not[developerMode===True]],
+If[And[Not[targetIntegralsFile===workingPath<>"targetIntegrals.txt"],Not[DeveloperMode===True]],
+	ErrorLine[];
 	PrintAndLog["****  Sorry, in current version, we do not recommend non-default value of targetIntegralsFile. We recommend that you keep it as workingPath<>\"targetIntegrals.txt\". "];
-	PrintAndLog["****  If you really want to use this non-default file name, please set developerMode=True, then run again."];
+	PrintAndLog["****  If you really want to use this non-default file name, please set DeveloperMode=True, then run again."];
 	PrintAndLog["****  But, we need to tell you that, this may bring disfunctioning of some of the modules of NeatIBP."];
+	ErrorLine[];
 	Exit[0]
 ]
 
 
-(*If[And[SimplifySyzygyVectorsByCut,Not[debugMode===True]],
-	PrintAndLog["****  In current version, SimplifySyzygyVectorsByCut is under developement. There may lurks unknown bugs. Please set debugMode=True if you want to try. Exiting..."];
+(*If[And[SimplifySyzygyVectorsByCut,Not[DebugMode===True]],
+	PrintAndLog["****  In current version, SimplifySyzygyVectorsByCut is under developement. There may lurks unknown bugs. Please set DebugMode=True if you want to try. Exiting..."];
 	Exit[0]
 ]
 *)
@@ -375,11 +418,15 @@ If[And[Not[targetIntegralsFile===workingPath<>"targetIntegrals.txt"],Not[develop
 
 
 If[CutIndices=!={}&&NeedSymmetry,
+	ErrorLine[];
 	PrintAndLog["****  Please turn off symmetry if there is any cut indices. Exiting..."];
+	ErrorLine[];
 	Exit[0]
 ]
 If[SpanningCutsMode===True&&NeedSymmetry,
+	ErrorLine[];
 	PrintAndLog["****  Please turn off symmetry in spanning cuts mode. Exiting..."];
+	ErrorLine[];
 	Exit[0]
 ]
 
@@ -387,29 +434,37 @@ If[SpanningCutsMode===True&&NeedSymmetry,
 
 If[
 (*(CutIndices==="spanning cuts")*)(SpanningCutsMode===True)&&(automaticOutputPath===False),
+	ErrorLine[];
 	PrintAndLog["****  In spanning cuts mode, outputPath must be set to be Automatic. Exiting..."];(*I think this is unecessary, we can modify the config for the cut missions*)
+	ErrorLine[];
 	Exit[0]
 ]
 
 
 If[IntegralOrder =!= "MultiplePropagatorElimination"&&MIFromAzuritino,
+	ErrorLine[];
 	PrintAndLog["****  IntegralOrder must be set as \"MultiplePropagatorElimination\" if MIFromArzuritino is enabled. Exiting..."];
+	ErrorLine[];
 	Exit[0]
 ]
 
 
 If[FiniteFieldModulus>46337,
+	ErrorLine[];
 	PrintAndLog["****  FiniteFieldModulus must not be larger than 46337. Exiting..."];
+	ErrorLine[];
 	Exit[0]
 ]
 If[!PrimeQ[FiniteFieldModulus],
+	ErrorLine[];
 	PrintAndLog["****  FiniteFieldModulus ",FiniteFieldModulus ," is not a prime number. Exiting..."];
+	ErrorLine[];
 	Exit[0]
 ]
 
 
 
-If[!MemberQ[{"MultiplePropagatorElimination","ISPElimination","Global"},IntegralOrder],
+(*If[!MemberQ[{"MultiplePropagatorElimination","ISPElimination","Global"},IntegralOrder],
 	PrintAndLog["****  Invalid IntegralOrder \""<>ToString[IntegralOrder]<>"\". Exiting..."];
 	Exit[0]
 ]
@@ -424,19 +479,32 @@ If[!MemberQ[{"Orthogonalization","DeltaPlaneProjection"},PreferedExternalExtende
 If[!MemberQ[{"None","Kira","FFNumerical"},IBPReductionMethod],
 	PrintAndLog["****  Invalid IBPReductionMethod \""<>ToString[IBPReductionMethod]<>"\". Exiting..."];
 	Exit[0]
-]
+]*)
+OptionCheck["IntegralOrder",{"MultiplePropagatorElimination","ISPElimination","Global"}]
+OptionCheck["ExternalMomentaGroupingMethod",{"MomentumSpace","FeynmanParameterization"}]
+OptionCheck["PreferedExternalExtendedRotationMethod",{"Orthogonalization","DeltaPlaneProjection"}]
+OptionCheck["IBPReductionMethod",{"None","Kira","FFNumerical"}]
 
 
-If[!MemberQ[{"Zurich","Zurich+FIBPGrouping"},NeatIBPSeedingMethod],
+(*If[!MemberQ[{"Zurich","Zurich+FIBPGrouping"},NeatIBPSeedingMethod],
 	PrintAndLog["****  Invalid IntegralOrder \""<>ToString[IntegralOrder]<>"\". Exiting..."];
 	Exit[0]
 ]
-If[FIBPGroupingStartRatio>1||FIBPGroupingStartRatio<0,
-	PrintAndLog["****  FIBPGroupingStartRatio must be between 0 and 1. Exiting..."];
-	Exit[0]
-]
+]*)
+OptionCheck["NeatIBPSeedingMethod",{"Zurich","Zurich+FIBPGrouping"}]
+
+
+
 If[FIBPGroupingRemainingGroups<1||Head[FIBPGroupingRemainingGroups]=!=Integer,
+	ErrorLine[];
 	PrintAndLog["****  FIBPGroupingRemainingGroups must be a positive integer. Exiting..."];
+	ErrorLine[];
+	Exit[0];
+]
+If[FIBPGroupingStartRatio>1||FIBPGroupingStartRatio<0,
+	ErrorLine[];
+	PrintAndLog["****  FIBPGroupingStartRatio must be between 0 and 1. Exiting..."];
+	ErrorLine[];
 	Exit[0]
 ]
 
@@ -458,7 +526,9 @@ In new gramma of spc, this is not longer a problem.
 ---2024.10.26
   *)
 	If[MemberQ[CutableQ[#,CutIndices]&/@TargetIntegrals,False],
+		ErrorLine[];
 		PrintAndLog["****  Sorry, this version dose not support cutting indices larger than 1. Please remove corresponding target integrals with such multiple propagators.\nExiting..."];
+		ErrorLine[];
 		Exit[0];
 	]
 ]
@@ -472,28 +542,36 @@ In new gramma of spc, this is not longer a problem.
 
 preparation=Prepare[];
 If[preparation==="Propagators Length and SDim mismatch.",
+	ErrorLine[];
 	PrintAndLog["*** The length of the Propagators ",Propagators," ",Length[Propagators]," and SDim=L(L+1)/2+LE=",SDim," mismatch. Exiting."];
+	ErrorLine[];
 	Exit[0];
 ]
 If[preparation==="Propagators is not a well-defined independent basis.",
+	ErrorLine[];
 	PrintAndLog["*** The Propagators ",Propagators," is not a well-defined independent basis. Exiting."];
+	ErrorLine[];
 	Exit[0];
 ]
 
 
 If[Union[(Length[Propagators]===Length[#])&/@TargetIntegrals]=!={True},
+	ErrorLine[];
 	PrintAndLog["****  Length of Propagators and indices of TargetIntegrals mismatch. Exiting..."];
+	ErrorLine[];
 	Exit[0];
 ]
 
 
 If[SpanningCutsMode===True&&ShortenIBPs===True&&SpanningCutsConsistencyCheck=!=True,
+	ErrorLine[];
 	PrintAndLog["****  Wrong setting: In spanning cuts mode, if you set ShortenIBPs=True, you must also set SpanningCutsConsistencyCheck=True."];
+	ErrorLine[];
 	Exit[0];
 ]
 
 
-If[WorkerAllocationSystem=!=And[MathKernelLimit<Infinity,SpanningCutsMode],
+(*If[WorkerAllocationSystem=!=And[MathKernelLimit<Infinity,SpanningCutsMode],
 	PrintAndLog[
 		"****  Wrong WorkerAllocationSystem: ",
 		WorkerAllocationSystem,". Required: ",
@@ -501,25 +579,88 @@ If[WorkerAllocationSystem=!=And[MathKernelLimit<Infinity,SpanningCutsMode],
 		"\nBecause: MathKernelLimit="MathKernelLimit,"and SpanningCutsMode=",SpanningCutsMode
 	];
 	Exit[0];
-]
+]*)
 
 
 If[MathKernelLimit<3,
+	ErrorLine[];
 	PrintAndLog["****  Too-few MathKernelLimit: ",MathKernelLimit, ". MathKernelLimit should be at least 3."];
+	ErrorLine[];
 	Exit[0];
 ]
 If[And[!IntegerQ[MathKernelLimit],MathKernelLimit=!=Infinity],
+	ErrorLine[];
 	PrintAndLog["**** Wrong MathKernelLimit: ",MathKernelLimit, ". MathKernelLimit must be an integer or Infinity."];
+	ErrorLine[];
 	Exit[0];
 ]
 If[MaxManagers<1,
+	ErrorLine[];
 	PrintAndLog["****  Too-few MaxManagers: ",MaxManagers, ". MaxManagers should be at least 1."];
+	ErrorLine[];
 	Exit[0];
 ]
 If[MathKernelLimit<2*MaxManagers+1,
-	PrintAndLog["****  Too-large MaxManagers: ",MaxManagers, ". MaxManagers should be no greater than (MaxManagers-1)/2=",(MaxManagers-1)/2];
+	ErrorLine[];
+	PrintAndLog["****  Too-large MaxManagers: ",MaxManagers, ". MaxManagers should be no greater than (MathKernelLimit-1)/2=",(MathKernelLimit-1)/2];
+	ErrorLine[];
 	Exit[0];
 ]
+
+
+
+If[And[!IntegerQ[SPCIBPReductionParallelJobNumber],SPCIBPReductionParallelJobNumber=!=Infinity]||SPCIBPReductionParallelJobNumber<=0,
+	ErrorLine[];
+	PrintAndLog["**** Wrong SPCIBPReductionParallelJobNumber: ",SPCIBPReductionParallelJobNumber, ". SPCIBPReductionParallelJobNumber must be a positive integer or Infinity."];
+	ErrorLine[];
+	Exit[0];
+]
+If[And[!IntegerQ[ConsistencyCheckParallelJobNumber],ConsistencyCheckParallelJobNumber=!=Infinity]||ConsistencyCheckParallelJobNumber<=0,
+	ErrorLine[];
+	PrintAndLog["**** Wrong ConsistencyCheckParallelJobNumber: ",ConsistencyCheckParallelJobNumber, ". ConsistencyCheckParallelJobNumber must be a positive integer or Infinity."];
+	ErrorLine[];
+	Exit[0];
+]
+
+
+If[Not[UseGNUParallel===True],
+	If[ConsistencyCheckParallelizationMethod==="GNUParallel",
+		ErrorLine[];
+		PrintAndLog["**** You have not set UseGNUParallel=True, so you cannot set ConsistencyCheckParallelizationMethod=\"GUNParallel\";"];
+		ErrorLine[];
+		Exit[0];
+	];
+	If[SPCIBPReductionParallelizationMethod==="GNUParallel",
+		ErrorLine[];
+		PrintAndLog["**** You have not set UseGNUParallel=True, so you cannot set SPCIBPReductionParallelizationMethod=\"GUNParallel\";"];
+		ErrorLine[];
+		Exit[0];
+	]
+,
+	If[RunProcess[{"which",GNUParallelCommand},"StandardOutput"]==="",
+		ErrorLine[];
+		PrintAndLog["**** The GNUParallelCommand ",GNUParallelCommand," not found using: which ",GNUParallelCommand];
+		ErrorLine[];
+		Exit[0];
+	]
+]
+
+
+
+OptionCheck["SPCIBPReductionParallelizationMethod",{"Naive","GNUParallel"}]
+OptionCheck["ConsistencyCheckParallelizationMethod",{"Naive","GNUParallel"}]
+
+
+
+If[SimplifyByCutMethod==="LiftResubstitution"&&(!(DeveloperMode===True)),
+	ErrorLine[];
+	PrintAndLog["In this version, LiftResubstitution is no longer an option of SimplifyByCutMethod recommended for users. If you want to use it, please set DeveloperMode=True."];
+	PrintAndLog["Developer tips: the consistency between LiftResubstitution and [AdditionalIBPs] is not yet developed, and possibly will not be developed. "];
+	ErrorLine[];
+	Exit[];
+]
+
+
 
 
 (* ::Section:: *)
@@ -547,7 +688,7 @@ reductionTasksFolder=TemporaryDirectory<>"reduction_tasks/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[reductionTasksFolder]
 
 
-If[MatheKernelLimit<Infinity&&IsASpanningCutsSubMission,
+If[MathKernelLimit<Infinity&&IsASpanningCutsSubMission,
 	If[!DirectoryQ[#],CreateDirectory[#]]&[TemporaryDirectory<>"worker_kernels/"];
 	If[!DirectoryQ[#],CreateDirectory[#]]&[TemporaryDirectory<>"worker_kernels/recieved_kernels/"];
 	If[!DirectoryQ[#],CreateDirectory[#]]&[TemporaryDirectory<>"worker_kernels/occupied_kernels/"];

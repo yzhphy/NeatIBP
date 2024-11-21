@@ -38,7 +38,7 @@ If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targ
 
 If[CutIndices==="spanning cuts",
 	(*PrintAndLog[
-		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.1.0.0.\n",
 		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
 		"\tCutIndices={};\n",
 		"\tSpanningCutsMode=True;"
@@ -195,7 +195,7 @@ While[True,
 				Exit[1];
 			];
 			freeKernels=occupiedKernels[[;;Length[actuallyFinishedMissions]]];
-			Run["mv "<>#<>" "<>VacantKernelsFolder]&/@freeKernels
+			Run["mv "<>#<>" "<>SubmittingKernelsFolder]&/@freeKernels
 		]
 	];
 	missionStatus=(
@@ -220,7 +220,7 @@ While[True,
 	)[[All,1]];
 	
 	missionComputing=(
-			SortBy[Select[missionStatus,#[[2]]==="Computing"&],SectorOrdering[#[[1]]]&]//Reverse
+			SortBy[Select[missionStatus,#[[2]]==="Computing"||#[[2]]==="AboutToCompute"&],SectorOrdering[#[[1]]]&]//Reverse
 	)[[All,1]];
 	numOfNewComputingMissions=Min[
 		Length[missionReadyToCompute],
@@ -230,7 +230,7 @@ While[True,
 		(*Max[MissionLimitByMemory[Length[missionReadyToCompute],Round[MemoryAvailable[]/(1024^2)]-MinMemoryReserved]-Length[missionComputing],0]*)
 	];
 	
-	If[reportClock==0&&(debugMode===True),
+	If[reportClock==0&&(DebugMode===True),
 		Run["echo \""<>
 			TimeString[]<>"\t"<>
 			ToString[InputForm[{
@@ -244,29 +244,34 @@ While[True,
 	];
 	reportClock=Mod[reportClock+1,1000];
 	
-	If[MathKernelLimit<Infinity,
-		wasPath=outputPath<>"tmp/worker_allocations/";
-		If[!DirectoryQ[wasPath],CreateDirectory[wasPath]];(*no need actually I think*)
-		workersGranted=Select[
-			FileNames[All,wasPath],
-			StringSplit[FileNameSplit[#][[-1]],"_"][[1]]==="worker"&
-		];
+	If[MathKernelLimit<Infinity&&IsASpanningCutsSubMission,
+		recievedKernels=FileNames[All,RecievedKernelsFolder];
 		
-		Export[wasPath<>"workers_requested.txt",ToString[numOfNewComputingMissions]];
-		If[!FileExistsQ[wasPath<>"workers_granted.txt"],
-			Print["echo "<>"\"lacking workers_granted.txt in "<>wasPath<>". Exit.\""];
-			Exit[1];
+		If[Length[recievedKernels]<numOfNewComputingMissions,
+			requestedKernels=numOfNewComputingMissions-Length[recievedKernels];
+			newOccupiedKernels=recievedKernels;
+			numOfNewComputingMissions=Length[recievedKernels];
+		,
+			requestedKernels=0;
+			newOccupiedKernels=recievedKernels[[;;numOfNewComputingMissions]];
 		];
-		workersRequested=numOfNewComputingMissions+Length[missionComputing];
-		;
-		numOfNewComputingMissions=Min[workersGranted,numOfNewComputingMissions];
-	
+		uselessKernels=Complement[recievedKernels,newOccupiedKernels];
+		Run["mv "<>#<>" "<>OccupiedKernelsFolder]&/@newOccupiedKernels;
+		Run["mv "<>#<>" "<>SubmittingKernelsFolder]&/@uselessKernels;
+		Export[
+			WKFolder<>"requested_kernels.txt",
+			ToString[requestedKernels]
+		];
 	];
-	
+	scriptModifyStatus="";
 	If[numOfNewComputingMissions>0,
 		newComputingSectors=missionReadyToCompute[[1;;numOfNewComputingMissions]];
 		newComputingSectorNumbers=SectorNumber/@newComputingSectors;
-		Export[missionStatusFolder<>ToString[#]<>".txt","Computing"//InputForm//ToString]&/@newComputingSectorNumbers;
+		Export[missionStatusFolder<>ToString[#]<>".txt","AboutToCompute"//InputForm//ToString]&/@newComputingSectorNumbers;
+		scriptModifyStatus=StringRiffle[
+			"echo \\\"Computing\\\" > "<>missionStatusFolder<>ToString[#]<>".txt"&/@newComputingSectorNumbers,
+			"\n"
+		];
 		script=""<>
 			StringRiffle[MathematicaCommand<>" -script "<>packagePath<>"Analyze_Sector.wl "<>AbsMissionInput<>" "<>ToString[#]<>" "<>outputPath<>" &\n"&/@newComputingSectorNumbers,""]<>
 			MathematicaCommand<>" -script "<>packagePath<>"AllMissionCompleteQ.wl "<>AbsMissionInput<>" | "<>ShellProcessor<>" &\n"<>
@@ -279,5 +284,5 @@ While[True,
 
 
 Run["echo \""<>script<>"\" >> "<>outputPath<>"tmp/log3.txt"]
-script="sleep 1.5\n"<>script (*to makesure that when script runs, this wl really ends.*)
+script="sleep 1\n"<>scriptModifyStatus<>"\n"<>script (*sleep: to makesure that when script runs, this wl really ends.*)
 Print[script]

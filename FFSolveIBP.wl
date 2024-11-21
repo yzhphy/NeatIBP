@@ -79,12 +79,12 @@ outputPath=checkPath
 
 
 If[CutIndices==="spanning cuts",
-	PrintAndLog[
-		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.0.5.4.\n",
+	(*PrintAndLog[
+		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.1.0.0.\n",
 		"It is still supported, but it is recommended to use the equivalent, new gramma: \n",
 		"\tCutIndices={};\n",
 		"\tSpanningCutsMode=True;"
-	];
+	];*)
 	CutIndices={};
 	SpanningCutsMode=True;
 ]
@@ -123,7 +123,9 @@ integrals=Get[outputPath<>"results/OrderedIntegrals.txt"];
 targets=Get[outputPath<>"inputs/"<>targetFileName];
 Get[outputPath<>"inputs/"<>kinematicsFileName];
 
+targets0=targets
 targets=Complement[targets,MIs];
+
 
 SDim=Length[Cases[Variables[IBPs],_G][[1]]/.G->List];
 PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
@@ -197,8 +199,8 @@ PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 timer=AbsoluteTime[];
 PrintAndLog["Analyzing reduction results (step 3/3)..."];
-sol=Select[rules,MemberQ[targets,#[[1]]]&]
-
+(*sol=Select[rules,MemberQ[targets,#[[1]]]&]*)
+sol=#->(#/.rules)&/@targets0;
 (*sol2=Solve[RM.integrals==0,integrals//Reverse]
 Export[checkPath<>"/sol2.txt",sol2//InputForm//ToString]
 *)

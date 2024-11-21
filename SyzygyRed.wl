@@ -12,7 +12,7 @@ ReportIndent[n_]:=StringRiffle[Table["\t",n],""]
 
 
 ProbeIntermediateResult[name_,sec_,expr_]:=Module[{intermediateResultFolder},
-	If[debugMode===False,Return[]];
+	If[DebugMode===False,Return[]];
 	intermediateResultFolder=outputPath<>"tmp/intermediate_results/"<>name<>"/";
 	If[!DirectoryQ[#],Run["mkdir -p "<>#]]&[intermediateResultFolder];
 	Export[intermediateResultFolder<>ToString[sec]<>".txt",expr//InputForm//ToString];
@@ -100,7 +100,7 @@ positivity[list_]:=If[Union[#>0&/@list]==Head[list][True],True,False];
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Baikov Representation*)
 
 
@@ -328,7 +328,7 @@ SectorElimination[sector_]:=(G@@Table[If[sector[[i]]>0,PatternTest[Pattern[ToExp
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Integral Ordering*)
 
 
@@ -467,7 +467,7 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 ];*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Singular Interface*)
 
 
@@ -1470,7 +1470,7 @@ pivots[matrix_]:=Module[{ARLonglist},
 ];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Symmetry *)
 
 
@@ -1838,7 +1838,7 @@ LPSymmetryQ[integral1_,integral2_]:=Module[
 ]
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Azuritino*)
 
 
@@ -2048,7 +2048,7 @@ MinISPD=OptionValue[MinISPDegreeForAnalysis],pivotList,zMaps,newSelfSymmetries,L
 (*Main *)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*SimpleIBP*)
 
 
@@ -2482,6 +2482,12 @@ FullForm]\);(*?*)
 
 
 
+
+
+
+
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -2501,6 +2507,14 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	If[OptionValue[Verbosity]==1,PrintAndLog["--------------------------------------------------------------------\nInitializing new sector ",sector," ..."]];
+	
+	
+	secheight=SectorHeight[sector];
+	secindex=SectorIndex[sector];
+	secNo=SectorNumber[sector];
+	
+	secNum=secNo;
+	
 	If[!MemberQ[Global`NonZeroSectors,sector],PrintAndLog["This is an irrelavant sector or zero sector."]; Return[]];
 	
 	
@@ -2508,10 +2522,7 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 	FIBPs00=None;
 	LocalTargets=ReductionTasks[sector];
 	PrintAndLog["Target integrals: ",LocalTargets//Length];
-	If[LocalTargets=={},
-		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  No target integrals on this sector, skipping the rest steps. "];];
-		Return[]
-	];  (* Nothing to reduce *)
+	
 	
 	(*sectorMaps=OptionValue[SectorMappingRules];
 	mappedSectors=sectorMaps[[All,1]];*)
@@ -2522,11 +2533,7 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 		(* but it seems impossible to have new targets amerge in mapped sectors *)
 	];*)
 	
-	secheight=SectorHeight[sector];
-	secindex=SectorIndex[sector];
-	secNo=SectorNumber[sector];
 	
-	secNum=secNo;
 	
 	propLocus=Position[sector,1]//Flatten;
 	ISPLocus=Position[sector,0]//Flatten;
@@ -2538,7 +2545,10 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 	s=Max[IntegralISPDegree/@LocalTargets];
 	(*end of MaxMemoryUsed*)];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Initialized. Time Used: ", Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB." ]];
-	
+	If[LocalTargets==={},
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  No target integrals on this sector, skipping the rest steps. "];];
+		Return[]
+	];  (* Nothing to reduce *)
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Driving DenominatorTypes..."]];
@@ -3743,6 +3753,12 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
+
+
+
+
 
 
 
