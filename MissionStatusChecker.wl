@@ -192,7 +192,9 @@ While[True,
 			occupiedKernels=FileNames[All,OccupiedKernelsFolder];
 			If[Length[occupiedKernels]<Length[actuallyFinishedMissions],
 				Print["echo \"MissionStatusChecker: ERROR20241112 at "<>outputPath<>"\""];
+				Run["echo \""<>"MissionStatusChecker: ERROR20241112 at "<>outputPath<>"\" >> "<>outputPath<>"tmp/log3.txt"];
 				Exit[1];
+				(*I once met a case that we, suspeciously, reached here... at 2024.11.24*)
 			];
 			freeKernels=occupiedKernels[[;;Length[actuallyFinishedMissions]]];
 			Run["mv "<>#<>" "<>SubmittingKernelsFolder]&/@freeKernels
@@ -283,6 +285,7 @@ While[True,
 
 
 
+
+script="sleep 1\n"<>scriptModifyStatus<>"\n"<>script<>"\n" (*sleep: to makesure that when script runs, this wl really ends.*)
 Run["echo \""<>script<>"\" >> "<>outputPath<>"tmp/log3.txt"]
-script="sleep 1\n"<>scriptModifyStatus<>"\n"<>script (*sleep: to makesure that when script runs, this wl really ends.*)
 Print[script]

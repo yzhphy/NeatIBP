@@ -1529,8 +1529,35 @@ If[FileExistsQ[azuritinoMIFolder<>ToString[#]<>".txt"],
 ]
 In Summary.wl
 
+-----------------------
+2024.11.23
+Fixed a bug in Naive parallelization:
+in AssignIBPReduction.wl:
+If[Mod[i,SPCIBPReductionParallelJobNumber]=!=0  -> If[Mod[Length[spanningCuts],SPCIBPReductionParallelJobNumber]=!=0
+In FFSpanningCutsConsistencyCheck.wl
+If[Mod[i,jobNumber]=!=0 -> If[Mod[Length[spanningCuts],jobNumber]=!=0,
+Because for example after For[i=1,i<=5,i++,xxxx], we have i=6
+so, using Length[spanningCuts] is more clear and safe
 
+----------------------
+2024.11.24
+1. Setting rename:
+UseShortenedIBPs -> UseShortenedSpanningCutsIBPs
+ShortenIBPs -> ShortenSpanningCutsIBPs
+and 
+set UseShortenedSpanningCutsIBPs=Automatic as default, this is more convenient for users.
 
+2. Added targetList=Tuserweight/@targetList in ReadKira.....wl in Kira interface. This is a debugging.
+
+---------------------
+2024.11.26
+1.Build continue spc:
+1.1 added "spanning_cuts_behaviour.tag" in Initialization.wl and PrepareForContinueComputation.wl
+1.2 In AllMissionCompleteQ.wl added code block:
+spcBehavior=Import[tmpPath<>"spanning_cuts_behaviour.tag","Text"];
+Switch[spcBehavior, ....]
+1.3 In PrepareForSpanningCuts, added codes with spcBehavior and continue_cut.sh
+1.4 In KernelDistributionHQ.wl, added codes relevant to ClearFolderFiles
 
 
 

@@ -200,11 +200,11 @@ Switch[mode,
 		];(*kira command may include some settings*)
 		Switch[EnvVarSetter,
 		"export",
-			script="export FERMATPATH=\""<>FermatPath<>"\"";
+			script="export FERMATPATH=\""<>FermatPath<>"\"\n";
 			(*script=script<>"\n"<>"export KiraCommand=\""<>KiraCommand<>"\"";*)
 		,
 		"setenv",
-			script="setenv FERMATPATH \""<>FermatPath<>"\"";
+			script="setenv FERMATPATH \""<>FermatPath<>"\"\n";
 			(*script=script<>"\n"<>"setenv KiraCommand \""<>KiraCommand<>"\"";*)
 		,
 		_,
@@ -265,11 +265,11 @@ Switch[mode,
 		];(*kira command may include some settings*)
 		Switch[EnvVarSetter,
 		"export",
-			script="export FERMATPATH=\""<>FermatPath<>"\"";
+			script="export FERMATPATH=\""<>FermatPath<>"\"\n";
 			(*script=script<>"\n"<>"export KiraCommand=\""<>KiraCommand<>"\"";*)
 		,
 		"setenv",
-			script="setenv FERMATPATH \""<>FermatPath<>"\"";
+			script="setenv FERMATPATH \""<>FermatPath<>"\"\n";
 			(*script=script<>"\n"<>"setenv KiraCommand \""<>KiraCommand<>"\"";*)
 		,
 		_,
@@ -291,7 +291,7 @@ Switch[mode,
 				"FFSpanningCutsConsistencyCheck.wl "<>outputPath<>"\n";
 		];
 
-		If[UseShortenedIBP===True,
+		If[Or[UseShortenedSpanningCutsIBPs===True,And[UseShortenedSpanningCutsIBPs===Automatic,ShortenSpanningCutsIBPs===True]],
 			kiraScriptSetting=kiraScriptSetting<>"-s ";
 			script=script<>MathematicaCommand<>" -script "<>packagePath<>
 				"FFSpanningCutsIBPShorten.wl "<>outputPath<>"\n";
@@ -319,7 +319,7 @@ Switch[mode,
 				If[SPCIBPReductionParallelJobNumber===Infinity,
 					script=script<>"wait\n";
 				,
-					If[Mod[i,SPCIBPReductionParallelJobNumber]=!=0,
+					If[Mod[Length[spanningCuts],SPCIBPReductionParallelJobNumber]=!=0,
 						script=script<>"wait\n";
 					]
 				];
@@ -341,7 +341,7 @@ Switch[mode,
 				Export[outputPath<>"tmp/GNU_parallel_reduction_script.txt",GNUParallelScript,"Text"];
 				If[SPCIBPReductionParallelJobNumber===Infinity,
 					script=script<>"\ncat "<>outputPath<>"tmp/GNU_parallel_reduction_script.txt | "<>GNUParallelCommand<>" --ungroup"<>"\n";
-				,\:4e09
+				,
 					script=script<>"\ncat "<>outputPath<>"tmp/GNU_parallel_reduction_script.txt | "<>GNUParallelCommand<>" --ungroup -j "<>ToString[SPCIBPReductionParallelJobNumber]<>"\n";
 				];
 				
@@ -365,7 +365,7 @@ Switch[mode,
 			PrintAndLog["**** Err: SPCIBPReductionParallelization must be True or False. Exiting."];
 			Exit[1];
 		];
-		If[UseShortenedIBP===True,
+		If[Or[UseShortenedSpanningCutsIBPs===True,And[UseShortenedSpanningCutsIBPs===Automatic,ShortenSpanningCutsIBPs===True]],
 			IBPMergeSetting="-s "
 		,
 			IBPMergeSetting=""

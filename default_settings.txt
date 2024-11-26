@@ -95,11 +95,12 @@ ExportIndependentNIBPsCutted=False;
 (*----------spanning cuts related--------*)
 SpanningCutsMode=False;
 SpanningCutsEvaluationMode="Parallel";(*or "Sequential"*)
-ShortenIBPs=True;
+ShortenSpanningCutsIBPs=True;
 SpanningCutsConsistencyCheck=True;(*strongly recommended True*)
-ConsistencyCheckParalleliation=False;
+ConsistencyCheckParallelization=False;
 ConsistencyCheckParallelizationMethod="Naive";(*or "GNUParallel"*)
 ConsistencyCheckParallelJobNumber=Infinity;
+TrustHistoricalConsistencyCheckCertificate=True;
 
 (*-----------IBP Reduction related-------*)
 PerformIBPReduction=False;
@@ -116,7 +117,7 @@ options:
 SPCIBPReductionParallelization=True;
 SPCIBPReductionParallelizationMethod="Naive";(*or "GNUParallel"*)
 SPCIBPReductionParallelJobNumber=Infinity;
-UseShortenedIBP=True;(*only valid for spanning cuts mode*)
+UseShortenedSpanningCutsIBPs=Automatic;(*True or False or Automatic. Automatic means keep the same as ShortenSpanningCutsIBPs*)(*only valid for spanning cuts mode*)
 
 (*---Kira setting---*)
 KiraCommand=""

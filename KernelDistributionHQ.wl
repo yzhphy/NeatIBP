@@ -110,13 +110,44 @@ HQFolder=outputPath<>"tmp/kernels_at_HQ/"
 If[!DirectoryQ[#],CreateDirectory[#]]&[HQFolder]
 If[!DirectoryQ[#],CreateDirectory[#]]&[HQFolder<>"vacant_kernels/"]
 If[!DirectoryQ[#],CreateDirectory[#]]&[HQFolder<>"manager_kernels/"]
+
+
+
+ClearFolderFiles[folder_]:=Module[{files},
+	If[DirectoryQ[folder],
+		files=FileNames[All,folder];
+		files=Select[files,!DirectoryQ[#]&];
+		DeleteFile/@files;
+	]
+]
+
+
+tmpPath=outputPath<>"tmp/"
+spcBehavior=Import[tmpPath<>"spanning_cuts_behaviour.tag","Text"];
+If[!MemberQ[{"run","continue"},spcBehavior],
+	PrintAndLog["Unidentified spcBehavior: "<>spcBehavior<>". Exiting."];
+	Exit[];
+	(*this is actually unexpected because if so, AllMissionCompleteQ.wl will report this bug earlier and we would not enter this wl file*)
+]
+
+
+If[spcBehavior==="continue",
+	ClearFolderFiles[HQFolder];
+	ClearFolderFiles[HQFolder<>"vacant_kernels/"];
+	ClearFolderFiles[HQFolder<>"manager_kernels/"];
+	Module[{cut,i},
+		For[i=1,i<=Length[spanningCuts],i++,
+			cut=spanningCuts[[i]];
+			ClearFolderFiles[CutWKFolder[cut]];
+			ClearFolderFiles[CutWKFolder[cut]<>"recieved_kernels/"];
+			ClearFolderFiles[CutWKFolder[cut]<>"occupied_kernels/"];
+			ClearFolderFiles[CutWKFolder[cut]<>"submitting_kernels/"];			
+		]
+	]
+]
+
+
 Export[HQFolder<>"vacant_kernels/kernel_"<>ToString[#],"","Text"]&/@Range[MathKernelLimit-1](*HQ kernel is ommited*)
-
-
-
-
-
-
 
 
 CollectCutSubmittingKernels[cut_]:=Module[{cutSubmittingKernelsFolder,submittingKernels},

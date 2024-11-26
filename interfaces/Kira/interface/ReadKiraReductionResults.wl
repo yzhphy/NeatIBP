@@ -25,7 +25,7 @@ If[commandLineMode,
 	Print["WARNING: program is not running in command line mode!"];
 	workingPath=NotebookDirectory[];
 	(*packagePath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/";*)
-	outputPath="/home/zihao/NeatIBP/examples_private/kira_interface/examples/dbox-demo/outputs/kira/"
+	outputPath=""
 	
 ]
 
@@ -99,7 +99,7 @@ targetList=ToExpression/@DeleteCases[
 	StringSplit[StringReplace[targetListStr," "->""],"\n"],
 	""
 ]
-
+targetList=Tuserweight/@targetList
 	
 
 

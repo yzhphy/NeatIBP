@@ -563,9 +563,9 @@ If[Union[(Length[Propagators]===Length[#])&/@TargetIntegrals]=!={True},
 ]
 
 
-If[SpanningCutsMode===True&&ShortenIBPs===True&&SpanningCutsConsistencyCheck=!=True,
+If[SpanningCutsMode===True&&ShortenSpanningCutsIBPs===True&&SpanningCutsConsistencyCheck=!=True,
 	ErrorLine[];
-	PrintAndLog["****  Wrong setting: In spanning cuts mode, if you set ShortenIBPs=True, you must also set SpanningCutsConsistencyCheck=True."];
+	PrintAndLog["****  Wrong setting: In spanning cuts mode, if you set ShortenSpanningCutsIBPs=True, you must also set SpanningCutsConsistencyCheck=True."];
 	ErrorLine[];
 	Exit[0];
 ]
@@ -661,6 +661,22 @@ If[SimplifyByCutMethod==="LiftResubstitution"&&(!(DeveloperMode===True)),
 ]
 
 
+
+
+OptionCheck["SpanningCutsEvaluationMode",{"Sequential","Parallel"}]
+
+
+
+
+
+OptionCheck["UseShortenedSpanningCutsIBPs",{True,False,Automatic}]
+OptionCheck["ShortenSpanningCutsIBPs",{True,False}]
+If[UseShortenedSpanningCutsIBPs===True&&ShortenSpanningCutsIBPs===False,
+	ErrorLine[];
+	PrintAndLog["**** You have set ShortenSpanningCutsIBPs=False, so you cannot set UseShortenedSpanningCutsIBPs=True. Exiting."];
+	ErrorLine[];
+	Exit[];
+]
 
 
 (* ::Section:: *)
@@ -951,7 +967,8 @@ If[!DirectoryQ[#],Run["mkdir -p "<>#]]&[tmpPath];
 
 If[(*CutIndices==="spanning cuts"*)(SpanningCutsMode===True),
 	PrintAndLog["Spanning cuts mode."];
-	Export[tmpPath<>"spanning_cuts_mode.txt",""]
+	Export[tmpPath<>"spanning_cuts_mode.txt",""];
+	Export[tmpPath<>"spanning_cuts_behaviour.tag","run","Text"];
 ]
 
 Export[tmpPath<>"initialized.txt",""]

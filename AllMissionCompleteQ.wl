@@ -105,12 +105,26 @@ If[!FileExistsQ[tmpPath<>"spanning_cuts_mode.txt"],
 		script=MathematicaCommand<>" -script "<>packagePath<>"MissionStatusChecker.wl "<>AbsMissionInput<>" | "<>ShellProcessor
 	]
 ,
-	script=MathematicaCommand<>" -script "<>packagePath<>"PrepareForSpanningCuts.wl "<>AbsMissionInput<>" \n"<>
+	spcBehavior=Import[tmpPath<>"spanning_cuts_behaviour.tag","Text"];
+	Switch[spcBehavior,
+	"run",
+		script=MathematicaCommand<>" -script "<>packagePath<>"PrepareForSpanningCuts.wl "<>AbsMissionInput<>" \n"<>
 			tmpPath<>"run_all_cuts.sh"
+	,
+	"continue",
+		script=MathematicaCommand<>" -script "<>packagePath<>"PrepareForSpanningCuts.wl "<>AbsMissionInput<>" \n"<>
+			tmpPath<>"continue_all_cuts.sh"
+	,
+	_,
+		script="echo \"Unidentified spcBehavior: "<>spcBehavior<>". Exiting.\"\n";
+	]
 ]
 
-Print[script]
+script="sleep 1\n"<>""<>script 
+(*sleep: to makesure that when script runs, this wl really ends.*)
 Run["echo \""<>script<>"\" >> "<>outputPath<>"tmp/log3.txt"]
+Print[script]
+
 
 
 

@@ -79,9 +79,6 @@ If[!FileExistsQ[tmpPath<>"initialized.txt"],
 ]
 
 
-
-
-
 LogPath=outputPath<>"tmp/log_files/"
 LogFile=LogPath<>"prepare_for_spanning_cuts"<>".txt";
 
@@ -119,39 +116,29 @@ spanningCuts=Get[TemporaryDirectory<>"spanningCuts.txt"]
 PrintAndLog["\tRead ",Length[spanningCuts]," spanning cuts."]
 
 
-spcBehavior=Import[tmpPath<>"spanning_cuts_behaviour.tag","Text"];
-If[!MemberQ[{"run","continue"},spcBehavior],
-	PrintAndLog["Unidentified spcBehavior: "<>spcBehavior<>". Exiting."];
-	Exit[];
-	(*this is actually unexpected because if so, AllMissionCompleteQ.wl will report this bug earlier and we would not enter this wl file*)
+targetIndexLists=TargetIntegrals/.G->List;
+uncuttableIndices=Select[Range[SDim],
+	MemberQ[Sign/@(targetIndexLists[[All,#]]-1),1]&
 ]
-
-
-If[spcBehavior==="run",
-	targetIndexLists=TargetIntegrals/.G->List;
-	uncuttableIndices=Select[Range[SDim],
-		MemberQ[Sign/@(targetIndexLists[[All,#]]-1),1]&
-	];
-	If[Length[uncuttableIndices]>0,
-		PrintAndLog["\tThe following indices are larger than 1 in certain targets:"];
-		PrintAndLog["\t",uncuttableIndices];
-		PrintAndLog["\tIn current version of NeatIBP, these indices are not cuttable."];
-		PrintAndLog["\tRedefining spanning cuts..."];
-		spanningCuts=Sort[Complement[#,uncuttableIndices]]&/@spanningCuts;
-		spanningCuts=spanningCuts//DeleteDuplicates;
-		newSpanningCuts=spanningCuts;
-		For[i=1,i<=Length[spanningCuts],i++,
-			For[j=1,j<=Length[spanningCuts],j++,
-				If[i==j,Continue[]];
-				If[SubsetQ[spanningCuts[[i]],spanningCuts[[j]]],
-					newSpanningCuts=DeleteCases[newSpanningCuts,spanningCuts[[i]]]
-				]
+If[Length[uncuttableIndices]>0,
+	PrintAndLog["\tThe following indices are larger than 1 in certain targets:"];
+	PrintAndLog["\t",uncuttableIndices];
+	PrintAndLog["\tIn current version of NeatIBP, these indices are not cuttable."];
+	PrintAndLog["\tRedefining spanning cuts..."];
+	spanningCuts=Sort[Complement[#,uncuttableIndices]]&/@spanningCuts;
+	spanningCuts=spanningCuts//DeleteDuplicates;
+	newSpanningCuts=spanningCuts;
+	For[i=1,i<=Length[spanningCuts],i++,
+		For[j=1,j<=Length[spanningCuts],j++,
+			If[i==j,Continue[]];
+			If[SubsetQ[spanningCuts[[i]],spanningCuts[[j]]],
+				newSpanningCuts=DeleteCases[newSpanningCuts,spanningCuts[[i]]]
 			]
-		];
-		spanningCuts=newSpanningCuts;
-		Export[TemporaryDirectory<>"spanningCuts.txt",spanningCuts//InputForm//ToString];
-		PrintAndLog["\tDone."];
+		]
 	];
+	spanningCuts=newSpanningCuts;
+	Export[TemporaryDirectory<>"spanningCuts.txt",spanningCuts//InputForm//ToString];
+	PrintAndLog["\tDone."];
 ]
 
 
@@ -175,34 +162,23 @@ ModifiedConfig[file_,cut_]:=Module[{string},
 cd -",
 	"Text"
 ]*)
-Switch[spcBehavior,
-"run",
-	Export[
-		TemporaryDirectory<>"run_cut.sh",
-		""<>packagePath<>"run.sh $1"<>missionInput,
-		"Text"
-	];
-	Run["chmod +x "<>TemporaryDirectory<>"run_cut.sh"]
-,
-"continue",
-	Export[
-		TemporaryDirectory<>"continue_cut.sh",
-		""<>packagePath<>"continue.sh $1"<>missionInput,
-		"Text"
-	];
-	Run["chmod +x "<>TemporaryDirectory<>"continue_cut.sh"]
+Export[
+	TemporaryDirectory<>"run_cut.sh",
+""<>packagePath<>"run.sh $1"<>missionInput,
+	"Text"
 ]
+Run["chmod +x "<>TemporaryDirectory<>"run_cut.sh"]
 
 
 (*we may need to recreate spanningCutsMissionMainPath by default, considering what if this is a 2nd time running? *)
 Options[PrepareSPC]={KernelDistributionHQ->False}
-PrepareSPC[OptionsPattern[]]:=Module[{i,cut,stringTail,cutMissionPath,allCutsScript,command,scriptFileName},
+PrepareSPC[OptionsPattern[]]:=Module[{i,cut,stringTail,cutMissionPath,runAllCutsScript},
 	PrintAndLog["Creating spanning cuts missions..."];
 	spanningCutsMissionMainPath=TemporaryDirectory<>"spanning_cuts_missions/";
 	If[OptionValue[KernelDistributionHQ],
-		allCutsScript=MathematicaCommand<>" -script "<>packagePath<>"KernelDistributionHQ.wl "<>AbsMissionInput<>" &\n";
+		runAllCutsScript=MathematicaCommand<>" -script "<>packagePath<>"KernelDistributionHQ.wl "<>AbsMissionInput<>" &\n";
 	,
-		allCutsScript="";
+		runAllCutsScript="";
 	];
 	
 	If[!DirectoryQ[#],CreateDirectory[#]]&[spanningCutsMissionMainPath];
@@ -212,43 +188,32 @@ PrepareSPC[OptionsPattern[]]:=Module[{i,cut,stringTail,cutMissionPath,allCutsScr
 		cutMissionPath=spanningCutsMissionMainPath<>"cut_"<>stringTail<>"/";
 		If[!DirectoryQ[#],CreateDirectory[#]]&[cutMissionPath];
 		(*Run["cp "<>workingPath<>missionInput<>" "inputBackupPath<>missionInput];*)
-		If[spcBehavior==="run",
-			Export[cutMissionPath<>missionInput,ModifiedConfig[workingPath<>missionInput,cut]];
-			Run["cp "<>kinematicsFile<>" "cutMissionPath];
-			Run["cp "<>targetIntegralsFile<>" "cutMissionPath];
-		];
-		
+		Export[cutMissionPath<>missionInput,ModifiedConfig[workingPath<>missionInput,cut]];
+		Run["cp "<>kinematicsFile<>" "cutMissionPath];
+		Run["cp "<>targetIntegralsFile<>" "cutMissionPath];
 		If[OptionValue[KernelDistributionHQ],
 			Export[cutMissionPath<>"pause.tag","","Text"];
 		];
-		Switch[spcBehavior,
-		"run",
-			command="run_cut.sh ";
-			scriptFileName="run_all_cuts.sh";
-		"continue",
-			command="continue_cut.sh ";
-			scriptFileName="continue_all_cuts.sh";
-		];
 		Switch[SpanningCutsEvaluationMode,
 		"Sequential",
-			allCutsScript=allCutsScript<>TemporaryDirectory<>command<>cutMissionPath<>"\n";
+			runAllCutsScript=runAllCutsScript<>TemporaryDirectory<>"run_cut.sh "<>cutMissionPath<>"\n";
 		,
 		"Parallel",
 			If[OptionValue[KernelDistributionHQ],
-				allCutsScript=allCutsScript<>packagePath<>"paused_command.sh "<>cutMissionPath<>"pause.tag "<>
-					"\""<>TemporaryDirectory<>command<>cutMissionPath<>"\" \"cut mission "<>ToString[InputForm[cut]]<>": \" &\n";
+				runAllCutsScript=runAllCutsScript<>packagePath<>"paused_command.sh "<>cutMissionPath<>"pause.tag "<>
+					"\""<>TemporaryDirectory<>"run_cut.sh "<>cutMissionPath<>"\" \"cut mission "<>ToString[InputForm[cut]]<>": \" &\n";
 			,
-				allCutsScript=allCutsScript<>TemporaryDirectory<>command<>cutMissionPath<>" &\n";
+				runAllCutsScript=runAllCutsScript<>TemporaryDirectory<>"run_cut.sh "<>cutMissionPath<>" &\n";
 			]
 		,
 		_,
 			PrintAndLog["Unkown evaluation mode, using sequential. "];
-			allCutsScript=allCutsScript<>TemporaryDirectory<>command<>cutMissionPath<>"\n";
+			runAllCutsScript=runAllCutsScript<>TemporaryDirectory<>"/run_cut.sh "<>cutMissionPath<>"\n";
 		];
 	];
-	If[SpanningCutsEvaluationMode==="Parallel",allCutsScript=allCutsScript<>"wait\n"];
-	Export[TemporaryDirectory<>scriptFileName,allCutsScript,"Text"];
-	Run["chmod +x "<>TemporaryDirectory<>scriptFileName]
+	If[SpanningCutsEvaluationMode==="Parallel",runAllCutsScript=runAllCutsScript<>"wait\n"];
+	Export[TemporaryDirectory<>"run_all_cuts.sh",runAllCutsScript,"Text"];
+	Run["chmod +x "<>TemporaryDirectory<>"run_all_cuts.sh"]
 ]
 
 

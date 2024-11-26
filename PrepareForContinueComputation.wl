@@ -108,19 +108,23 @@ reductionTasksFolder=TemporaryDirectory<>"reduction_tasks/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[reductionTasksFolder]
 
 
+If[MathKernelLimit<Infinity&&IsASpanningCutsSubMission,
+	If[!DirectoryQ[#],CreateDirectory[#]]&[TemporaryDirectory<>"worker_kernels/"];
+	If[!DirectoryQ[#],CreateDirectory[#]]&[TemporaryDirectory<>"worker_kernels/recieved_kernels/"];
+	If[!DirectoryQ[#],CreateDirectory[#]]&[TemporaryDirectory<>"worker_kernels/occupied_kernels/"];
+	If[!DirectoryQ[#],CreateDirectory[#]]&[TemporaryDirectory<>"worker_kernels/submitting_kernels/"];
+]
+(*I do not know if this block is needed, but I feel safer to add it---2024.11.26*)
 
 
-
-missionStatus=((ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex)->Get[#])&/@FileNames[All,missionStatusFolder];
-missionNotFinished=(SortBy[Select[missionStatus,#[[2]]=!="ComputationFinished"&][[All,1]],SectorOrdering]);
-
-
-Export[missionStatusFolder<>ToString[SectorNumber[#]]<>".txt","WaitingSupersectors"//InputForm//ToString]&/@missionNotFinished;
-
-
-
-(*TargetIntegrals={G[1,1,1,1,1,1,1,-5,0],G[1,1,1,1,1,1,1,-4,-1],G[1,1,1,1,1,1,1,-1,-4]};
-SimpleIBP[Verbosity->1,SeedingMethod->"Direct"]//AbsoluteTiming*)
+tmpPath=TemporaryDirectory
+If[!FileExistsQ[tmpPath<>"spanning_cuts_mode.txt"],
+	missionStatus=((ToExpression[StringReplace[FileNameSplit[#][[-1]],".txt"->""]]//SectorNumberToSectorIndex)->Get[#])&/@FileNames[All,missionStatusFolder];
+	missionNotFinished=(SortBy[Select[missionStatus,#[[2]]=!="ComputationFinished"&][[All,1]],SectorOrdering]);
+	Export[missionStatusFolder<>ToString[SectorNumber[#]]<>".txt","WaitingSupersectors"//InputForm//ToString]&/@missionNotFinished;
+,
+	Export[tmpPath<>"spanning_cuts_behaviour.tag","continue","Text"];
+]
 
 
 Print["Finished."]

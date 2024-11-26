@@ -139,7 +139,7 @@ If[ConsistencyCheckParallelization,
 			cut=spanningCuts[[i]];
 			solveFolder=outputPath<>"results/results_spanning_cuts/cut_"<>
 				StringRiffle[ToString/@cut,"_"]<>"/";
-			parallelCheckScript=parallelCheckScript<>"\n"<>
+			parallelCheckScript=parallelCheckScript<>
 				MathematicaCommand<>" -script "<>packagePath<>"FFSolveIBP.wl "<>solveFolder<>" &\n";
 			If[jobNumber=!=Infinity,
 				If[Mod[i,jobNumber]===0,
@@ -150,10 +150,11 @@ If[ConsistencyCheckParallelization,
 		If[jobNumber===Infinity,
 			parallelCheckScript=parallelCheckScript<>"wait\n";
 		,
-			If[Mod[i,jobNumber]=!=0,
+			If[Mod[Length[spanningCuts],jobNumber]=!=0,
 				parallelCheckScript=parallelCheckScript<>"wait\n";
 			]
 		];
+		Print[parallelCheckScript];
 		Run[parallelCheckScript];
 	,
 	"GNUParallel",
@@ -180,8 +181,7 @@ If[ConsistencyCheckParallelization,
 		PrintAndLog["**** Err: ConsistencyCheckParallelizationMethod must be one of the following: \"Naive\" or \"GNUParallel\". Exiting."];
 		Exit[1];
 	];		
-]
-	
+]	
 
 
 For[i=1,i<=Length[spanningCuts],i++,
