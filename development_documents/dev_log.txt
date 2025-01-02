@@ -1610,7 +1610,11 @@ but it seems that this part is not updated according to that.
 2025.01.02
 1. added CopyFile2 in Summary.wl and replace CopyFile using it. This is for the case that spanning cuts mission failed, to stop summarizing.
 
+2. renamed FFSpanningCutsIBPShorten.wl to SpanningCutsIBPShorten.wl
+
 v1.1.0.0
+
+
 
 
 

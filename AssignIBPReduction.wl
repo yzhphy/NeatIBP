@@ -309,7 +309,7 @@ Switch[mode,
 		If[Or[UseShortenedSpanningCutsIBPs===True,And[UseShortenedSpanningCutsIBPs===Automatic,ShortenSpanningCutsIBPs===True]],
 			kiraScriptSetting=kiraScriptSetting<>"-s ";
 			script=script<>MathematicaCommand<>" -script "<>packagePath<>
-				"FFSpanningCutsIBPShorten.wl "<>outputPath<>"\n";
+				"SpanningCutsIBPShorten.wl "<>outputPath<>"\n";
 			script=script<>shortenFinishQScript<>"\n\n";
 
 		];

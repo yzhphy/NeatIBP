@@ -75,7 +75,7 @@ PrintAndLog[x___]:=Module[{string,originalString},
 
 LogPath=outputPath<>"tmp/log_files/"
 If[!DirectoryQ[LogPath],CreateDirectory[LogPath]];
-LogFile=LogPath<>"FFSpanningCutsIBPShorten.txt"
+LogFile=LogPath<>"SpanningCutsIBPShorten.txt"
 
 
 md5code=Get[outputPath<>"results/spanning_cuts_consistency_check_passed_certificate.txt"];
