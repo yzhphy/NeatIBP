@@ -66,6 +66,21 @@ If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targ
 
 
 
+(*renaming the setting, because NeatIBP... actually, dose not perform "reduction" by default*)
+If[ValueQ[ReductionOutputName],
+	If[ReductionOutputName=!=OutputName,
+		If[OutputName==="Untitled",
+			ReductionOutputName=ReductionOutputName;
+			(*use ReductionOutputName*)
+		,
+			ReductionOutputName=OutputName
+		]
+	]
+,
+	ReductionOutputName=OutputName
+]
+
+
 If[CutIndices==="spanning cuts",
 	(*Print[
 		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.1.0.0.\n",
@@ -139,9 +154,22 @@ ReportTotalTimeUsed[]:=Module[{startAbsTime,timeUsedString,timeUsed,seconds,minu
 
 
 If[!FileExistsQ[tmpPath<>"initialized.txt"],
-	Print["Initialization failed, cannot summarize."];
+	Print["*****Initialization failed, cannot summarize."];
 	Exit[0];
 ]
+If[FileExistsQ[tmpPath<>"continue_preparation_failed.tag"],
+	Print["****Continue preparation failed, cannot summarize."];
+	Exit[0];
+]
+CopyFile2[file1_,file2_]:=Module[{},
+	If[!FileExistsQ[file1],
+		PrintAndLog["Summary.wl: File ",file1," does not exist. Give up summarization."];
+		Exit[];
+	];
+	CopyFile[file1,file2]
+]
+(*This is for the case that spanning cuts mission failed, to stop summarizing. ----2025.01.02*)
+
 If[FileExistsQ[tmpPath<>"spanning_cuts_mode.txt"],
 	PrintAndLog["Spanning cuts mode, collecting spanning cuts results."];
 	Module[{spanningCutsMissionMainPath,spanningCutStrings,spanningCuts,
@@ -158,11 +186,11 @@ If[FileExistsQ[tmpPath<>"spanning_cuts_mode.txt"],
 			If[!DirectoryQ[#],CreateDirectory[#]]&[spanningCutSummaryFolder<>"results/"];
 			If[!DirectoryQ[#],CreateDirectory[#]]&[spanningCutSummaryFolder<>"inputs/"];
 			(
-				CopyFile[spanningCutResultFolder<>#<>".txt",spanningCutSummaryFolder<>"results/"<>#<>".txt"];
+				CopyFile2[spanningCutResultFolder<>#<>".txt",spanningCutSummaryFolder<>"results/"<>#<>".txt"];
 				(*PrintAndLog["\t copied ",spanningCutResultFolder<>#<>".txt"," to ",spanningCutSummaryFolder<>"results/"<>#<>".txt"];*)
 			)&/@{"IBP_all","MI_all","OrderedIntegrals","summary"};
 			(
-				CopyFile[spanningCutInputsFolder<>#,spanningCutSummaryFolder<>"inputs/"<>#];
+				CopyFile2[spanningCutInputsFolder<>#,spanningCutSummaryFolder<>"inputs/"<>#];
 				(*PrintAndLog["\t copied ",spanningCutInputsFolder<>#," to ",spanningCutSummaryFolder<>"inputs/"<>#];*)
 			)&/@(FileNameSplit[#][[-1]]&/@FileNames[All,spanningCutInputsFolder]);
 		]

@@ -25,6 +25,8 @@ else
 	NeatIBPOutputPath=${@:$#:1} #$(-1)
 fi
 
+NeatIBPOutputPath=$( realpath $NeatIBPOutputPath)
+
 IBPInputMode="normal"
 IBPInput="IBP_all.txt"
 KiraUDSSubFolder="userSystem/"

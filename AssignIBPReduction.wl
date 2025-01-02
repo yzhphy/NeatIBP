@@ -46,6 +46,21 @@ If[Get[packagePath<>"default_settings.txt"]===$Failed,Exit[0]]
 If[Get[workingPath<>missionInput]===$Failed,Print["Unable to open config file "<>workingPath<>missionInput<>". Exiting."];Exit[]]
 
 
+(*renaming the setting, because NeatIBP... actually, dose not perform "reduction" by default*)
+If[ValueQ[ReductionOutputName],
+	If[ReductionOutputName=!=OutputName,
+		If[OutputName==="Untitled",
+			ReductionOutputName=ReductionOutputName;
+			(*use ReductionOutputName*)
+		,
+			ReductionOutputName=OutputName
+		]
+	]
+,
+	ReductionOutputName=OutputName
+]
+
+
 If[outputPath===Automatic,
 	outputPath=workingPath<>"outputs/"<>ReductionOutputName<>"/";
 	
@@ -113,9 +128,9 @@ If[PerformIBPReduction=!=True,
 
 
 
-If[FileExistsQ[outputPath<>"tmp/once_summarized.tag"],
+(*If[FileExistsQ[outputPath<>"tmp/once_summarized.tag"],
 	Export[outputPath<>"tmp/summarized.tag","","Text"]
-]
+]*)
 If[!FileExistsQ[outputPath<>"tmp/summarized.tag"],
 	Export[
 		outputPath<>"tmp/assigned_reduction_script.sh",

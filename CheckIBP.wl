@@ -52,6 +52,22 @@ Get[checkPath<>"inputs/config.txt"]
 outputPath=checkPath
 
 
+(*(*renaming the setting, because NeatIBP... actually, dose not perform "reduction" by default*)
+If[ValueQ[ReductionOutputName],
+	If[ReductionOutputName=!=OutputName,
+		If[OutputName==="Untitled",
+			ReductionOutputName=ReductionOutputName;
+			(*use ReductionOutputName*)
+		,
+			ReductionOutputName=OutputName
+		]
+	]
+,
+	ReductionOutputName=OutputName
+]*)
+(*in this code I think we do not need this because we do not read config.txt here ---2024.12.25*)
+
+
 If[CutIndices==="spanning cuts",
 	Print[(*not supporting PrintAndLog yet*)
 		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.1.0.0.\n",
@@ -67,6 +83,8 @@ but actually it is not possible to have this
 because we does not support to CheckIBP at a root outputPath of spc 
 but maybe in the future we should support this, it is convenient for user
 ---2024.10.26
+
+but why do we need this code in this wl file? ---2024.12.25
 
 *)
 

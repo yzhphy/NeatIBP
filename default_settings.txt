@@ -14,7 +14,10 @@ SparseRREF`SpaSMLibrary = "/usr/local/lib/libspasm.so";
 GNUParallelCommand="parallel";
 
 (*-----------directory settings----------*)
-ReductionOutputName="Untitled";
+(*ReductionOutputName="Untitled";*)
+
+
+OutputName="Untitled";
 outputPath=Automatic;
 (*outputPath=workingPath<>"test/";*)(*alternative*)
 
@@ -97,7 +100,7 @@ SpanningCutsMode=False;
 SpanningCutsEvaluationMode="Parallel";(*or "Sequential"*)
 ShortenSpanningCutsIBPs=True;
 SpanningCutsConsistencyCheck=True;(*strongly recommended True*)
-ConsistencyCheckParallelization=False;
+ConsistencyCheckParallelization=True;
 ConsistencyCheckParallelizationMethod="Naive";(*or "GNUParallel"*)
 ConsistencyCheckParallelJobNumber=Infinity;
 TrustHistoricalConsistencyCheckCertificate=True;
@@ -124,6 +127,7 @@ KiraCommand=""
 FermatPath=""
 ForceRemoveExistingKiraResults=False;
 RunFireFlyInKira=True;
+DeleteKiraDB=True;
 
 
 
@@ -147,13 +151,13 @@ DenominatorTypeLiftIndexLists={};(*data structure: a list of index lists. This i
 LinearSyzDegree=3;
 NumericIBP=False;
 ReportIrreducibleIntegralsAfterIBPAnalyze=False;
-AllowingCornerOnlyModeInSimplifyByCut=True;
+AllowingDCornerOnlyModeInSimplifyByCut=True;
 SimplifyByCutMethod="LiftSelection";(*"LiftResubstitution" or "LiftSelection", "LiftSelection" recommended*)
-SkipLiftInLiftSelection=False;
+SkipLiftSelection=False;
 FurtherSyzygyVectorsSelection=True;(*deleting vectors to test if cut GB unchange, only valid for "LiftSelection"*)
 FiniteFieldModulus2=117763;(*for FurtherSyzygyVectorsSelection*)
-LiftSelectionStricty=10;(*the propability to delete a syzygy vector which should be deleted in LiftSelection, >1 means 1, <0 means 0*)
-FurtherSyzygyVectorsSelectionStricty=10;(*the propability to delete a syzygy vector which should be deleted in Further selection, >1 means 1, <0 means 0*)
+LiftSelectionStrictness=10;(*the propability to delete a syzygy vector which should be deleted in LiftSelection, >1 means 1, <0 means 0*)
+FurtherSyzygyVectorsSelectionStrictness=10;(*the propability to delete a syzygy vector which should be deleted in Further selection, >1 means 1, <0 means 0*)
 ReportFurtherSelectedSyzygyVectors=False;
 NeatIBPSeedingMethod="Zurich";
 FIBPGroupingStartRatio=0.5;(*not used*)
@@ -183,4 +187,4 @@ SectorwiseSettings={
 
 
 (*-------other default settings----------*)
-GenericD={d-> 3/137};
+GenericD={d-> 1/137};

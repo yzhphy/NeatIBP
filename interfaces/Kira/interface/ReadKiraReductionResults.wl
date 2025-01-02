@@ -117,3 +117,17 @@ Export[reductionResultsFolder<>"reduced_IBP_Table.txt",IBPTable//InputForm//ToSt
 
 
 PrintAndLog["\tFinished. Time used: ",Round[AbsoluteTime[]-timer]," second(s)."]
+
+
+PrintAndLog["Deleting kira.db ..."]
+timer=AbsoluteTime[];
+
+
+If[DeleteKiraDB,
+	If[FileExistsQ[#],DeleteFile[#]]&[outputPath<>"KiraIO/results/kira.db"]
+]
+
+
+
+
+PrintAndLog["\tFinished. Time used: ",Round[AbsoluteTime[]-timer]," second(s)."]

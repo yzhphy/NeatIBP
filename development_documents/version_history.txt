@@ -199,6 +199,21 @@ Date: 2024.10.25
 	4. Added a tag file to tag that NeatIBP is finished
 	5. Kira interface produces log files.
 
+[NeatIBP 1.1.0.0]
+Date: 2025.01.02
+	1. Allowing specifying CutIndices in spanning cuts mode
+	2. Consistency check is now mandatory unless turned off by config.txt
+	3. Allowing limiting the Mathematica kernel used in spanning cuts mode
+	4. Supporting continuing computation in spanning cuts mode.
+	5. Adjusting some of the config settings (still backward compatible for non-developer settings)
+	5. Parallelization work flow upgraded, introducing GNU parallel (optional)
+	7. Added a process check step before continuing computation
+	8. Cancelled usage of ParallelTable in CheckIBP
+	9. More modules producing log files
+	10.Auto deleting kira.db after Kira reduction
+	11.Terminology standarizations
+	12.Bug fixings
+
 
 
 

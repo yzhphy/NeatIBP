@@ -1559,9 +1559,58 @@ Switch[spcBehavior, ....]
 1.3 In PrepareForSpanningCuts, added codes with spcBehavior and continue_cut.sh
 1.4 In KernelDistributionHQ.wl, added codes relevant to ClearFolderFiles
 
+-------------------------
+2024.12.25
+1. Process check before continuing
+2. Not letting Assign.wl to modify once_summarized to summarized
+3. Before continuing spc, NeatIBP now checks if there are cuts with unfinished ini. If so, stop running and tell user to delete corresponding folders. If a cut is totally not started, it runs Ini.wl first.
+4. Delete kira.db after use.
+5. It seems GNUParallel for Consistency check is already done.
+6. Setting rename: ReductionOutputName -> OutputName
+
+-------------------
+2024.12.26
+1. In SyzygyRed.wl, AnalyzeSector[],
+modified
+
+					NeatIBPIntersectionTimeConstrain,
+					"SingularIntersectionTimeOut"
+				];
+				If[VectorList==="SingularIntersectionTimeOut",
+					PrintAndLog[
+						"#",secNo,
+						"  Singular intersection time exceeds limit (",
+						ToString[NeatIBPIntersectionTimeConstrain],
+						
 
 
+to
 
+					NeatIBPIntersectionTimeConstrain,
+					$Failed
+				];
+				If[VectorList===$Failed,
+					PrintAndLog[
+						"#",secNo,
+						"  Singular intersection returns $Failed at time limit (",
+						ToString[NeatIBPIntersectionTimeConstrain],
+
+
+because a mathematica time constrain dose not constrain Run[] because this is not an abs time constrain
+so I remember I have updated this in Singular interface by using shell command "timeout"
+but it seems that this part is not updated according to that.
+
+2. Setting renamed: xxxxStricty -> xxxxStrictness
+
+-----------------------
+2024.12.28 
+1. Setting renamed: SkipLiftInLiftSelection -> SkipLiftSelection
+
+--------------
+2025.01.02
+1. added CopyFile2 in Summary.wl and replace CopyFile using it. This is for the case that spanning cuts mission failed, to stop summarizing.
+
+v1.1.0.0
 
 
 

@@ -31,6 +31,21 @@ If[Get[kinematicsFile]===$Failed,Print["Unable to open kinematics file "<>kinema
 If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting."];Exit[]]*)
 
 
+(*renaming the setting, because NeatIBP... actually, dose not perform "reduction" by default*)
+If[ValueQ[ReductionOutputName],
+	If[ReductionOutputName=!=OutputName,
+		If[OutputName==="Untitled",
+			ReductionOutputName=ReductionOutputName;
+			(*use ReductionOutputName*)
+		,
+			ReductionOutputName=OutputName
+		]
+	]
+,
+	ReductionOutputName=OutputName
+]
+
+
 If[CutIndices==="spanning cuts",
 	(*PrintAndLog[
 		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.1.0.0.\n",
@@ -128,9 +143,9 @@ missionLost,runningMissionUnregistered,actuallyRunningMissions,runningMissionMis
 	runningMissionUnregistered=Complement[actuallyRunningMissions,SectorNumber/@missionComputing];
 	runningMissionMismatchMessage="";
 	If[Length[missionLost]>0,
-		Print[SectorNumber/@actuallyRunningMissions];
+		(*Print[SectorNumber/@actuallyRunningMissions];
 		Print[SectorNumber/@missionComputing];
-		Print[missionComputing/.(#[[1]]->#[[2]]&/@missionStatus)];
+		Print[missionComputing/.(#[[1]]->#[[2]]&/@missionStatus)];*)
 		runningMissionMismatchMessage=StringJoinLined[
 			runningMissionMismatchMessage,
 			"******** \nWarning:\n"<>ToString[Length[missionLost]]<>" sector(s) lost"<>ReprotString[missionLost,maxNum]

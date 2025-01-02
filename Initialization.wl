@@ -110,6 +110,28 @@ If[TargetIntegrals===$Failed,Print["****  Unable to open target intergals file "
 
 
 
+(*renaming the setting, because NeatIBP... actually, dose not perform "reduction" by default*)
+If[ValueQ[ReductionOutputName],
+	If[ReductionOutputName=!=OutputName,
+		If[OutputName==="Untitled",
+			ReductionOutputName=ReductionOutputName;
+			(*use ReductionOutputName*)
+		,
+			PrintAndLog[
+				"!![Notice]: It seems that you have set ReductionOutputName = \"",
+				ReductionOutputName,"\" and OutputName = \"",OutputName,"\"\n",
+				"The two settings are the same in NeatIBP v1.1.0.0 or later.\n",
+				"Resetting ReductionOutputName = \"",OutputName,"\"."
+			];
+			Pause[3];
+			ReductionOutputName=OutputName
+		]
+	]
+,
+	ReductionOutputName=OutputName
+]
+
+
 (* ::Section:: *)
 (*Setting outputPath*)
 
@@ -256,7 +278,8 @@ ScalarExtendedTangentSet,BaikovKernelScalar,BaikovRevRep,BaikovRep,BaikovKernel,
 ForwardRep,BackwardRep,Scalar2sp,sp2Scalar,sp,PolynomialU,PolynomialF,PolynomialG,numericPolynomialG,gen,varOrder,ss,(*in SyzygyRed.wl, IntegerPartition function. I think this variable, ss, can be set as local*)
 ZeroSectors,NonZeroSectors,ZeroTargets,ReductionTargets,ReductionTasks,ZeroSectorRemoval,IBPList,MIList,SectorAnalyzeTiming,IntegralR,FI,BasicRawIBPs,FI0,ZM0,secNum,SelfSymmetryR,ZM,RelavantIntegrals,
 groupMomentumU,groupMomentumV,StdL,i,j,k,spanningCuts,bottomSectors,topSectors,spanningCutsMissionMainPath,TemporaryDirectory,
-Prepare,SectorwiseSettingListForCurrentSector,inputParameters,FI,ZM,FI0,ZM0,FIHead,ZMHead,FI00,ZM00
+Prepare,SectorwiseSettingListForCurrentSector,inputParameters,FI,ZM,FI0,ZM0,FIHead,ZMHead,FI00,ZM00,pshead,processes,checkTimes,
+spanningCuts,spanningCut,cut,outputPathsWithUnfinishedIni,ReductionOutputName,OutputName
 
 }//DeleteDuplicates
 CheckRange={"TargetIntegrals","LoopMomenta","ExternalMomenta","Propagators","Kinematics","GenericPoint","GenericD"
@@ -318,6 +341,33 @@ OptionCheck[settingStr_,optionList_]:=Module[{settingValue=ToExpression[settingS
 		ErrorLine[];
 		Exit[0]
 	]
+]
+
+
+If[ValueQ[FurtherSyzygyVectorsSelectionStricty],
+	ErrorLine[];
+	PrintAndLog[
+		"*** Sorry, it seem that you have set FurtherSyzygyVectorsSelectionStricty=",
+		FurtherSyzygyVectorsSelectionStricty,
+		". In the version v1.1.0.0 and later, this setting is renamed to FurtherSyzygyVectorsSelectionStrictness. ",
+		"Please use FurtherSyzygyVectorsSelectionStrictness=",FurtherSyzygyVectorsSelectionStricty," instead. Apology for the inconvenience."
+	];
+	ErrorLine[];
+	Exit[0];
+
+]
+
+If[ValueQ[LiftSelectionStricty],
+	ErrorLine[];
+	PrintAndLog[
+		"*** Sorry, it seem that you have set LiftSelectionStricty=",
+		LiftSelectionStricty,
+		". In the version v1.1.0.0 and later, this setting is renamed to LiftSelectionStrictness. ",
+		"Please use LiftSelectionStrictness=",LiftSelectionStricty," instead. Apology for the inconvenience."
+	];
+	ErrorLine[];
+	Exit[0];
+
 ]
 
 

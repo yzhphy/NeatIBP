@@ -42,6 +42,21 @@ TargetIntegrals=Get[targetIntegralsFile]
 If[TargetIntegrals===$Failed,Print["Unable to open target intergals file "<>targetIntegralsFile<>". Exiting."];Exit[]]
 
 
+(*renaming the setting, because NeatIBP... actually, dose not perform "reduction" by default*)
+If[ValueQ[ReductionOutputName],
+	If[ReductionOutputName=!=OutputName,
+		If[OutputName==="Untitled",
+			ReductionOutputName=ReductionOutputName;
+			(*use ReductionOutputName*)
+		,
+			ReductionOutputName=OutputName
+		]
+	]
+,
+	ReductionOutputName=OutputName
+]
+
+
 If[CutIndices==="spanning cuts",
 	(*Print[
 		"!!![Notice]: the config setting CutIndices=\"spanning cuts\" is an out-of-date gramma since v1.1.0.0.\n",
@@ -155,6 +170,49 @@ If[spcBehavior==="run",
 ]
 
 
+
+
+
+If[spcBehavior==="continue",
+	outputPathsWithUnfinishedIni={};
+	For[i=1,i<=Length[spanningCuts],i++,
+		(*tag20241225:
+			copied from PrepareSPC[]
+			but I think there is no problem to do so
+			even if there are some global vars, but they are just paths, they are constant.
+		*)
+		cut=spanningCuts[[i]];
+		spanningCutsMissionMainPath=TemporaryDirectory<>"spanning_cuts_missions/";
+		stringTail=StringRiffle[ToString/@cut,"_"];
+		cutMissionPath=spanningCutsMissionMainPath<>"cut_"<>stringTail<>"/";
+		(*tag20241225:end*)
+		cutOutputPath=cutMissionPath<>"outputs/"<>ReductionOutputName<>"/";
+		cutTmpPath=cutOutputPath<>"tmp/";
+		If[And[
+			DirectoryQ[cutOutputPath],
+			Not[Or[
+				FileExistsQ[cutTmpPath<>"initialized.txt"],
+				FileExistsQ[cutTmpPath<>"once_initialized.txt"]
+			]]
+		],
+			AppendTo[outputPathsWithUnfinishedIni,cutOutputPath]
+		];
+		
+	];
+	If[outputPathsWithUnfinishedIni=!={},
+		Print["************"];
+		Print["The following folders are with unfinished initialization trash files."];
+		Print[""];
+		Print[StringRiffle[outputPathsWithUnfinishedIni,"\n"]];
+		Print[""];
+		Print["Please delete them by hand, and try again."];
+		If[FileExistsQ[#],DeleteFile[#]]&[TemporaryDirectory<>"continue_cut.sh"];
+		If[FileExistsQ[#],DeleteFile[#]]&[TemporaryDirectory<>"run_cut.sh"];
+		Exit[];
+	]
+]
+
+
 ModifiedConfig[file_,cut_]:=Module[{string},
 	string=Import[file];
 	(*string=StringReplace[string,{"CutIndices="~~Shortest[x__]~~"\n"->"\n"}];*)(*no need and cause bug, see dev log for reason. 2024.10.30*)
@@ -192,6 +250,16 @@ Switch[spcBehavior,
 	];
 	Run["chmod +x "<>TemporaryDirectory<>"continue_cut.sh"]
 ]
+(*
+when running a continue at a spc sub mission, if:
+1. not initialized
+2. outputPath not created
+it will run Initialization autoly
+but this is currently only for spc sub mission (I have no time now to generalize it to other cases )
+see PreapareForContinue.... for details
+---2024.12.25
+
+*)
 
 
 (*we may need to recreate spanningCutsMissionMainPath by default, considering what if this is a 2nd time running? *)
@@ -225,6 +293,7 @@ PrepareSPC[OptionsPattern[]]:=Module[{i,cut,stringTail,cutMissionPath,allCutsScr
 		"run",
 			command="run_cut.sh ";
 			scriptFileName="run_all_cuts.sh";
+		,
 		"continue",
 			command="continue_cut.sh ";
 			scriptFileName="continue_all_cuts.sh";

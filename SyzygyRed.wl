@@ -266,7 +266,7 @@ Index2Sector[propIndex_]:=Exponent[Times@@(z/@propIndex),var];
 SectorHeight[int_]:=Count[int/. G->List,u_/;u>0]
 
 
-SectorCut[sector_]:=G[x__]:>(If[Sector[G[x]]==sector,1,0])*G[x];
+SectorCut[sector_]:=G[x__]:>(If[Sector[G[x]]===sector,1,0])*G[x];
 
 
 SectorCutQ[sec_,cut_]:=And@@(#>=0&/@(sec-cut));
@@ -467,7 +467,7 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 ];*)
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Singular Interface*)
 
 
@@ -650,7 +650,7 @@ SingularGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,varsCutt
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Singular intersection*)
 
 
@@ -926,7 +926,7 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Singular lift to GB*)
 
 
@@ -1062,7 +1062,7 @@ SingularLiftToGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,va
 (*SimplifyByCut*)
 
 
-Options[SimplifyByCut]={sectorNumber->0,ReportLayer->2,DCornerOnly->False,SimplifyMethod->SimplifyByCutMethod,FurtherSelection->FurtherSyzygyVectorsSelection,Modulus->0,SkipLift->SkipLiftInLiftSelection};
+Options[SimplifyByCut]={sectorNumber->0,ReportLayer->2,DCornerOnly->False,SimplifyMethod->SimplifyByCutMethod,FurtherSelection->FurtherSyzygyVectorsSelection,Modulus->0,SkipLift->SkipLiftSelection};
 SimplifyByCut[vectorsInput_,cutIndices_,OptionsPattern[]]:=Module[
 {vectors,vectorsCutted,sortedVectorIndices,vectorsSorted,vectorsCuttedSorted,vectorsInputSorted,i,
 tmp,syzygyVectorAbsDegrees,syzygyVectorISPDegrees,syzygyVectorPropDegrees,FurtherSelectionETC,FurtherSelectionTimer,
@@ -1168,7 +1168,7 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 		
 	,_,
 		If[SimplifyByCutMethod=!="LiftSelection",PrintAndLog["#",secNo,"\t","SimplifyByCut: Unknown SimplifyByCutMethod, switching to LiftSelection"]];
-		If[(!OptionValue[SkipLift])===True,(*the naming (SkipLiftInLiftSelection) and logical structure of this setting is really... mismatched, messy and confusing!  ... maybe this should be changed if I have time*)
+		If[(!OptionValue[SkipLift])===True,
 			timer=AbsoluteTime[];
 			PrintAndLog["#",secNo,ReportIndent[reportLayer],"Computing lift matrix..."];
 			memoryUsed=MaxMemoryUsed[
@@ -1181,15 +1181,15 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 				result=vectorsInputSorted[[selectedIndices]];
 			,
 				timer2=AbsoluteTime[];
-				PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Lift selecting... [stricty=",Max[Min[LiftSelectionStricty,1],0],"]"];
+				PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Lift selecting... [stricty=",Max[Min[LiftSelectionStrictness,1],0],"]"];
 				memoryUsed2=MaxMemoryUsed[
 				selectedIndices=Select[Range[Length[vectorsInputSorted]],Union[liftMatrix[[All,#]]]=!={0}&];
 				PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Selected vectors: ",Length[selectedIndices],"."];
-				If[LiftSelectionStricty<1,
+				If[LiftSelectionStrictness<1,
 					recoveredIndices={};
 					For[i=1,i<=Length[vectorsInputSorted],i++,
 						If[!MemberQ[selectedIndices,i],
-							If[RandomReal[]>LiftSelectionStricty,
+							If[RandomReal[]>LiftSelectionStrictness,
 								recoveredIndices=Join[recoveredIndices,{i}]
 							]
 						]
@@ -1203,7 +1203,7 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 				PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB." ];
 			];	
 		,
-			PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"SkipLiftInLiftSelection is True, skipping the selection using lift matrix. "];
+			PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"SkipLiftSelection is True, skipping the selection using lift matrix. "];
 			selectedIndices=Range[Length[vectorsInputSorted]];
 			result=vectorsInputSorted[[selectedIndices]];
 		];
@@ -1231,8 +1231,8 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 				Return[result];
 			];
 			timer3=AbsoluteTime[];
-			FurtherSelectionETC=Max[Min[FurtherSyzygyVectorsSelectionStricty,1],0]*timeForAGBComputation*Length[vectorsCuttedSortedSelected];
-			PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Testing each vector [stricty=",Max[Min[FurtherSyzygyVectorsSelectionStricty,1],0],
+			FurtherSelectionETC=Max[Min[FurtherSyzygyVectorsSelectionStrictness,1],0]*timeForAGBComputation*Length[vectorsCuttedSortedSelected];
+			PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Testing each vector [stricty=",Max[Min[FurtherSyzygyVectorsSelectionStrictness,1],0],
 				"]. Estimated time cost: ",
 				Round[FurtherSelectionETC],
 				" second(s)."];
@@ -1246,7 +1246,7 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 					Break[];
 				];
 				selectedIndices2New=DeleteCases[selectedIndices2,i];
-				If[RandomReal[]<FurtherSyzygyVectorsSelectionStricty,
+				If[RandomReal[]<FurtherSyzygyVectorsSelectionStrictness,
 					vectorsCuttedSortedSelectedGB2=SingularGB[
 						vectorsCuttedSortedSelected[[selectedIndices2New]],var,{},
 						Modulus->OptionValue[Modulus],
@@ -1642,7 +1642,7 @@ GMapped[sectorMaps_,indices_]:=Module[{sector,mappedSectors,map,preResult,result
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Map a expression*)
 
 
@@ -2488,6 +2488,20 @@ FullForm]\);(*?*)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -2633,12 +2647,12 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 						(*10 more seconds to make sure. This number is just a time to kill Singular zombie, so it does not matter to +10*)
 					],
 					NeatIBPIntersectionTimeConstrain,
-					"SingularIntersectionTimeOut"
+					$Failed
 				];
-				If[VectorList==="SingularIntersectionTimeOut",
+				If[VectorList===$Failed,
 					PrintAndLog[
 						"#",secNo,
-						"  Singular intersection time exceeds limit (",
+						"  Singular intersection returns $Failed at time limit (",
 						ToString[NeatIBPIntersectionTimeConstrain],
 						" second(s)) with degbound=",
 						ToString[NeatIBPIntersectionDegreeBound-NeatIBPIntersectionDegreeBoundDecreased]
@@ -2796,7 +2810,7 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  IBPs for lower sectors removed. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	];
 	If[ExportNCornerKilledFIBPs,
-		ConvenientExport[outputPath<>"results/additional_outputs/corner_killed_FIBPs/"<>ToString[secNo]<>".txt",FIBPs//InputForm//ToString];
+		ConvenientExport[outputPath<>"results/additional_outputs/n_corner_killed_FIBPs/"<>ToString[secNo]<>".txt",FIBPs//InputForm//ToString];
 	];
 	(*ProbeIntermediateResult["FIBPs",secNo,FIBPs];(*debug2023*)*)
 	
@@ -3782,50 +3796,7 @@ FullForm]\);(*?*)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Row Reduce Modules*)
 
 
