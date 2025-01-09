@@ -214,6 +214,10 @@ Date: 2025.01.02
 	11.Terminology standarizations
 	12.Bug fixings
 
+[NeatIBP 1.1.0.1]
+Date: 2025.01.09
+	1. Allowing flexible degree bound in NeatIBP intersection.
+
 
 
 

@@ -1614,6 +1614,15 @@ but it seems that this part is not updated according to that.
 
 v1.1.0.0
 
+----------------
+2025.01.09
+1. setting rename : NeatIBPIntersectionTimeConstrain -> NeatIBPIntersectionTimeConstrainForFlexibleDegreeBound
+2. FlexibleNeatIBPIntersectionDegreeBound tested
+
+v1.1.0.1
+
+
+
 
 
 

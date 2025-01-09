@@ -3,10 +3,10 @@
 NeatIBP is a mathematica package to generate small-sized integration-by-parts (IBP) relations for Feynman integral reduction.
 
 ## Version
-1.1.0.0
+1.1.0.1
 
 ## Date
-2025.01.02
+2025.01.09
 
 ## Dependencies
 **Singular**
@@ -66,7 +66,7 @@ To run NeatIBP, you need to create 3 input file files in your working folder.
 
 > 3b. **SparseRREF\`SpaSMLibrary** is the absolute path of SpaSM library. If you installed SpaSM using the script we provided, this library should be installed at /usr/local/lib. Thus, the default value of this setting should be **SparseRREF\`SpaSMLibrary = "/usr/local/lib/libspasm.so"** . If you have moved the Spasm packge elsewhere (though we do not recommend to do so), please change the value of this setting accordingly.
 
-> 3c. It is recommended that you set **outputPath=Automatic**. Then, NeatIBP will set the output path as a sub sub directory of your working directory with a path related to the variable **ReductionOutputName** you set in the same config file.
+> 3c. It is recommended that you set **outputPath=Automatic**. Then, NeatIBP will set the output path as a sub sub directory of your working directory with a path related to the variable **OutputName** you set in the same config file.
 
 You can copy the 3 files from the examples provided in the example directory and modify them.
 
@@ -120,26 +120,24 @@ math -script script_name.wl
 Please make sure that this works on your computer in order to use NeatIBP. If not, you should modify the file NeatIBP/preload/MathematicaCommand.txt as the mathematica command on your computer.
 
 ## How to cite
-If you use NeatIBP in your research, we would appreciate it if you cite the related paper  [arxiv 2305.08783](https://arxiv.org/abs/2305.08783). Or you can cite with
+If you use NeatIBP in your research, we would appreciate it if you cite the related paper(s): 
+[https://arxiv.org/abs/2305.08783](https://arxiv.org/abs/2305.08783) . 
+The BibTeX info. of the papers are:
 ```
 @article{Wu:2023upw,
     author = "Wu, Zihao and Boehm, Janko and Ma, Rourou and Xu, Hefeng and Zhang, Yang",
-    title = "{NeatIBP 1.0, A package generating small-size integration-by-parts relations for Feynman integrals}",
+    title = "{NeatIBP 1.0, a package generating small-size integration-by-parts relations for Feynman integrals}",
     eprint = "2305.08783",
     archivePrefix = "arXiv",
     primaryClass = "hep-ph",
     reportNumber = "USTC-ICTS/PCFT-23-15",
-    month = "5",
-    year = "2023"
+    doi = "10.1016/j.cpc.2023.108999",
+    journal = "Comput. Phys. Commun.",
+    volume = "295",
+    pages = "108999",
+    year = "2024"
 }
-```
-or
-```
-%\cite{Wu:2023upw}
-\bibitem{Wu:2023upw}
-Z.~Wu, J.~Boehm, R.~Ma, H.~Xu and Y.~Zhang,
-%``NeatIBP 1.0, A package generating small-size integration-by-parts relations for Feynman integrals,''
-[arXiv:2305.08783 [hep-ph]].
+
 ```
 
 ## Appendix

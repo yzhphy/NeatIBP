@@ -2504,6 +2504,10 @@ FullForm]\);(*?*)
 
 
 
+
+
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -2645,17 +2649,17 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 						Cut->OptionValue[Cut],
 						PrintDegBound->True,
 						NumericMode->NumericIBP,
-						SingularTimeUsedLimit->NeatIBPIntersectionTimeConstrain+10
+						SingularTimeUsedLimit->NeatIBPIntersectionTimeConstrainForFlexibleDegreeBound+10
 						(*10 more seconds to make sure. This number is just a time to kill Singular zombie, so it does not matter to +10*)
 					],
-					NeatIBPIntersectionTimeConstrain,
+					NeatIBPIntersectionTimeConstrainForFlexibleDegreeBound,
 					$Failed
 				];
 				If[VectorList===$Failed,
 					PrintAndLog[
 						"#",secNo,
 						"  Singular intersection returns $Failed at time limit (",
-						ToString[NeatIBPIntersectionTimeConstrain],
+						ToString[NeatIBPIntersectionTimeConstrainForFlexibleDegreeBound],
 						" second(s)) with degbound=",
 						ToString[NeatIBPIntersectionDegreeBound-NeatIBPIntersectionDegreeBoundDecreased]
 					];
@@ -2790,7 +2794,9 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 			]; *)
 			
 			maxDenominatorIndices=Max/@Transpose[DenominatorTypes];
-			(*WARNING: why use max here? what if there is a term (m1-2)G[...], then m1=2\[Rule]subsecIBP but m1=1 not \[Rule] subsecIBP *)
+			(*WARNING: why use max here? what if there is a term (m1-2)G[...], then m1=2\[Rule]subsecIBP but m1=1 not \[Rule] subsecIBP
+			2025.1.3: well... the coefficients does not matter because we are looking into integrals themselves
+			  *)
 			formalIntegrals=Cases[Variables[FIBPs[[i]]],_G];
 			
 			FIBPCurrentSectorIntegrals=Union[
@@ -3769,6 +3775,10 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
+
+
 
 
 

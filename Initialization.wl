@@ -132,7 +132,7 @@ If[ValueQ[ReductionOutputName],
 ]
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Setting outputPath*)
 
 
@@ -356,7 +356,18 @@ If[ValueQ[FurtherSyzygyVectorsSelectionStricty],
 	Exit[0];
 
 ]
+If[ValueQ[NeatIBPIntersectionTimeConstrain],
+	ErrorLine[];
+	PrintAndLog[
+		"*** Sorry, it seem that you have set NeatIBPIntersectionTimeConstrain=",
+		NeatIBPIntersectionTimeConstrain,
+		". In the version v1.1.0.1 and later, this setting is renamed to NeatIBPIntersectionTimeConstrainForFlexibleDegreeBound. ",
+		"Please use NeatIBPIntersectionTimeConstrainForFlexibleDegreeBound=",NeatIBPIntersectionTimeConstrain," instead. Apology for the inconvenience."
+	];
+	ErrorLine[];
+	Exit[0];
 
+]
 If[ValueQ[LiftSelectionStricty],
 	ErrorLine[];
 	PrintAndLog[
@@ -432,12 +443,12 @@ If[Head[CutIndices]=!=List(*&&!MemberQ[{"spanning cuts"},CutIndices]*),
 	PrintAndLog["****  In the current version, spanning cuts mode is under developement. There may lurks unknown bugs. Please set DeveloperMode=True if you want to try. Exiting..."];
 	Exit[0]
 ]*)
-If[And[FlexibleNeatIBPIntersectionDegreeBound,Not[DeveloperMode===True]],
+(*If[And[FlexibleNeatIBPIntersectionDegreeBound,Not[DeveloperMode===True]],
 	ErrorLine[];
 	PrintAndLog["****  In current version, FlexibleNeatIBPIntersectionDegreeBound is under developement. There may lurks unknown bugs. Please set DeveloperMode=True if you want to try. Exiting..."];
 	ErrorLine[];
 	Exit[0]
-]
+]*)
 
 If[And[Not[kinematicsFile===workingPath<>"kinematics.txt"],Not[DeveloperMode===True]],
 	ErrorLine[];
