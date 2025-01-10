@@ -368,6 +368,17 @@ If[ValueQ[NeatIBPIntersectionTimeConstrain],
 	Exit[0];
 
 ]
+If[And[NeatIBPIntersectionDegreeBound<=0,FlexibleNeatIBPIntersectionDegreeBound],
+	ErrorLine[];
+	PrintAndLog[
+		"Cannot set NeatIBPIntersectionDegreeBound=",NeatIBPIntersectionDegreeBound,
+		" when FlexibleNeatIBPIntersectionDegreeBound=True. \nPlease set NeatIBPIntersectionDegreeBound to be a positive integer."
+	];
+	ErrorLine[];
+	Exit[0];
+]
+
+
 If[ValueQ[LiftSelectionStricty],
 	ErrorLine[];
 	PrintAndLog[
