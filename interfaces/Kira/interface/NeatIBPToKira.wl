@@ -123,6 +123,34 @@ PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
 (* ::Section:: *)
+(*Applying numerics for IBP reduction ;  *)
+
+
+
+
+
+If[!FileExistsQ[convertPath<>"tmp/NumericsForIBPReduction.txt"],
+	PrintAndLog["File "<>convertPath<>"tmp/NumericsForIBPReduction.txt dose not exist. Setting NumericsForIBPReduction={}"];
+	NumericsForIBPReduction={}
+,
+	NumericsForIBPReduction=Get[convertPath<>"tmp/NumericsForIBPReduction.txt"]
+
+]
+
+
+
+
+
+If[NumericsForIBPReduction=!={},
+	timer=AbsoluteTime[];
+	PrintAndLog["Applying numerics for IBP reduction... "];
+	IBPs=IBPs/.NumericsForIBPReduction;
+	kinevar=Complement[kinevar,NumericsForIBPReduction[[All,1]]];
+	PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
+]
+
+
+(* ::Section:: *)
 (*Sorting IBPs using KIRA order*)
 
 
@@ -162,6 +190,9 @@ presentIntegralsForEachUDI=presentIntegralsForEachIBP[[IBPsReordering]]
 PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 
 
+
+
+
 (* ::Subsection:: *)
 (*Old codes (not needed)*)
 
@@ -198,7 +229,7 @@ SortIBPsForKira[ibps_,integrals_]:=Module[{preKiraOrders,maxLen,indices,kiraOrde
 (*Exporting to KIRA input*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Old codes (not needed)*)
 
 

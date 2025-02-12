@@ -100,7 +100,7 @@ positivity[list_]:=If[Union[#>0&/@list]==Head[list][True],True,False];
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Baikov Representation*)
 
 
@@ -254,7 +254,7 @@ SingularIdeal[propIndex_,cutIndex_]:=Module[{cut,FF1,SingularIdeal},
 ];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (* Sector Tools*)
 
 
@@ -473,8 +473,11 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 
 Options[SingularOrderingString]={WpOrderingWeight->Automatic}
 (*Automatic means, in current version, wp(1,...,1),wp(1,...,1),...,wp(1,...,1),wp(0,...,0)*)
+(*comment 2025.1.13:
+this is because the last block is treated as parameters.
+*)
 SingularOrderingString[lens__,OptionsPattern[]]:=Module[{lengthList={lens},result,weight,inputWeight},
-	If[SingularMonomialOrdering==="wp",
+	If[SingularMonomialOrdering==="wp"||SingularMonomialOrdering==="Wp",
 		result=SingularWpOrderingString[lengthList,WpOrderingWeight->OptionValue[WpOrderingWeight]]
 	,
 		result=StringRiffle[(SingularMonomialOrdering<>"("<>ToString[#]<>")")&/@DeleteCases[lengthList,0],","]
@@ -515,7 +518,7 @@ SingularWpOrderingString[lengthList_,OptionsPattern[]]:=Module[{inputWeight,weig
 
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Singular GB*)
 
 
@@ -650,7 +653,7 @@ SingularGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,varsCutt
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Singular intersection*)
 
 
@@ -868,20 +871,20 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 		If[M2==={},Return[M1ext]](*No restrictions on any of the indices*)
 	];
 	If[OptionValue[TestOnly],PrintAndLog[resIndex];Return[{M1,M2}]];
-	Switch[SingularVariableOrdering,
+	Switch[SingularBaikovVariableOrdering,
 	"DenominatorFirst",
 		
 		varOrder=Join[Intersection[var,Variables[M2]]//Sort,Complement[var,Variables[M2]]//Sort];
-		If[SingularVariableBlockOrdering===True,
+		If[SingularBaikovVariableBlockOrdering===True,
 			blockPrioryVars=Intersection[var,Variables[M2]]//Sort
 		,
 			blockPrioryVars={}
 		];
 	,
 	_,
-		If[SingularVariableOrdering=!="NumeratorFirst",PrintAndLog["SingularIntersection: unkown SingularVariableOrdering ",SingularVariableOrdering,", switching to NumeratorFirst"]];
+		If[SingularBaikovVariableOrdering=!="NumeratorFirst",PrintAndLog["SingularIntersection: unkown SingularBaikovVariableOrdering ",SingularBaikovVariableOrdering,", switching to NumeratorFirst"]];
 		varOrder=Join[Complement[var,Variables[M2]]//Sort,Intersection[var,Variables[M2]]//Sort];
-		If[SingularVariableBlockOrdering===True,
+		If[SingularBaikovVariableBlockOrdering===True,
 			blockPrioryVars=Complement[var,Variables[M2]]//Sort
 		,
 			blockPrioryVars={}
@@ -1150,11 +1153,11 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 		timer=AbsoluteTime[];
 		PrintAndLog["#",secNo,ReportIndent[reportLayer],"Computing lift matrix..."];
 		memoryUsed=MaxMemoryUsed[
-		liftMatrix=SingularLiftToGB[vectorsCuttedSorted,var,cutIndices,Modulus->OptionValue[Modulus]];
+		liftMatrix=SingularLiftToGB[vectorsCuttedSorted,var,cutIndices,Modulus->OptionValue[Modulus],SingularTimeUsedLimit->LiftResubstitutionSingularTimeConstrain];
 		(*end of MaxMemoryUsed*)];
 		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Finished. Time Used: ", Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB." ];
 		If[liftMatrix===$Failed,
-			PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Warning in SimplifyByCut, Singular returns $Failed. Giving up simplification."];
+			PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Warning in SimplifyByCut, Singular returns $Failed (A possible reason: time used exceeds the user-set limit). Giving up simplification."];
 			Return[vectorsInput];
 		];
 		
@@ -1172,11 +1175,11 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 			timer=AbsoluteTime[];
 			PrintAndLog["#",secNo,ReportIndent[reportLayer],"Computing lift matrix..."];
 			memoryUsed=MaxMemoryUsed[
-			liftMatrix=SingularLiftToGB[vectorsCuttedSorted,var,cutIndices,Modulus->OptionValue[Modulus]];
+			liftMatrix=SingularLiftToGB[vectorsCuttedSorted,var,cutIndices,Modulus->OptionValue[Modulus],SingularTimeUsedLimit->LiftSelectionSingularTimeConstrain];
 			(*end of MaxMemoryUsed*)];
 			PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Finished. Time Used: ", Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB." ];
 			If[liftMatrix===$Failed,
-				PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Warning in SimplifyByCut, Singular returns $Failed. Keeping result=vectorsInputSorted in this step."];
+				PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Warning in SimplifyByCut, Singular returns $Failed (A possible reason: time used exceeds the user-set limit). Keeping result=vectorsInputSorted in this step."];
 				selectedIndices=Range[Length[vectorsInputSorted]];
 				result=vectorsInputSorted[[selectedIndices]];
 			,
@@ -2508,6 +2511,18 @@ FullForm]\);(*?*)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -3775,6 +3790,18 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

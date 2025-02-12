@@ -192,7 +192,10 @@ While[True,
 			SectorOrdering[#[[1]]]&
 		]//Reverse
 	)[[All,1]];
+	debugCounter20250111=0;
 	While[True,
+		debugCounter20250111=Mod[debugCounter20250111+1,100];
+		
 		If[missionReportingFinished==={},Break[]];
 		actuallyFinishedMissions=Select[
 			missionReportingFinished,
@@ -213,7 +216,13 @@ While[True,
 			];
 			freeKernels=occupiedKernels[[;;Length[actuallyFinishedMissions]]];
 			Run["mv "<>#<>" "<>SubmittingKernelsFolder]&/@freeKernels
-		]
+		];
+		If[debugCounter20250111===0,
+			debugReport20250111="missionReportingFinished = "<>ToString[InputForm[missionReportingFinished]]<>","<>
+				"actuallyFinishedMissions = "<>ToString[InputForm[actuallyFinishedMissions]];
+			Print["echo \"MissionStatusChecker: "<>debugReport20250111<>"\""];
+			Run["echo \""<>"MissionStatusChecker: "<>debugReport20250111<>"\" >> "<>outputPath<>"tmp/debugReport20250111.txt"];
+		];
 	];
 	missionStatus=(
 		(
@@ -247,7 +256,7 @@ While[True,
 		(*Max[MissionLimitByMemory[Length[missionReadyToCompute],Round[MemoryAvailable[]/(1024^2)]-MinMemoryReserved]-Length[missionComputing],0]*)
 	];
 	
-	If[reportClock==0&&(DebugMode===True),
+	If[reportClock==0(*&&(DebugMode===True)*),
 		Run["echo \""<>
 			TimeString[]<>"\t"<>
 			ToString[InputForm[{

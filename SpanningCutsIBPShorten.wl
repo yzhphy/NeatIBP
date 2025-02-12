@@ -174,6 +174,7 @@ For[i=1,i<=Length[spanningCuts],i++,
 		StringRiffle[ToString/@cut,"_"]<>"/";
 	cutIBPs[cut]=Get[cutFolder<>"results/IBP_all.txt"];
 	cutMIs[cut]=Get[cutFolder<>"results/MI_all.txt"];
+	cutIntegrals[cut]=Get[cutFolder<>"results/OrderedIntegrals.txt"];
 ]
 PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
 
@@ -207,14 +208,24 @@ PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."];
 
 
 
+ShortenIBPs[originalIBPs_,eliminatableMIs_]:=Module[{shortenedIBPs},
+	shortenedIBPs=originalIBPs/.(#->0&/@eliminatableMIs);
+	shortenedIBPs=DeleteCases[shortenedIBPs,0];
+	shortenedIBPs=Join[shortenedIBPs,eliminatableMIs];
+	shortenedIBPs
+]
+
+
 For[i=1,i<=Length[spanningCutsSorted],i++,
 	timer=AbsoluteTime[];
 	PrintAndLog["Shortening IBPs on cut "<>ToString[InputForm[cut]]<>" (",i,"/",Length[spanningCutsSorted],")"];
 	cut=spanningCutsSorted[[i]];
 	formerCuts=spanningCutsSorted[[1;;i-1]];
 	eliminatableMIs=Flatten[cutMIs/@formerCuts]//Union;
+	eliminatableMIs=Intersection[eliminatableMIs,cutIntegrals[cut]];
 	currentCutIBPs=cutIBPs[cut];
-	currentCutIBPsShortened=currentCutIBPs/.(#->0&/@eliminatableMIs);
+	(*currentCutIBPsShortened=currentCutIBPs/.(#->0&/@eliminatableMIs);*)
+	currentCutIBPsShortened=ShortenIBPs[currentCutIBPs,eliminatableMIs];
 	cutFolder=outputPath<>"results/results_spanning_cuts/cut_"<>
 		StringRiffle[ToString/@cut,"_"]<>"/";
 	Export[cutFolder<>"results/IBP_all_shortened.txt",currentCutIBPsShortened//InputForm//ToString];

@@ -25,13 +25,6 @@ If[commandLineMode,
 	packagePath=NotebookDirectory[];
 	workingPath="/home/zihao/projects/SyzygyRed/Parallelization/github/NeatIBP/examples/dbox/";
 	missionInput="config.txt"
-	(*
-	LoopMomenta={l1,l2};
-	ExternalMomenta={k1,k2,k4};
-	Propagators={l1^2,(l1-k1)^2,(l1-k1-k2)^2,(l2+k1+k2)^2,(l2-k4)^2,l2^2,(l1+l2)^2,(l1+k4)^2,(l2+k1)^2};
-	Kinematics={k1^2->0,k2^2->0,k4^2->0,k1 k2->s/2,k1 k4->t/2,k2 k4->(-s/2-t/2)};
-	GenericPoint={s->-1,t->-3}; 
-	TargetIntegrals={G[1,1,1,1,1,1,1,-5,0],G[1,1,1,1,1,1,1,-4,-1],G[1,1,1,1,1,1,1,-1,-4]}*)
 	
 ]
 
@@ -115,21 +108,87 @@ If[ValueQ[ReductionOutputName],
 	If[ReductionOutputName=!=OutputName,
 		If[OutputName==="Untitled",
 			ReductionOutputName=ReductionOutputName;
+			OutputName=OutputName;
 			(*use ReductionOutputName*)
 		,
 			PrintAndLog[
 				"!![Notice]: It seems that you have set ReductionOutputName = \"",
 				ReductionOutputName,"\" and OutputName = \"",OutputName,"\"\n",
-				"The two settings are the same in NeatIBP v1.1.0.0 or later.\n",
+				"The two settings are the same in NeatIBP v1.1.0.0 or later, but ReductionOutputName is out-of-date.\n",
 				"Resetting ReductionOutputName = \"",OutputName,"\"."
 			];
 			Pause[3];
-			ReductionOutputName=OutputName
+			ReductionOutputName=OutputName;
+			OutputName=OutputName;
 		]
 	]
 ,
-	ReductionOutputName=OutputName
+	ReductionOutputName=OutputName;
+	OutputName=OutputName
 ]
+
+
+(*
+use soft renaming, both new and old settings are valid
+
+*)
+
+
+SoftRenameSetting[oldSettingString_,newSettingString_,defaultValue_,versionString_,pauseTime_]:=Module[
+{oldSetting=ToExpression[oldSettingString],newSetting=ToExpression[newSettingString]},
+	If[ToExpression["ValueQ["<>oldSettingString<>"]"],
+		If[oldSetting=!=newSetting,
+			If[newSetting===defaultValue,
+				PrintAndLog["Setting "<>newSettingString<>" = "<>ToString[InputForm[oldSetting]]];
+				ToExpression[oldSettingString<>"=("<>ToString[InputForm[oldSetting]]<>")"];
+				ToExpression[newSettingString<>"=("<>ToString[InputForm[oldSetting]]<>")"];
+				(*use oldSettingString*)
+			,
+				PrintAndLog[
+					"\n"<>
+					"!![Notice]: It seems that you have set "<>oldSettingString<>" = "<>
+					ToString[InputForm[oldSetting]]<>" and "<>newSettingString<>" = "<>
+					ToString[InputForm[newSetting]]<>"\n"<>
+					"The two settings are the same in NeatIBP v"<>versionString<>" or later.\n"<>
+					"Though still supported, the setting \""<>oldSettingString<>"\" is out-of-date.\n"<>
+					"Resetting "<>oldSettingString<>" = "<>ToString[InputForm[newSetting]],"."<>
+					"\n"
+				];
+				Pause[pauseTime];
+				ToExpression[oldSettingString<>"=("<>ToString[InputForm[newSetting]]<>")"];
+				ToExpression[newSettingString<>"=("<>ToString[InputForm[newSetting]]<>")"];
+			]
+		(*else do nothing*)
+		]
+	,
+		ToExpression[oldSettingString<>"=("<>ToString[InputForm[newSetting]]<>")"];
+		ToExpression[newSettingString<>"=("<>ToString[InputForm[newSetting]]<>")"];
+
+	]
+	
+]
+
+
+(*force to rename settings, the old setting will be invalid*)
+HardRenameSetting[oldSettingString_,newSettingString_,versionString_]:=Module[{oldSetting},
+	oldSetting=ToExpression[oldSettingString];
+	ErrorLine[];
+	If[ToExpression["ValueQ["<>oldSettingString<>"]"],
+		ErrorLine[];
+		PrintAndLog[
+			"*** Sorry, it seem that you have set "<>oldSettingString<>"="<>
+			ToString[InputForm[oldSetting]]<>
+			". In the version "<>versionString<>" and later, this setting is renamed to \""<>newSettingString<>"\". ",
+			"Please use "<>newSettingString<>"="<>ToString[InputForm[oldSetting]]<>" instead. Apology for the inconvenience."
+		];
+		ErrorLine[];
+		Exit[0];
+	]
+]
+
+
+
+
 
 
 (* ::Section::Closed:: *)
@@ -331,6 +390,24 @@ If[CutIndices==="spanning cuts",
 
 
 (* ::Subsection:: *)
+(*renaming*)
+
+
+(*be sure about the default value of settings when soft renaming!*)
+
+
+SoftRenameSetting["MomentumMapTimeConstrain","MomentumMapTimeConstraint",15,"1.1.0.1",3]
+SoftRenameSetting["LiftResubstitutionSingularTimeConstrain","LiftResubstitutionSingularTimeConstraint",Infinity,"1.1.0.1",3]
+SoftRenameSetting["LiftSelectionSingularTimeConstrain","LiftSelectionSingularTimeConstraint",Infinity,"1.1.0.1",3]
+
+SoftRenameSetting[
+	"NeatIBPIntersectionTimeConstrainForFlexibleDegreeBound",
+	"NeatIBPIntersectionTimeConstraintForFlexibleDegreeBound",
+	3600,"1.1.0.1",3
+]
+
+
+(* ::Subsection:: *)
 (*Other Validations*)
 
 
@@ -368,6 +445,33 @@ If[ValueQ[NeatIBPIntersectionTimeConstrain],
 	Exit[0];
 
 ]
+
+If[ValueQ[SingularVariableBlockOrdering],
+	ErrorLine[];
+	PrintAndLog[
+		"*** Sorry, it seem that you have set SingularVariableBlockOrdering=",
+		SingularVariableBlockOrdering,
+		". In the version v1.1.0.1 and later, this setting is renamed to SingularBaikovVariableBlockOrdering. ",
+		"Please use SingularBaikovVariableBlockOrdering=",SingularVariableBlockOrdering," instead. Apology for the inconvenience."
+	];
+	ErrorLine[];
+	Exit[0];
+
+]
+If[ValueQ[SingularVariableOrdering],
+	ErrorLine[];
+	PrintAndLog[
+		"*** Sorry, it seem that you have set SingularVariableOrdering=",
+		SingularVariableOrdering,
+		". In the version v1.1.0.1 and later, this setting is renamed to SingularBaikovVariableOrdering. ",
+		"Please use SingularBaikovVariableOrdering=",SingularVariableOrdering," instead. Apology for the inconvenience."
+	];
+	ErrorLine[];
+	Exit[0];
+
+]
+
+
 If[And[NeatIBPIntersectionDegreeBound<=0,FlexibleNeatIBPIntersectionDegreeBound],
 	ErrorLine[];
 	PrintAndLog[
@@ -741,8 +845,13 @@ OptionCheck["SpanningCutsEvaluationMode",{"Sequential","Parallel"}]
 
 
 
+OptionCheck["SingularMonomialOrdering",{"dp","Dp","lp","rp","wp","Wp"}]
+OptionCheck["SingularBaikovVariableOrdering",{"NumeratorFirst","DenominatorFirst"}]
+
+
 OptionCheck["UseShortenedSpanningCutsIBPs",{True,False,Automatic}]
 OptionCheck["ShortenSpanningCutsIBPs",{True,False}]
+
 If[UseShortenedSpanningCutsIBPs===True&&ShortenSpanningCutsIBPs===False,
 	ErrorLine[];
 	PrintAndLog["**** You have set ShortenSpanningCutsIBPs=False, so you cannot set UseShortenedSpanningCutsIBPs=True. Exiting."];

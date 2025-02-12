@@ -1,0 +1,17 @@
+OutputName="tenniscort";
+
+NeedSymmetry=False;
+
+SimplifySyzygyVectorsByCut=True;
+LiftSelectionSingularTimeConstraint=120
+FurtherSelectionTimeUsedLimit=120
+FurtherSelectionSingularTimeConstraint=15
+
+SpanningCutsMode=True;
+SPCIBPReductionParallelization = True;
+
+PerformIBPReduction=True;
+IBPReductionMethod="Kira";
+KiraCommand="/please/set/path/kira"
+FermatPath="/please/set/path/fer64"
+

@@ -1,0 +1,6 @@
+LoopMomenta = {q1, q2, q3, q4};
+ExternalMomenta = {p1};
+Kinematics = {p1^2 -> msq};
+Propagators = {q1^2 - msq, (q2)^2, (q1 + q2)^2 - msq, (q3)^2 - msq, (q1 + q2 + q3)^2, (q3 - p1)^2, (q2 + q4 + p1)^2, (q2 + q3 + q4)^2, (q1 - q4)^2, q4^2 - msw, (p1 + q4)^2, (q2 + q4)^2, (q3 + q4)^2, (q1 + p1)^2};
+GenericPoint={msq->1,msw->1/1453};
+GenericD={d->1/137}

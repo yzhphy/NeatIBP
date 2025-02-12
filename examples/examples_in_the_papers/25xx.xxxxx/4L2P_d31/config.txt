@@ -1,0 +1,8 @@
+ReductionOutputName="d31";
+NeedSymmetry=False;
+SpanningCutsMode=True;
+SeedingAdditionalDegree=3;
+
+
+
+

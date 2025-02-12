@@ -29,13 +29,13 @@ FiniteFieldModulus=42013;(*do not use any prime number larger than 46337*)
 AzuritinoIntersectionDegreeBound=0;
 NeatIBPIntersectionDegreeBound=5;
 FlexibleNeatIBPIntersectionDegreeBound=False;
-NeatIBPIntersectionTimeConstrainForFlexibleDegreeBound=3600;(*seconds*)
+NeatIBPIntersectionTimeConstraintForFlexibleDegreeBound=3600;(*seconds*)
 NeatIBPIntersectionDegreeBoundDecreaseLimit=2;
 IBPCoefficientForm=Expand;
 SimplifySyzygyVectorsByCut=False;
 SingularMonomialOrdering="dp";
-SingularVariableOrdering="NumeratorFirst";(*"NumeratorFirst" or "DenominatorFirst"*)
-SingularVariableBlockOrdering=False;
+SingularBaikovVariableOrdering="NumeratorFirst";(*"NumeratorFirst" or "DenominatorFirst"*)
+SingularBaikovVariableBlockOrdering=False;
 
 (*-----------physics settings-------------*)
 IntegralOrder = "MultiplePropagatorElimination"
@@ -121,6 +121,7 @@ SPCIBPReductionParallelization=True;
 SPCIBPReductionParallelizationMethod="Naive";(*or "GNUParallel"*)
 SPCIBPReductionParallelJobNumber=Infinity;
 UseShortenedSpanningCutsIBPs=Automatic;(*True or False or Automatic. Automatic means keep the same as ShortenSpanningCutsIBPs*)(*only valid for spanning cuts mode*)
+NumericsForIBPReduction={};
 
 (*---Kira setting---*)
 KiraCommand=""
@@ -139,11 +140,12 @@ FIBPsNCornerKill=True;
 SowAndReap=True;(*of the Zuirch seeding in the main body of NeatIBP*)
 ParallelInFindingSectorMaps=True;(*ParallelTable*)
 UseSRFindPivots=True;(*Currently, we only use this in IndepedentSet*)
-MomentumMapTimeConstrain=15;(*seconds*)
-UseNicePropagatorsInMomentumMap=True;(*must turn off this if one or more propagators are not quadratic*)
+MomentumMapTimeConstraint=15;(*seconds*)
+UseNicePropagatorsInMomentumMap=True;(*It seems we can still use True even if one or more propagators are not quadratic*)
 ReportNoticeInDeepMomentumMap=False;
 ReportWarningInMomentumMap=False;
 PreferedExternalExtendedRotationMethod="DeltaPlaneProjection";(*"Orthogonalization" or "DeltaPlaneProjection"*)
+ExternalMomentaGroupingMethod="MomentumSpace";(*or "FeynmanParameterization"*)
 moduleIntersectionMethod = "Singular";
 AzuritinoDefaultStartDegree=3;(*Irrelavant if CriticalPointInAzuritino==True*)
 AzuritinoDefaultMaxDegree=5;(*Irrelavant if CriticalPointInAzuritino==True*)
@@ -164,10 +166,12 @@ FIBPGroupingStartRatio=0.5;(*not used*)
 FIBPGroupingRemainingGroups=2;(*not used*)
 ParameterRepermute=False;
 ParameterRepermuteIndex={};
+LiftResubstitutionSingularTimeConstraint=Infinity;(*seconds*)
+LiftSelectionSingularTimeConstraint=Infinity;(*seconds*)
 FurtherSelectionTimeUsedLimit=Infinity;(*seconds*)
-FurtherSelectionSingularTimeConstrain=Infinity;(*seconds*)
+FurtherSelectionSingularTimeConstraint=Infinity;(*seconds*)
+
 AllowInternet=True; (*One may disable this option to avoid the internet check of certain mathkernel functions, especially for downward supported versions of Mathematica*)
-ExternalMomentaGroupingMethod="MomentumSpace";
 IsASpanningCutsSubMission=False;(*to label whether this is a spanning cuts sub mission, do not set True if it is not! (will be auto-set as True in PrepareForSpanningCuts.wl for sub missions)*)
 
 

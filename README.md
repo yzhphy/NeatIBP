@@ -6,7 +6,7 @@ NeatIBP is a mathematica package to generate small-sized integration-by-parts (I
 1.1.0.1
 
 ## Date
-2025.01.09
+2025.02.12
 
 ## Dependencies
 **Singular**

@@ -417,3 +417,6 @@ PrintAndLog[outputPath<>"tmp/assigned_reduction_script.sh"]
 
 
 Export[outputPath<>"tmp/assigned_reduction_script.sh",script,"Text"]
+
+
+Export[outputPath<>"tmp/NumericsForIBPReduction.txt",NumericsForIBPReduction//InputForm//ToString]

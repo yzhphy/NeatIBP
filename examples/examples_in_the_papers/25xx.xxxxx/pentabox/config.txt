@@ -1,0 +1,16 @@
+ReductionOutputName="pentabox";
+NeedSymmetry=False;
+
+SpanningCutsMode=True;
+SPCIBPReductionParallelization = True;
+
+PerformIBPReduction=True;
+IBPReductionMethod="Kira";
+KiraCommand="/please/set/path/kira"
+FermatPath="/please/set/path/fer64"
+
+
+
+
+
+

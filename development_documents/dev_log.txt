@@ -1619,7 +1619,65 @@ v1.1.0.0
 1. setting rename : NeatIBPIntersectionTimeConstrain -> NeatIBPIntersectionTimeConstrainForFlexibleDegreeBound
 2. FlexibleNeatIBPIntersectionDegreeBound tested
 
-v1.1.0.1
+
+
+---------------
+2025.01.13
+added "Wp" in Singular ordering by modifying 
+If[SingularMonomialOrdering==="wp",
+to
+If[SingularMonomialOrdering==="wp"||SingularMonomialOrdering==="Wp",
+in SyzygyRed.wl
+
+2. renamed setting :
+SingularVariableBlockOrdering -> SingularBaikovVariableBlockOrdering
+SingularVariableOrdering -> SingularBaikovVariableOrdering
+
+
+-------------------
+2025.01.23
+Added 
+ShortenIBPs[originalIBPs_,eliminatableMIs_]:=Module[{shortenedIBPs},
+	shortenedIBPs=originalIBPs/.(#->0&/@eliminatableMIs);
+	shortenedIBPs=DeleteCases[shortenedIBPs,0];
+	shortenedIBPs=Join[shortenedIBPs,eliminatableMIs];
+	shortenedIBPs
+]
+and modified
+currentCutIBPsShortened=currentCutIBPs/.(#->0&/@eliminatableMIs);
+tp
+currentCutIBPsShortened=ShortenIBPs[currentCutIBPs,eliminatableMIs];
+in
+SpanningCutsIBPShorten.wl
+to fix a problem in the previous codes:
+if a MI I is cutted, it will be solved as I->I rather than I->0, so I shall add them in the IBPs to tell the IBP solver that it is zero.
+
+--------------
+2025.01.25
+added settings:
+LiftResubstitutionSingularTimeConstrain=Infinity;(*seconds*)
+LiftSelectionSingularTimeConstrain=Infinity;(*seconds*)
+
+
+---------------
+2025.01.26
+The modification of IBPShorten at 2025.1.23 introduced a new bug
+If a MI is not in the OrderedIntegrals of a cut, adding it to IBP system will cause that some integrals in IBPs are not in the OrderedIntegrals
+The solution is that, do not add a MI in IBP system if it dose not belong to OrderedIntegrals, because it is not necessary
+Specifically, I added the following codes in SpanningCutsIBPShorten.wl
+
+cutIntegrals[cut]=Get[cutFolder<>"results/OrderedIntegrals.txt"];
+eliminatableMIs=Intersection[eliminatableMIs,cutIntegrals[cut]];
+
+---------------------
+2025.2.2
+added NumericsForIBPReduction
+
+
+----------
+2025.2.12
+modified typo in various settings "...Constrain..." -> "...Constraint..."
+added HardRenameSetting and SoftRenameSetting in Ini...wl
 
 
 
