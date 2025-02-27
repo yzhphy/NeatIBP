@@ -1,4 +1,4 @@
-ReductionOutputName="d31";
+ReductionOutputName="2L4P_massive";
 NeedSymmetry=False;
 SpanningCutsMode=True;
 SeedingAdditionalDegree=3;
