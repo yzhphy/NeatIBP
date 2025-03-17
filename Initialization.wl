@@ -167,12 +167,13 @@ SoftRenameSetting[oldSettingString_,newSettingString_,defaultValue_,versionStrin
 	]
 	
 ]
+(*peoblematic, it only applys on Initialization.wl, should not be used, at least yes. ---2025.03.17*)
 
 
 (*force to rename settings, the old setting will be invalid*)
 HardRenameSetting[oldSettingString_,newSettingString_,versionString_]:=Module[{oldSetting},
 	oldSetting=ToExpression[oldSettingString];
-	ErrorLine[];
+	
 	If[ToExpression["ValueQ["<>oldSettingString<>"]"],
 		ErrorLine[];
 		PrintAndLog[
@@ -396,7 +397,7 @@ If[CutIndices==="spanning cuts",
 (*be sure about the default value of settings when soft renaming!*)
 
 
-SoftRenameSetting["MomentumMapTimeConstrain","MomentumMapTimeConstraint",15,"1.1.0.1",3]
+(*SoftRenameSetting["MomentumMapTimeConstrain","MomentumMapTimeConstraint",15,"1.1.0.1",3]
 SoftRenameSetting["LiftResubstitutionSingularTimeConstrain","LiftResubstitutionSingularTimeConstraint",Infinity,"1.1.0.1",3]
 SoftRenameSetting["LiftSelectionSingularTimeConstrain","LiftSelectionSingularTimeConstraint",Infinity,"1.1.0.1",3]
 
@@ -405,6 +406,22 @@ SoftRenameSetting[
 	"NeatIBPIntersectionTimeConstraintForFlexibleDegreeBound",
 	3600,"1.1.0.1",3
 ]
+*)
+
+
+HardRenameSetting["MomentumMapTimeConstrain","MomentumMapTimeConstraint","1.1.0.2"]
+HardRenameSetting["LiftResubstitutionSingularTimeConstrain","LiftResubstitutionSingularTimeConstraint","1.1.0.2"]
+HardRenameSetting["LiftSelectionSingularTimeConstrain","LiftSelectionSingularTimeConstraint","1.1.0.2"]
+HardRenameSetting["FurtherSelectionSingularTimeConstrain","FurtherSelectionSingularTimeConstraint","1.1.0.2"]
+
+HardRenameSetting[
+	"NeatIBPIntersectionTimeConstrainForFlexibleDegreeBound",
+	"NeatIBPIntersectionTimeConstraintForFlexibleDegreeBound",
+	"1.1.0.2"
+]
+
+
+
 
 
 (* ::Subsection:: *)

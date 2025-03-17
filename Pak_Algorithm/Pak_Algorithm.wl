@@ -469,7 +469,7 @@ ExtendedRotationByDeltaPlaneProjection[external_,vectors_,vectorsImage_,kinemati
 projectionMatrixA,rep,ind,p,pProjectionCoordinates,pImage
 },
 	vectorsDiff=vectorsImage-vectors;
-	If[DeleteCases[Expand[vectorsDiff]]==={},Return[#->#&/@external]];
+	If[DeleteCases[Expand[vectorsDiff],0]==={},Return[#->#&/@external]];
 	vectorsDiffMatrix=CoefficientArrays[vectorsDiff,external][[2]];
 	indepIndices=pivots[vectorsDiffMatrix//Transpose//RowReduce];
 	ws=vectorsDiff[[indepIndices]];
@@ -642,7 +642,7 @@ LocalEqns,nLocalGB,result
 				sol=Solve[LocalGB==0,clist];
 			]
 		,
-			MomentumMapTimeConstrain
+			MomentumMapTimeConstraint
 		,
 			WQPrintAndLog[
 				"** Warning: continuous solution found in DeepMomentumMaps between the following propagators:","\n",
@@ -672,7 +672,7 @@ LocalEqns,nLocalGB,result
 			LocalGB=GroebnerBasis[LocalGB,clist,MonomialOrder->DegreeReverseLexicographic,CoefficientDomain->RationalFunctions];
 			sol=Solve[LocalGB==0,clist];
 		,
-			MomentumMapTimeConstrain
+			MomentumMapTimeConstraint
 		,
 			WQPrintAndLog[
 				"** Warning: solving equations timed out in DeepMomentumMaps between the following propagators:","\n",

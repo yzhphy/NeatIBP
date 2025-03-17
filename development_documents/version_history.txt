@@ -221,6 +221,12 @@ Date: 2025.02.12
 	3. Added "Wp" ordering for Singular. 
 	4. Bux fixing in spanning cuts IBP shorten module.
 
+[NeatIBP 1.1.0.2]
+Date: 2025.03.17
+	1. Improve: RandomNumericCheck in the spanning cuts merging step is more reliable.
+	2. Fix: fixed the problem of the appearence of "ND" in merged results of non-top-sector targets.
+	3. Fix: fixed a bug that NumericsForIBPReduction dose not apply to spc mode.
+	4. Fix: fixed a bug in Pak_Algorithm.wl
 
 
 

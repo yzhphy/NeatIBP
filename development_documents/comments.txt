@@ -62,6 +62,8 @@ Some user may still need cut (partially, like {1,2}) in spanning cut mode
 we need a handbook
 
 ==========Important=================
+if we want to imporve continue.sh, we should consider how to parse NumericsForIBPReduction.txt, to give user a way to redefine it by hand and run reduction only for multiple times (also stated at comment 20250318 in dev_log.txt)
+
 if we want to support NeedSymmetry in SpanningCutsMode, we should consider the comment in Ini.wl at 2024.11.11
 
 issue in the dev_log.txt at 2022.0923 [II] needs to be considered.

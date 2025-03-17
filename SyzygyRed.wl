@@ -653,7 +653,7 @@ SingularGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,varsCutt
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Singular intersection*)
 
 
@@ -1153,7 +1153,7 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 		timer=AbsoluteTime[];
 		PrintAndLog["#",secNo,ReportIndent[reportLayer],"Computing lift matrix..."];
 		memoryUsed=MaxMemoryUsed[
-		liftMatrix=SingularLiftToGB[vectorsCuttedSorted,var,cutIndices,Modulus->OptionValue[Modulus],SingularTimeUsedLimit->LiftResubstitutionSingularTimeConstrain];
+		liftMatrix=SingularLiftToGB[vectorsCuttedSorted,var,cutIndices,Modulus->OptionValue[Modulus],SingularTimeUsedLimit->LiftResubstitutionSingularTimeConstraint];
 		(*end of MaxMemoryUsed*)];
 		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Finished. Time Used: ", Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB." ];
 		If[liftMatrix===$Failed,
@@ -1175,7 +1175,7 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 			timer=AbsoluteTime[];
 			PrintAndLog["#",secNo,ReportIndent[reportLayer],"Computing lift matrix..."];
 			memoryUsed=MaxMemoryUsed[
-			liftMatrix=SingularLiftToGB[vectorsCuttedSorted,var,cutIndices,Modulus->OptionValue[Modulus],SingularTimeUsedLimit->LiftSelectionSingularTimeConstrain];
+			liftMatrix=SingularLiftToGB[vectorsCuttedSorted,var,cutIndices,Modulus->OptionValue[Modulus],SingularTimeUsedLimit->LiftSelectionSingularTimeConstraint];
 			(*end of MaxMemoryUsed*)];
 			PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Finished. Time Used: ", Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB." ];
 			If[liftMatrix===$Failed,
@@ -1224,7 +1224,7 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 			vectorsCuttedSortedSelectedGB=SingularGB[
 				vectorsCuttedSortedSelected,var,{},
 				Modulus->OptionValue[Modulus],
-				SingularTimeUsedLimit->FurtherSelectionSingularTimeConstrain
+				SingularTimeUsedLimit->FurtherSelectionSingularTimeConstraint
 			];
 			(*end of MaxMemoryUsed*)];
 			timeForAGBComputation=AbsoluteTime[]-timer3;
@@ -1253,7 +1253,7 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 					vectorsCuttedSortedSelectedGB2=SingularGB[
 						vectorsCuttedSortedSelected[[selectedIndices2New]],var,{},
 						Modulus->OptionValue[Modulus],
-						SingularTimeUsedLimit->FurtherSelectionSingularTimeConstrain
+						SingularTimeUsedLimit->FurtherSelectionSingularTimeConstraint
 					];
 					If[And[
 							vectorsCuttedSortedSelectedGB===vectorsCuttedSortedSelectedGB2,
@@ -1473,7 +1473,7 @@ pivots[matrix_]:=Module[{ARLonglist},
 ];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Symmetry *)
 
 
@@ -1498,7 +1498,7 @@ SymmetryRules[zPerm_]:=Module[{prop1,prop2,momentumMaps},
 	prop2=zPerm[[All,2]]/.z[i_]:>Propagators[[i]];
 	(*momentumMaps=TimeConstrained[
 		MomentumMap[LoopMomenta,ExternalMomenta,prop1,prop2,Kinematics,FullEMsConstrain->True],
-		MomentumMapTimeConstrain,
+		MomentumMapTimeConstraint,
 		Export[outputPath<>"tmp/MomentumMapFailureInput.txt",{LoopMomenta,ExternalMomenta,prop1,prop2,Kinematics}//InputForm//ToString];
 		PrintAndLog["** Failure: MomentumMap computation timed out.\n zPerm:",zPerm];
 		If[ParallelInFindingSectorMaps,CloseKernels[]];
@@ -1841,7 +1841,7 @@ LPSymmetryQ[integral1_,integral2_]:=Module[
 ]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Azuritino*)
 
 
@@ -2523,6 +2523,12 @@ FullForm]\);(*?*)
 
 
 
+
+
+
+
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -2664,17 +2670,17 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 						Cut->OptionValue[Cut],
 						PrintDegBound->True,
 						NumericMode->NumericIBP,
-						SingularTimeUsedLimit->NeatIBPIntersectionTimeConstrainForFlexibleDegreeBound+10
+						SingularTimeUsedLimit->NeatIBPIntersectionTimeConstraintForFlexibleDegreeBound+10
 						(*10 more seconds to make sure. This number is just a time to kill Singular zombie, so it does not matter to +10*)
 					],
-					NeatIBPIntersectionTimeConstrainForFlexibleDegreeBound,
+					NeatIBPIntersectionTimeConstraintForFlexibleDegreeBound,
 					$Failed
 				];
 				If[VectorList===$Failed,
 					PrintAndLog[
 						"#",secNo,
 						"  Singular intersection returns $Failed at time limit (",
-						ToString[NeatIBPIntersectionTimeConstrainForFlexibleDegreeBound],
+						ToString[NeatIBPIntersectionTimeConstraintForFlexibleDegreeBound],
 						" second(s)) with degbound=",
 						ToString[NeatIBPIntersectionDegreeBound-NeatIBPIntersectionDegreeBoundDecreased]
 					];
@@ -3790,6 +3796,12 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
+
+
+
+
 
 
 

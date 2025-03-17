@@ -170,9 +170,19 @@ CopyFile2[file1_,file2_]:=Module[{},
 ]
 (*This is for the case that spanning cuts mission failed, to stop summarizing. ----2025.01.02*)
 
+
+CopyFile3[file1_,file2_]:=Module[{},
+	If[!FileExistsQ[file1],
+		Return[]
+	];
+	CopyFile[file1,file2]
+]
+(*This is specially for NumericsForIBPReduction.txt*)
+
+
 If[FileExistsQ[tmpPath<>"spanning_cuts_mode.txt"],
 	PrintAndLog["Spanning cuts mode, collecting spanning cuts results."];
-	Module[{spanningCutsMissionMainPath,spanningCutStrings,spanningCuts,
+	Module[{spanningCutsMissionMainPath,spanningCutStrings,spanningCuts,spanningCutTmpFolder,
 	spanningCutString,spanningCutResultFolder,spanningCutSummaryFolder,spanningCutInputsFolder},
 		spanningCutsMissionMainPath=tmpPath<>"spanning_cuts_missions/";
 		spanningCuts=Get[tmpPath<>"spanningCuts.txt"];
@@ -182,9 +192,11 @@ If[FileExistsQ[tmpPath<>"spanning_cuts_mode.txt"],
 			spanningCutSummaryFolder=outputPath<>"results/results_spanning_cuts/cut_"<>spanningCutString<>"/";
 			spanningCutResultFolder=spanningCutsMissionMainPath<>"cut_"<>spanningCutString<>"/outputs/"<>ReductionOutputName<>"/results/";
 			spanningCutInputsFolder=spanningCutsMissionMainPath<>"cut_"<>spanningCutString<>"/outputs/"<>ReductionOutputName<>"/inputs/";
+			spanningCutTmpFolder=spanningCutsMissionMainPath<>"cut_"<>spanningCutString<>"/outputs/"<>ReductionOutputName<>"/tmp/";
 			If[!DirectoryQ[#],CreateDirectory[#]]&[spanningCutSummaryFolder];(*automatically -p*)
 			If[!DirectoryQ[#],CreateDirectory[#]]&[spanningCutSummaryFolder<>"results/"];
 			If[!DirectoryQ[#],CreateDirectory[#]]&[spanningCutSummaryFolder<>"inputs/"];
+			If[!DirectoryQ[#],CreateDirectory[#]]&[spanningCutSummaryFolder<>"tmp/"];
 			(
 				CopyFile2[spanningCutResultFolder<>#<>".txt",spanningCutSummaryFolder<>"results/"<>#<>".txt"];
 				(*PrintAndLog["\t copied ",spanningCutResultFolder<>#<>".txt"," to ",spanningCutSummaryFolder<>"results/"<>#<>".txt"];*)
@@ -193,6 +205,9 @@ If[FileExistsQ[tmpPath<>"spanning_cuts_mode.txt"],
 				CopyFile2[spanningCutInputsFolder<>#,spanningCutSummaryFolder<>"inputs/"<>#];
 				(*PrintAndLog["\t copied ",spanningCutInputsFolder<>#," to ",spanningCutSummaryFolder<>"inputs/"<>#];*)
 			)&/@(FileNameSplit[#][[-1]]&/@FileNames[All,spanningCutInputsFolder]);
+			((*take care here is CopyFile3 not CopyFile2*)
+				CopyFile3[spanningCutTmpFolder<>#,spanningCutSummaryFolder<>"tmp/"<>#];
+			)&/@{"NumericsForIBPReduction.txt"};
 		]
 	];
 	PrintAndLog["\t Finished.\n All spanning cuts finished."];
@@ -429,4 +444,12 @@ ReportTotalTimeUsed[];
 If[PerformIBPReduction===True,
 	Export[outputPath<>"tmp/summarized.tag","","Text"];
 ]
+
+
+
+
+
+
+
+Export[outputPath<>"tmp/NumericsForIBPReduction.txt",NumericsForIBPReduction//InputForm//ToString]
 

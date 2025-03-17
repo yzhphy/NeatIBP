@@ -1,0 +1,9 @@
+SingularApp = "/usr/bin/Singular";
+SparseRREF`SpaSMLibrary = "/usr/local/lib/libspasm.so";
+OutputName="dbox";
+outputPath=Automatic;
+
+PerformIBPReduction=True;
+IBPReductionMethod="Kira";
+KiraCommand="/somepath/kira"
+FermatPath="/somepath/fer64"

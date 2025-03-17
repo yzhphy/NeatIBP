@@ -180,7 +180,7 @@ Print["\tFinished. Time used: ",Round[AbsoluteTime[]-timer]," second(s)."]
 If[MemberQ[allMIs,$Failed],Print["Failed to read all MIs. Exit. "];Exit[]]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*bak*)
 (**)
 
@@ -221,7 +221,24 @@ Print["Merging IBP results..."];
 IntegralCuttedQ[int_,cut_]:=MemberQ[Sign/@((int/.G->List)[[cut]]-1/2),-1]
 
 
-RandomNumericCheck[expr_]:=Module[{vars=Variables[expr]},Factor[expr/.(#->RandomPrime[Length[vars]*500]/RandomPrime[Length[vars]^2*1000]&/@vars)]]
+RandomNumericCheck[expr_]:=Module[
+{vars=Variables[expr],table},
+	
+	table=Quiet[Table[
+		Factor[expr/.(#->RandomPrime[Length[vars]*5000]/RandomPrime[Length[vars]^2*10000]&/@vars)],
+		Length[vars]+5
+	],{Power::infy,Infinity::indet}];
+	
+	table=DeleteCases[table,Indeterminate];
+	table=DeleteCases[table,0];
+		
+
+	If[table==={},
+		Return[0]
+	,
+		Return[table[[1]]]
+	]
+]
 
 
 MergeReducedResults//ClearAll
@@ -247,7 +264,7 @@ cut,targetReducedFormulated,targetReducedFormulatedMIs,oldK,reducedResults
 				If[MemberQ[targetReducedFormulatedMIs,MI],
 					newCoeff=MI/.targetReducedFormulated
 				,
-					newCoeff=0
+					newCoeff=0;
 				];
 				If[
 					Or[
@@ -294,6 +311,10 @@ cut,targetReducedFormulated,targetReducedFormulatedMIs,oldK,reducedResults
 			If[coeff===$Failed,
 				reducedResult=$Failed;
 				Break[];
+			];
+			If[coeff==="ND"&&OptionValue[ShortenedMode],
+				coeff=0;
+				(*a coeff that is never detected is interpreted as 0*)
 			];
 			reducedResult=Append[reducedResult,MI->coeff];
 		];

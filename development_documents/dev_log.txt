@@ -1680,10 +1680,78 @@ modified typo in various settings "...Constrain..." -> "...Constraint..."
 added HardRenameSetting and SoftRenameSetting in Ini...wl
 
 
+---------------------
+2025.3.17
+1.in Pak_Algorithm.wl
+If[DeleteCases[Expand[vectorsDiff]]==={},Return[#->#&/@external]];
+->
+If[DeleteCases[Expand[vectorsDiff],0]==={},Return[#->#&/@external]];
 
 
+2.Constrain->Constraint renaming turns from soft to hard
 
+3.In ReducedSpanningCutsMerge.wl
+RandomNumericCheck[expr_]:=Factor[expr/.(#->RandomPrime[Length[vars]*5000]/RandomPrime[Length[vars]^2*10000]&/@vars)]
+->
+RandomNumericCheck[expr_]:=Module[
+{vars=Variables[expr],table},
+	
+	table=Quiet[Table[
+		Factor[expr/.(#->RandomPrime[Length[vars]*5000]/RandomPrime[Length[vars]^2*10000]&/@vars)],
+		Length[vars]+5
+	],{Power::infy,Infinity::indet}];
+	
+	table=DeleteCases[table,Indeterminate];
+	table=DeleteCases[table,0];
+		
 
+	If[table==={},
+		Return[0]
+	,
+		Return[table[[1]]]
+	]
+]
+4. 
+to support NumericsForIBPReduction in spc mode, did:
+
+4.1 added the following in Summary.txt :
+
+CopyFile3[file1_,file2_]:=Module[{},
+	If[!FileExistsQ[file1],
+		Return[]
+	];
+	CopyFile[file1,file2]
+]
+(*This is specially for NumericsForIBPReduction.txt*)
+
+and 
+
+If[!DirectoryQ[#],CreateDirectory[#]]&[spanningCutSummaryFolder<>"tmp/"];
+
+and
+
+spanningCutTmpFolder=spanningCutsMissionMainPath<>"cut_"<>spanningCutString<>"/outputs/"<>ReductionOutputName<>"/tmp/";
+
+and 
+
+((*take care here is CopyFile3 not CopyFile2*)
+				CopyFile3[spanningCutTmpFolder<>#,spanningCutSummaryFolder<>"tmp/"<>#];
+			)&/@{"NumericsForIBPReduction.txt"};
+
+4.2
+moved the sentence 
+Export[outputPath <> "tmp/NumericsForIBPReduction.txt", 
+ NumericsForIBPReduction // InputForm // ToString]
+from the end of
+Assign.wl
+to the end of
+Summary.wl
+
+comment 20250318:
+currently we have the feature that user:
+modify NumericsForIBPReduction in config.txt and continue.sh
+allows him/her rerun redution only (without the IBP generation computations) on different numeric points
+but if continue.sh is changes to skip a finnished Summary.wl, this feature will lost, we have to modify something to keep it, although this feature is ... acturally, private.
 
 
 
