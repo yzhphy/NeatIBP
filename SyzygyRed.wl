@@ -186,7 +186,11 @@ Prepare[]:=Module[{Formula,MatrixA,VectorB,ScalarC,BList,AList,Vectorb,lambda},
 	TangentSet=MatrixA . #&/@ScalarTangentSet/.BaikovRep//Factor;
 	ExtendedTangentSet=Transpose[Join[Transpose[TangentSet],{Transpose[ScalarExtendedTangentSet]//Last}]]; (* including the cofactors *)
 	
-	ForwardRep[1]=Join[Table[z[i]->ToExpression["z"<>ToString[i]],{i,1,SDim}],Table[Parameters[[i]]->ToExpression["c"<>ToString[i]],{i,1,Parameters//Length}]];
+	ForwardRep[1]=Join[
+		Table[z[i]->ToExpression["z"<>ToString[i]],{i,1,SDim}],
+		Table[Parameters[[i]]->ToExpression["c"<>ToString[i]],{i,1,Parameters//Length}],
+		{AuxKinVar->c0}
+	];
 	BackwardRep[1]=Reverse/@ForwardRep[1];
 	(*ForwardRep[2]=Join[Table[ScalarVar[[i]]->ToExpression["z"<>ToString[i]],{i,1,SDim}],Table[Parameters[[i]]->ToExpression["c"<>ToString[i]],{i,1,Parameters//Length}]];
 	BackwardRep[2]=Reverse/@ForwardRep[2];*)
@@ -488,7 +492,8 @@ Options[SingularWpOrderingString]={WpOrderingWeight->Automatic}
 SingularWpOrderingString[lengthList_,OptionsPattern[]]:=Module[{inputWeight,weight,result},
 	inputWeight=OptionValue[WpOrderingWeight];
 	If[inputWeight===Automatic,
-		weight=Table[Table[If[i===Length[lengthList],0,1],lengthList[[i]]],{i,Length[lengthList]}]
+		weight=Table[Table[If[i===Length[lengthList],0,1],lengthList[[i]]],{i,Length[lengthList]}];
+		weight=DeleteCases[weight,{}];
 	,
 		(*currently not used, maybe useful in the future.*)
 		If[Head[inputWeight]=!=List,
@@ -546,7 +551,8 @@ varString,parameterString,varBlockPriory,varBlockNotPriory,orderString},
 	varpara=Variables[M];
 	var=ListIntersect[varRedundant,varpara];  (* Delete the variables not in the modules *)
 	parameters=ListIntersect[parameterRedundant,varpara];   (* Delete the parameters not in the modules *)
-	If[parameters=={},parameters=parameterRedundant[[{1}]]];   (*  If there is no parameter, to fit in the Singular code, pick up one parameter *)
+	(*If[parameters=={},parameters=parameterRedundant[[{1}]]];   (*  If there is no parameter, to fit in the Singular code, pick up one parameter *)*)
+	If[parameters==={},parameters={AuxKinVar}];(*modified at 2025.3.18: to fix the case that parameterRedundant itself is {}*)
 	If[OptionValue[BlockPrioryVars]=!={},
 		varBlockPriory=Intersection[var,OptionValue[BlockPrioryVars]]//Sort;
 		varBlockNotPriory=Complement[var,OptionValue[BlockPrioryVars]]//Sort;
@@ -795,7 +801,8 @@ varString,parameterString,varBlockPriory,varBlockNotPriory,orderString,orderStri
 	varpara=Variables[Join[M1ext,M2]];
 	var=ListIntersect[varRedundant,varpara];  (* Delete the variables not in the modules *)
 	parameters=ListIntersect[parameterRedundant,varpara];   (* Delete the parameters not in the modules *)
-	If[parameters=={},parameters=parameterRedundant[[{1}]]];   (*  If there is no parameter, to fit in the Singular code, pick up one parameter *)
+	(*If[parameters=={},parameters=parameterRedundant[[{1}]]];   (*  If there is no parameter, to fit in the Singular code, pick up one parameter *)*)
+	If[parameters==={},parameters={AuxKinVar}];(*modified at 2025.3.18: to fix the case that parameterRedundant itself is {}*)
 	If[OptionValue[BlockPrioryVars]=!={},
 		varBlockPriory=Intersection[var,OptionValue[BlockPrioryVars]]//Sort;
 		varBlockNotPriory=Complement[var,OptionValue[BlockPrioryVars]]//Sort;
@@ -973,7 +980,8 @@ varString,parameterString,varBlockPriory,varBlockNotPriory,orderString},
 	varpara=Variables[M];
 	var=ListIntersect[varRedundant,varpara];  (* Delete the variables not in the modules *)
 	parameters=ListIntersect[parameterRedundant,varpara];   (* Delete the parameters not in the modules *)
-	If[parameters=={},parameters=parameterRedundant[[{1}]]];   (*  If there is no parameter, to fit in the Singular code, pick up one parameter *)
+	(*If[parameters=={},parameters=parameterRedundant[[{1}]]];   (*  If there is no parameter, to fit in the Singular code, pick up one parameter *)*)
+	If[parameters==={},parameters={AuxKinVar}];(*modified at 2025.3.18: to fix the case that parameterRedundant itself is {}*)
 	If[OptionValue[BlockPrioryVars]=!={},
 		varBlockPriory=Intersection[var,OptionValue[BlockPrioryVars]]//Sort;
 		varBlockNotPriory=Complement[var,OptionValue[BlockPrioryVars]]//Sort;
@@ -2529,6 +2537,8 @@ FullForm]\);(*?*)
 
 
 
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -3796,6 +3806,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 

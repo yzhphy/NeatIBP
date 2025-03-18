@@ -332,16 +332,18 @@ ErrorLine[]:=PrintAndLog["******************************************************
 (*Variable Name Protection*)
 
 
-ProtectedNames=
+ProtectedNames=Join[
 {m,x,y,z,G,d,n,L,zeroLoopMomenta,Momenta,ScalarVarRep,var,ScalarVar,BaikovMatrix,SDim,GramMatrix,LoopExternalScalars,ScalarTangentSet,
 ScalarExtendedTangentSet,BaikovKernelScalar,BaikovRevRep,BaikovRep,BaikovKernel,Parameters,TangentSet,ExtendedTangentSet,
 ForwardRep,BackwardRep,Scalar2sp,sp2Scalar,sp,PolynomialU,PolynomialF,PolynomialG,numericPolynomialG,gen,varOrder,ss,(*in SyzygyRed.wl, IntegerPartition function. I think this variable, ss, can be set as local*)
 ZeroSectors,NonZeroSectors,ZeroTargets,ReductionTargets,ReductionTasks,ZeroSectorRemoval,IBPList,MIList,SectorAnalyzeTiming,IntegralR,FI,BasicRawIBPs,FI0,ZM0,secNum,SelfSymmetryR,ZM,RelavantIntegrals,
 groupMomentumU,groupMomentumV,StdL,i,j,k,spanningCuts,bottomSectors,topSectors,spanningCutsMissionMainPath,TemporaryDirectory,
 Prepare,SectorwiseSettingListForCurrentSector,inputParameters,FI,ZM,FI0,ZM0,FIHead,ZMHead,FI00,ZM00,pshead,processes,checkTimes,
-spanningCuts,spanningCut,cut,outputPathsWithUnfinishedIni,ReductionOutputName,OutputName
-
-}//DeleteDuplicates
+spanningCuts,spanningCut,cut,outputPathsWithUnfinishedIni,ReductionOutputName,OutputName,AuxKinVar
+},
+Table[ToExpression["z"<>ToString[i]],{i,1,Length[Propagators]}],
+Table[ToExpression["c"<>ToString[i]],{i,0,Length[Propagators]}]
+]//DeleteDuplicates
 CheckRange={"TargetIntegrals","LoopMomenta","ExternalMomenta","Propagators","Kinematics","GenericPoint","GenericD"
 }
 AppearableList={

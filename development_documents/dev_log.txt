@@ -1753,8 +1753,43 @@ modify NumericsForIBPReduction in config.txt and continue.sh
 allows him/her rerun redution only (without the IBP generation computations) on different numeric points
 but if continue.sh is changes to skip a finnished Summary.wl, this feature will lost, we have to modify something to keep it, although this feature is ... acturally, private.
 
+v1.1.0.2
+
+-------------
+2025.3.18
+In SyzygyRed.wl
+added
+weight=DeleteCases[weight,{}];
+in 
+SingularWpOrderingString
 
 
+The following is for supporting Singular with kine. var = {}
+
+added AuxKinVar and 
+Table[ToExpression["z"<>ToString[i]],{i,1,Length[Propagators]}],
+Table[ToExpression["c"<>ToString[i]],{i,0,Length[Propagators]}]
+as protected name in Ini.wl 
+
+
+in SyzygyRed.wl
+replace all
+If[parameters=={},parameters=parameterRedundant[[{1}]]];   
+by
+If[parameters==={},parameters={AuxKinVar}];   
+
+and
+replaced
+ForwardRep[1]=Join[
+		Table[z[i]->ToExpression["z"<>ToString[i]],{i,1,SDim}],
+		Table[Parameters[[i]]->ToExpression["c"<>ToString[i]],{i,1,Parameters//Length}],
+		{AuxKinVar->c0}
+	];
+by
+ForwardRep[1]=Join[Table[z[i]->ToExpression["z"<>ToString[i]],{i,1,SDim}],Table[Parameters[[i]]->ToExpression["c"<>ToString[i]],{i,1,Parameters//Length}]];
+
+
+v1.1.0.3
 
 
 
