@@ -121,7 +121,7 @@ Please make sure that this works on your computer in order to use NeatIBP. If no
 
 ## How to cite
 If you use NeatIBP in your research, we would appreciate it if you cite the related paper(s): 
-[https://arxiv.org/abs/2305.08783](https://arxiv.org/abs/2305.08783) . 
+[Comput.Phys.Commun. 295 (2024) 108999](https://www.sciencedirect.com/science/article/pii/S0010465523003442), [arXiv:2502.20778](https://arxiv.org/abs/2502.20778). 
 The BibTeX info. of the papers are:
 ```
 @article{Wu:2023upw,
@@ -137,7 +137,18 @@ The BibTeX info. of the papers are:
     pages = "108999",
     year = "2024"
 }
-
+```
+```
+@article{Wu:2025aeg,
+    author = {Wu, Zihao and B\"ohm, Janko and Ma, Rourou and Usovitsch, Johann and Xu, Yingxuan and Zhang, Yang},
+    title = "{Performing integration-by-parts reductions using NeatIBP 1.1 + Kira}",
+    eprint = "2502.20778",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ph",
+    reportNumber = "USTC-ICTS/PCFT-25-10, MPP-2025-29, HU-EP-25/12-RTG",
+    month = "2",
+    year = "2025"
+}
 ```
 
 ## Appendix
