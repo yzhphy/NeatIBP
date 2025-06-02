@@ -777,29 +777,57 @@ If[SpanningCutsMode===True&&ShortenSpanningCutsIBPs===True&&SpanningCutsConsiste
 ]*)
 
 
-If[MathKernelLimit<3,
+
+
+If[MathKernelLimit<2,
 	ErrorLine[];
-	PrintAndLog["****  Too-few MathKernelLimit: ",MathKernelLimit, ". MathKernelLimit should be at least 3."];
+	PrintAndLog["****  Too-few MathKernelLimit: ",MathKernelLimit, ". MathKernelLimit should be at least 2."];
 	ErrorLine[];
 	Exit[0];
 ]
+
+If[MathKernelLimit<Infinity&&SpanningCutsEvaluationMode==="Parallel"&&SpanningCutsMode===True,
+	If[MathKernelLimit<3,
+		ErrorLine[];
+		PrintAndLog[
+					"****  Too-few MathKernelLimit: ",
+					MathKernelLimit, 
+					". In the spanning cuts mode, when set SpanningCutsEvaluationMode=\"Parallel\" (this could be the default value), MathKernelLimit should be at least 3."];
+		If[MathKernelLimit===2,
+				PrintAndLog[
+					"Since you have set MathKernelLimit=2, you can add SpanningCutsEvaluationMode=\"Sequential\" in your config file to fix this problem."
+				]
+		];
+		ErrorLine[];
+		Exit[0];
+	]
+]
+
+
 If[And[!IntegerQ[MathKernelLimit],MathKernelLimit=!=Infinity],
 	ErrorLine[];
 	PrintAndLog["**** Wrong MathKernelLimit: ",MathKernelLimit, ". MathKernelLimit must be an integer or Infinity."];
 	ErrorLine[];
 	Exit[0];
 ]
-If[MaxManagers<1,
-	ErrorLine[];
-	PrintAndLog["****  Too-few MaxManagers: ",MaxManagers, ". MaxManagers should be at least 1."];
-	ErrorLine[];
-	Exit[0];
-]
-If[MathKernelLimit<2*MaxManagers+1,
-	ErrorLine[];
-	PrintAndLog["****  Too-large MaxManagers: ",MaxManagers, ". MaxManagers should be no greater than (MathKernelLimit-1)/2=",(MathKernelLimit-1)/2];
-	ErrorLine[];
-	Exit[0];
+If[MathKernelLimit<Infinity&&SpanningCutsEvaluationMode==="Parallel"&&SpanningCutsMode===True,
+(*
+MaxManagers is only used when we need to activate HQ, right?  so I think we should not to check it when HQ will not be launched.
+ If we do, it is nonsense for who sets MathKernelLimit=2 when running spc sequentially
+ ---20250524
+ *)
+	If[MaxManagers<1,
+		ErrorLine[];
+		PrintAndLog["****  Too-few MaxManagers: ",MaxManagers, ". MaxManagers should be at least 1."];
+		ErrorLine[];
+		Exit[0];
+	];
+	If[MathKernelLimit<2*MaxManagers+1,
+		ErrorLine[];
+		PrintAndLog["****  Too-large MaxManagers: ",MaxManagers, ". MaxManagers should be no greater than (MathKernelLimit-1)/2=",(MathKernelLimit-1)/2];
+		ErrorLine[];
+		Exit[0];
+	];
 ]
 
 
@@ -904,7 +932,7 @@ reductionTasksFolder=TemporaryDirectory<>"reduction_tasks/"
 If[!DirectoryQ[#],Run["mkdir "<>#]]&[reductionTasksFolder]
 
 
-If[MathKernelLimit<Infinity&&IsASpanningCutsSubMission,
+If[MathKernelLimit<Infinity&&IsASpanningCutsSubMission&&SpanningCutsEvaluationMode==="Parallel",
 	If[!DirectoryQ[#],CreateDirectory[#]]&[TemporaryDirectory<>"worker_kernels/"];
 	If[!DirectoryQ[#],CreateDirectory[#]]&[TemporaryDirectory<>"worker_kernels/recieved_kernels/"];
 	If[!DirectoryQ[#],CreateDirectory[#]]&[TemporaryDirectory<>"worker_kernels/occupied_kernels/"];

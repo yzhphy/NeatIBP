@@ -475,6 +475,10 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 (*Singular Interface*)
 
 
+(* ::Subsection:: *)
+(*orderings*)
+
+
 Options[SingularOrderingString]={WpOrderingWeight->Automatic}
 (*Automatic means, in current version, wp(1,...,1),wp(1,...,1),...,wp(1,...,1),wp(0,...,0)*)
 (*comment 2025.1.13:
@@ -523,7 +527,7 @@ SingularWpOrderingString[lengthList_,OptionsPattern[]]:=Module[{inputWeight,weig
 
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Singular GB*)
 
 
@@ -659,7 +663,7 @@ SingularGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,varsCutt
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Singular intersection*)
 
 
@@ -936,7 +940,7 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Singular lift to GB*)
 
 
@@ -1069,7 +1073,7 @@ SingularLiftToGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,va
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*SimplifyByCut*)
 
 
@@ -2539,6 +2543,8 @@ FullForm]\);(*?*)
 
 
 
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -3806,6 +3812,8 @@ FullForm]\);(*?*)
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
 ];
+
+
 
 
 

@@ -304,7 +304,7 @@ If[inconsistencySummary==={},
 		
 		If[i>=displayLimit,
 			PrintAndLog[" ... and "<>ToString[Length[inconsistencySummary]-displayLimit]<>" more "];
-			PrintAndLog["see "<>outputPath<>" inconsistencySummary.txt"];
+			PrintAndLog["see "<>outputPath<>"inconsistencySummary.txt"];
 			Break[]
 		]
 	]

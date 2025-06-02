@@ -232,5 +232,12 @@ Date: 2025.03.17
 Date: 2025.03.18
 	1. Fix: fixed a bug when running with no kinematic variables
 
+[NeatIBP 1.1.0.4]
+Date: 2025.06.02
+	1. Fix: Fixed problems that user cannot run spanning cuts sequentially in the laster bersion. 
+	2. Modify: Modified the minimal allowed MathKernelLimit to 2.
+	3. Add: added a tutorial example dbox-spc-IBPReduction
+	4. Modify: make the script to install SpaSM executable without sudo.
+
 
 

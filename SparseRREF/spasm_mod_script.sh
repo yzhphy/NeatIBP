@@ -4,11 +4,11 @@ git clone https://github.com/cbouilla/spasm.git
 #cp Makefile.am spasm/bench/Makefile.am
 cd spasm
 git checkout 59135cc
-apt-get install libtool
+#apt-get install libtool
 autoreconf -i
 automake --add-missing
 automake
-./configure
+./configure $@
 make
 make check
 make install

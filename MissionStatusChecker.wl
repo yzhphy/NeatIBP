@@ -159,7 +159,7 @@ ProcessRunningQ[commandLine_]:=Module[{ps},
 
 
 
-If[MathKernelLimit<Infinity&&IsASpanningCutsSubMission,
+If[MathKernelLimit<Infinity&&IsASpanningCutsSubMission&&SpanningCutsEvaluationMode==="Parallel",
 	WKFolder=outputPath<>"tmp/worker_kernels/";
 	SubmittingKernelsFolder=WKFolder<>"submitting_kernels/";
 	OccupiedKernelsFolder=WKFolder<>"occupied_kernels/";
@@ -206,7 +206,7 @@ While[True,
 			missionStatusFolder<>ToString[#//SectorNumber]<>".txt",
 			"ComputationFinished"//InputForm//ToString
 		]&/@actuallyFinishedMissions;
-		If[MathKernelLimit<Infinity&&IsASpanningCutsSubMission,
+		If[MathKernelLimit<Infinity&&IsASpanningCutsSubMission&&SpanningCutsEvaluationMode==="Parallel",
 			occupiedKernels=FileNames[All,OccupiedKernelsFolder];
 			If[Length[occupiedKernels]<Length[actuallyFinishedMissions],
 				Print["echo \"MissionStatusChecker: ERROR20241112 at "<>outputPath<>"\""];
@@ -262,6 +262,7 @@ While[True,
 			ToString[InputForm[{
 				Length[missionReadyToCompute],
 				ThreadUsedLimit-Length[missionComputing],
+				MathKernelLimit-1-Length[missionComputing],
 				MissionLimitByMemory[Length[missionReadyToCompute]+Length[missionComputing],MemoryUsedLimit]-Length[missionComputing]
 				(*Max[MissionLimitByMemory[Length[missionReadyToCompute],Round[MemoryAvailable[]/(1024^2)]-MinMemoryReserved]-Length[missionComputing],0]*)
 			}]]<>
@@ -270,7 +271,7 @@ While[True,
 	];
 	reportClock=Mod[reportClock+1,1000];
 	
-	If[MathKernelLimit<Infinity&&IsASpanningCutsSubMission,
+	If[MathKernelLimit<Infinity&&IsASpanningCutsSubMission&&SpanningCutsEvaluationMode==="Parallel",
 		recievedKernels=FileNames[All,RecievedKernelsFolder];
 		
 		If[Length[recievedKernels]<numOfNewComputingMissions,

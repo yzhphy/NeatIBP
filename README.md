@@ -3,10 +3,10 @@
 NeatIBP is a mathematica package to generate small-sized integration-by-parts (IBP) relations for Feynman integral reduction.
 
 ## Version
-1.1.0.3
+1.1.0.4
 
 ## Date
-2025.03.18
+2025.06.02
 
 ## Dependencies
 **Singular**
@@ -42,13 +42,13 @@ you can install this dependency from
 sudo apt-get install libtool
 ```
 
-Then, to install **SpaSM** itself, considering some version compatibility issues, we strongly suggest that you install **SpaSM** using the script provided in our repo. To do so, change to the **NeatIBP/SparseRREF** folder and run the script by the following command
+Then, to install **SpaSM** itself, considering some version compatibility issues, the latest version of it is not recommended. For a convenient way of installing its compatable version with NeatIBP, we suggest that you change to the **NeatIBP/SparseRREF** folder and run the script by the following command
 ```
-sudo bash spasm_mod_script.sh
+bash spasm_mod_script.sh --prefix=/your/preferred/installation/path
 ```
-This script modifies the original SpaSM installation steps (we thank the authour of SpaSM for permitting us to do so). It will automatically install SpaSM for you.
+This script modifies the original SpaSM installation steps (we thank the authour of SpaSM for permitting us to do so). It will automatically install **SpaSM** for you. Notice that the setting \"prefix\" is optional, but recommended. It installs **SpaSM** to a non-default path in order not to conflict possibly existing **SpaSM**, and avoids requiring \"sudo\".
 
-After this, please check that the file **libspasm.so** exists in the folder **/usr/local/lib**. If so, SpaSM is ready to go.
+After this, please check that the file **libspasm.so** exists in the folder **/your/preferred/installation/path/lib**. If so, SpaSM is ready to go.
 
 Besides, NeatIBP supports an alternative way of installation via spack. If the user prefer to do so, please follow the instructions in the [appendix](https://github.com/yzhphy/NeatIBP#installation-via-spack-alternative).
 

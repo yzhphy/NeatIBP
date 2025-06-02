@@ -1792,5 +1792,16 @@ ForwardRep[1]=Join[Table[z[i]->ToExpression["z"<>ToString[i]],{i,1,SDim}],Table[
 v1.1.0.3
 
 
+-------------------
+2025.05.26
+1. Fix: Fixed problems that user cannot run spanning cuts sequentially in the laster bersion. 
+2. Modify: Modified the minimal allowed MathKernelLimit to 2.
+3. Add: added a tutorial example dbox-spc-IBPReduction
+4. Modify: make the script to install SpaSM executable without sudo.
+
+2025.6.2:
+v1.1.0.4
+ 
+
 
 

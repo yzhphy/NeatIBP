@@ -88,6 +88,9 @@ SectorNumberToSectorIndex//ClearAll
 SectorNumberToSectorIndex[num_]:=IntegerDigits[num,2,Length[Propagators]]//Reverse
 
 
+
+
+
 InitializationStatus[]:=If[FileExistsQ[tmpPath<>"initialization_failed.txt"],
 	"failed",
 	If[FileExistsQ[tmpPath<>"initialized.txt"],
@@ -410,7 +413,7 @@ PrintCutsMissions[]:=Module[{displaystring,table},
 	displaystring="----------------------------------------------";
 	displaystring=displaystring<>"\n"<>TimeString[]<>"\n"<>displaystring;
 	(*displaystring=displaystring<>"\n"<>FineTable[CutMissionsInfoTable[]];*)
-	If[MathKernelLimit<Infinity,displaystring=displaystring<>HQKernelReport[]];
+	If[MathKernelLimit<Infinity&&SpanningCutsEvaluationMode==="Parallel",displaystring=displaystring<>HQKernelReport[]];
 	table=CutMissionsInfoTableExtended[];
 	displaystring=displaystring<>"\n"<>FineTable[table];
 	Print[displaystring];
