@@ -704,6 +704,22 @@ If[FIBPGroupingStartRatio>1||FIBPGroupingStartRatio<0,
 ]
 
 
+If[ResultInRestoredLaportaIBPs,
+	If[SimplifyByCutMethod==="LiftResubstitution",
+		ErrorLine[];
+		PrintAndLog["****  When ResultInRestoredLaportaIBPs==True,  SimplifyByCutMethod cannot be \"LiftResubstitution\". Exiting..."];
+		ErrorLine[];
+		Exit[0]
+	];
+	If[VectorListFromSyzInSingularIntersection=!=True,
+		ErrorLine[];
+		PrintAndLog["****  When ResultInRestoredLaportaIBPs==True,  must also set VectorListFromSyzInSingularIntersection=True. Exiting..."];
+		ErrorLine[];
+		Exit[0]
+	];
+]
+
+
 (*If[NeedSymmetry&&MIFromAzuritino,
 	PrintAndLog["****  Sorry, Azuritino dose not support symmetry in the current version.\n We are working on it and soon it will come.\n Exiting..."];
 	Exit[0]

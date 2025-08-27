@@ -475,7 +475,7 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 (*Singular Interface*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*orderings*)
 
 
@@ -663,7 +663,7 @@ SingularGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,varsCutt
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Singular intersection*)
 
 
@@ -695,6 +695,18 @@ ring R2 = (MODULUS,PARAMETERS), (VAR), (ORDERING_STRING_2);
 module m12=imap(R,m12old);
 module mInt=simplify(m12,SimplificationStrategy);
 write(\"OUTPUTFILE\",string(mInt));
+exit;
+";
+SingularIntersectionTextForSyzOnlyMode="LIB \"matrix.lib\";
+ring R = (MODULUS), (VAR, PARAMETERS), (ORDERINGSTRING);
+option(prot);
+degBound=DEGBOUND;
+module m1 = MODULE1;
+module m2 = MODULE2;
+module m=m1,m2;
+module a=syz(m);
+module asim=simplify(a,SimplificationStrategy);
+write(\"OUTPUTFILE\",string(asim));
 exit;
 ";
 (*SingularIntersectionText=(*debug2023*)"LIB \"matrix.lib\";
@@ -792,16 +804,24 @@ exit;
 
 
 Options[SingularIntersectionMaker]={Modulus->0,SimplificationRules->Global`OptionSimplification,ScriptFile->TemporaryDirectory<>"intersection.sing",
-OutputFile->TemporaryDirectory<>"intersection_result.txt",ScriptOnly->False,degBound->0,BlockPrioryVars->{}
+OutputFile->TemporaryDirectory<>"intersection_result.txt",ScriptOnly->False,degBound->0,BlockPrioryVars->{},SyzOnlyMode->False
 };
 SingularIntersectionMaker[M1input_,M1extinput_,M2input_,varRedundant_,parameterRedundant_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularScript,forwardRep,backwardRep,var,parameters,varpara,len1,len2,
 varString,parameterString,varBlockPriory,varBlockNotPriory,orderString,orderString2},
 	
 	
 	If[FileExistsQ[OptionValue[OutputFile]],DeleteFile[OptionValue[OutputFile]]];
-	M1=ModuleSlash[M1input];
-	M1ext=ModuleSlash[M1extinput];
-	M2=ModuleSlash[M2input];
+	If[OptionValue[SyzOnlyMode]=!=True,
+	(*I think this may be not necessary. If we do, it may bring incorrect correspondence in SyzOnlyMode*)
+		M1=ModuleSlash[M1input];
+		M1ext=ModuleSlash[M1extinput];
+		M2=ModuleSlash[M2input];
+	,
+		M1=Identity[M1input];
+		M1ext=Identity[M1extinput];
+		M2=Identity[M2input];
+	];
+	
 	varpara=Variables[Join[M1ext,M2]];
 	var=ListIntersect[varRedundant,varpara];  (* Delete the variables not in the modules *)
 	parameters=ListIntersect[parameterRedundant,varpara];   (* Delete the parameters not in the modules *)
@@ -819,8 +839,12 @@ varString,parameterString,varBlockPriory,varBlockNotPriory,orderString,orderStri
 	];
 	varString=StringReplace[ToString[var/.ForwardRep[1]],{"{"->"","}"->""}];
 	parameterString=StringReplace[ToString[parameters/.ForwardRep[1]],{"{"->"","}"->""}];
-	
-	SingularScript=StringReplace[SingularIntersectionText,{"VAR"->varString,"PARAMETERS"->parameterString}];
+	If[OptionValue[SyzOnlyMode],
+		SingularScript=SingularIntersectionTextForSyzOnlyMode;
+	,
+		SingularScript=SingularIntersectionText;
+	];
+	SingularScript=StringReplace[SingularScript,{"VAR"->varString,"PARAMETERS"->parameterString}];
 	SingularScript=StringReplace[SingularScript,{"MODULUS"->ToString[Modulus//OptionValue],"ORDERINGSTRING"->orderString,"ORDERING_STRING_2"->orderString2}];
 	SingularScript=StringReplace[SingularScript,{"MODULE1"->Module2SingularForm[M1,1],"M1ext"->Module2SingularForm[M1ext,1],"MODULE2"->Module2SingularForm[M2,1],"M1SIZE"->ToString[Length[M1]]}];
 	SingularScript=StringReplace[SingularScript,"OUTPUTFILE"->OptionValue[OutputFile]];
@@ -831,9 +855,20 @@ varString,parameterString,varBlockPriory,varBlockNotPriory,orderString,orderStri
 ];
 
 
-Options[IntersectionRead]=Options[SingularIntersectionMaker];
-IntersectionRead[OptionsPattern[]]:=Module[{dim,string,vectors},
-	dim=Global`SDim+1;
+Options[IntersectionRead]=Join[Options[SingularIntersectionMaker],{Dim->0}];
+IntersectionRead[OptionsPattern[]]:=Module[{dim,string,vectors,object},
+	If[!OptionValue[SyzOnlyMode],
+		dim=Global`SDim+1;
+		object="VectorList";
+	,
+		dim=OptionValue[Dim];
+		If[dim===0,
+			PrintAndLog["#",secNum," Unexpected dimension 0 in IntersectionRead."];
+			Return[$Failed]
+		];
+		object="syzygy result";
+	];
+	
 	(*If[!FileExistsQ[OptionValue[OutputFile]],Return[]];*)
 	If[!FileExistsQ[OptionValue[OutputFile]],
 		(*Return[]*)
@@ -848,8 +883,8 @@ IntersectionRead[OptionsPattern[]]:=Module[{dim,string,vectors},
 	string=StringReplace["{"<>Import[OptionValue[OutputFile]]<>"}","gen("~~Shortest[x__]~~")":>"gen["~~x~~"]"];
 	vectors=ToExpression[string];
 	
-	(*yan-er-dao-ling!*)
-	If[Count[vectors,0]>0,PrintAndLog["#",secNum,"  zero(s) in VectorList Encountored. They are deleted."];vectors=DeleteCases[vectors,0]];
+	(*yan-er-dao-ling!  (emm...? WHY?2025.7.1)*)
+	If[Count[vectors,0]>0,PrintAndLog["#",secNum,"  zero(s) in "<>object<>" Encountored. They are deleted."];vectors=DeleteCases[vectors,0]];
 	
 	vectors=vectors/.gen[index_]:>UnitVector[dim,index]/.BackwardRep[1];
 	Return[vectors];
@@ -866,9 +901,10 @@ ShortenedModule[M1ext_,restrictedIndices_]:=Module[{shortenedM1,shortenedM2},
 
 Options[SingularIntersection]={Modulus->0,SimplificationRules->Global`OptionSimplification,ScriptFile->TemporaryDirectory<>"intersection.sing",
 OutputFile->TemporaryDirectory<>"intersection_result.txt",TestOnly->False,ScriptOnly->False,degBound->0,VariableOrder->var,Cut->{},ShortenTheModules->False,
-SingularTimeUsedLimit->Infinity,
+SingularTimeUsedLimit->Infinity,SyzOnlyMode->False,
 NumericMode->False,PrintDegBound->False,DeleteResultFiles->DeleteSingularResultFiles,DeleteScriptFiles->DeleteSingularScriptFiles};
-SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCommand,timer,vectors,cutIndex,blockPrioryVars},
+SingularIntersection[resIndex_,OptionsPattern[]]:=Module[
+{M1,M1ext,M2,SingularCommand,timer,vectors,cutIndex,blockPrioryVars,outputFile},
 	cutIndex=OptionValue[Cut];
 	If[!SubsetQ[resIndex,cutIndex],PrintAndLog["Sorry... This version does not support the case with a cut propagator index UNrestricted ..."]; Return[$Failed];];
 	{M1,M1ext,M2}=TangentModules[resIndex,cutIndex];
@@ -878,6 +914,11 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 		M2=M2/.GenericPoint/.GenericD;
 	];
 	If[OptionValue[ShortenTheModules]===True,
+		If[OptionValue[SyzOnlyMode],
+			PrintAndLog["SingularIntersection: Sorry, ShortenTheModules is not yet supported in SyzOnlyMode."];
+			(*because I am lazy*)
+			Return[$Failed]
+		];
 		{M1,M2}=ShortenedModule[M1ext,resIndex];
 		If[M2==={},Return[M1ext]](*No restrictions on any of the indices*)
 	];
@@ -904,13 +945,22 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 	];
 	
 	(* PrintAndLog[varOrder]; *)
+	If[OptionValue[SyzOnlyMode],
+		outputFile=TemporaryDirectory<>"intersection_result_syz_only.txt";
+		(*the codes are not unified... never mind, since there is no freedom for OptionValue[OutputFile]
+		user cannot set this value. 
+		*)
+	,
+		outputFile=OptionValue[OutputFile];
+	];
 	SingularIntersectionMaker[M1,M1ext,M2,varOrder,Parameters,
 		ScriptFile->OptionValue[ScriptFile],
-		OutputFile->OptionValue[OutputFile],
+		OutputFile->outputFile,
 		Modulus->OptionValue[Modulus],
 		SimplificationRules->OptionValue[SimplificationRules],
 		degBound->OptionValue[degBound],
-		BlockPrioryVars->blockPrioryVars
+		BlockPrioryVars->blockPrioryVars,
+		SyzOnlyMode->OptionValue[SyzOnlyMode]
 	];
 	SingularCommand=SingularApp<>" "<>OptionValue[ScriptFile];
 	If[OptionValue[SingularTimeUsedLimit]=!=Infinity,
@@ -924,7 +974,11 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 	Run[SingularCommand];
 	PrintAndLog["Singular running time ... ",AbsoluteTime[]-timer];
 	
-	vectors=IntersectionRead[OutputFile->OptionValue[OutputFile]];
+	vectors=IntersectionRead[
+		OutputFile->outputFile,
+		SyzOnlyMode->OptionValue[SyzOnlyMode],
+		Dim->Length[M1]+Length[M2](*this only works in SyzOnlyMode!*)
+	];
 	
 	
 	If[OptionValue[DeleteScriptFiles]&&FileExistsQ[OptionValue[ScriptFile]],
@@ -932,15 +986,15 @@ SingularIntersection[resIndex_,OptionsPattern[]]:=Module[{M1,M1ext,M2,SingularCo
 		Print[OptionValue[ScriptFile]<>" deleted."];
 	];
 	If[OptionValue[DeleteResultFiles]&&FileExistsQ[OptionValue[OutputFile]],
-		Run["rm "<>OptionValue[OutputFile]];
-		Print[OptionValue[OutputFile]<>" deleted."];
+		Run["rm "<>outputFile];
+		Print[outputFile<>" deleted."];
 	];
 	If[OptionValue[PrintDegBound],PrintAndLog["Degree bound:",OptionValue[degBound]]];
 	Return[vectors];
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Singular lift to GB*)
 
 
@@ -1303,7 +1357,7 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*IBP generator*)
 
 
@@ -1485,7 +1539,7 @@ pivots[matrix_]:=Module[{ARLonglist},
 ];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Symmetry *)
 
 
@@ -2545,6 +2599,10 @@ FullForm]\);(*?*)
 
 
 
+
+
+
+
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -2559,7 +2617,7 @@ IBPISPdegrees,NewrawIBPs,NewnIBPs,timer2,M1,M1ext,M2,sectorMaps,mappedSectors,ta
 zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctions,newSymmetryRelations,VectorList1,irredIntegrals,FIBPs0,FIBPISPDegree0,
 redundantMIs,nFIBPs0,azuritinoMIFolder,nFIBPFunctions0,redundantMIsReduced,newMIs,FindIBPResult,redundantMIsToBeReduced,CompensationIBPDenominatorDegrees,
 reduceTowards,remainedFIBPlabels,usedVectors,usedFIBPs,additionalResultFolder,memoryUsed3,timer3,nIBPsCutted,NewnIBPsCutted,newSymmetryRelationsCutted,NewSectorIntegrals,
-NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimplifiedByCutWithDCornerOnly,VectorList00,FIBPs00
+NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimplifiedByCutWithDCornerOnly,VectorList00,FIBPs00,syzygies,syzygiesForM1
 },
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
@@ -2670,7 +2728,8 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 				VariableOrder->(var//Reverse),
 				Cut->OptionValue[Cut],
 				PrintDegBound->True,
-				NumericMode->NumericIBP
+				NumericMode->NumericIBP,
+				SyzOnlyMode->VectorListFromSyzInSingularIntersection
 			];
 			
 		,
@@ -2686,8 +2745,9 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 						Cut->OptionValue[Cut],
 						PrintDegBound->True,
 						NumericMode->NumericIBP,
-						SingularTimeUsedLimit->NeatIBPIntersectionTimeConstraintForFlexibleDegreeBound+10
+						SingularTimeUsedLimit->NeatIBPIntersectionTimeConstraintForFlexibleDegreeBound+10,
 						(*10 more seconds to make sure. This number is just a time to kill Singular zombie, so it does not matter to +10*)
+						SyzOnlyMode->VectorListFromSyzInSingularIntersection
 					],
 					NeatIBPIntersectionTimeConstraintForFlexibleDegreeBound,
 					$Failed
@@ -2723,6 +2783,12 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 			PrintAndLog["***** sector",secNo," failed. Exiting."];
 			Exit[1];
 		];
+		If[VectorListFromSyzInSingularIntersection===True,
+			{M1,M1ext,M2}=TangentModules[secindex,{}];
+			syzygies=VectorList;(*name VectorList is borrowed temply in the mode where VectorListFromSyzInSingularIntersection=True*)
+			syzygiesForM1=syzygies[[All,1;;Length[M1]]];
+			VectorList=Sum[#[[i]]*M1ext[[i]],{i,Length[M1ext]}]&/@syzygiesForM1;
+		]
 	,
 	"Linear",
 		{M1,M1ext,M2}=TangentModules[secindex,{}];
@@ -2770,6 +2836,8 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 			Modulus->FiniteFieldModulus2
 		];
 		If[!StrictDenominatorPowerIndices,VectorList00=VectorList];
+		If[ResultInRestoredLaportaIBPs,VectorList00=VectorList];
+		
 		(*Terminology (very easy to be confused, so I write it here)
 			simplify by cut: SBC, kill N corner:KNC
 			1.SBC yes, KNC yes, VecListfromSingular---->FIBPs00---(SBC)--\[Rule] FIBPs0 ---(KNC)--\[Rule] FIBPs 
@@ -3869,7 +3937,11 @@ FullForm]\);(*?*)
 
 
 
-(* ::Subsection::Closed:: *)
+
+
+
+
+(* ::Subsection:: *)
 (*Row Reduce Modules*)
 
 

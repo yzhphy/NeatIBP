@@ -3,7 +3,7 @@
 NeatIBP is a mathematica package to generate small-sized integration-by-parts (IBP) relations for Feynman integral reduction.
 
 ## Version
-1.1.0.4
+1.1.0.5
 
 ## Date
 2025.06.02

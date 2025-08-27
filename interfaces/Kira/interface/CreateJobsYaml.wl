@@ -69,6 +69,9 @@ PrintAndLog[x___]:=Module[{string,originalString},
 
 
 
+Get[outputPath<>"tmp/KiraSettings.txt"]
+
+
 LogPath=outputPath<>"tmp/log_files/"
 If[!DirectoryQ[LogPath],CreateDirectory[LogPath]];
 LogFile=LogPath<>"CreateJobsYaml.txt"

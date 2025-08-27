@@ -177,7 +177,7 @@ CopyFile3[file1_,file2_]:=Module[{},
 	];
 	CopyFile[file1,file2]
 ]
-(*This is specially for NumericsForIBPReduction.txt*)
+(*This is specially for NumericsForIBPReduction.txt and KiraSettings.txt*)
 
 
 If[FileExistsQ[tmpPath<>"spanning_cuts_mode.txt"],
@@ -207,7 +207,7 @@ If[FileExistsQ[tmpPath<>"spanning_cuts_mode.txt"],
 			)&/@(FileNameSplit[#][[-1]]&/@FileNames[All,spanningCutInputsFolder]);
 			((*take care here is CopyFile3 not CopyFile2*)
 				CopyFile3[spanningCutTmpFolder<>#,spanningCutSummaryFolder<>"tmp/"<>#];
-			)&/@{"NumericsForIBPReduction.txt"};
+			)&/@{"NumericsForIBPReduction.txt","KiraSettings.txt"};
 		]
 	];
 	PrintAndLog["\t Finished.\n All spanning cuts finished."];
@@ -440,6 +440,31 @@ ReportTotalTimeUsed[];
 
 
 
+
+
+
+If[(*PerformIBPReduction===True&&*)IBPReductionMethod==="Kira",
+(*cannot ask PerformIBPReduction===True because spc sub mission has PerformIBPReduction=False*)
+	If[RunFireFlyInKira===Automatic,
+		If[(Complement[#,Cases[#,_G]]&@Variables[IBPs])==={},
+			RunFireFlyInKira=False;(*if no variables, FireFly will complain "No Variables?" and quit*)
+		,
+			RunFireFlyInKira=True;
+		]
+	];
+
+	kiraSettings=StringRiffle[
+		#<>"="<>ToString[Evaluate[ToExpression[#]]]&/@{
+			"RunFireFlyInKira"
+		},
+	";\n"];
+	Export[outputPath<>"tmp/KiraSettings.txt",kiraSettings]
+]
+
+
+
+
+
 (*same code in spanning cuts part of this wl file*)
 If[PerformIBPReduction===True,
 	Export[outputPath<>"tmp/summarized.tag","","Text"];
@@ -452,4 +477,4 @@ If[PerformIBPReduction===True,
 
 
 Export[outputPath<>"tmp/NumericsForIBPReduction.txt",NumericsForIBPReduction//InputForm//ToString]
-
+(*why this is in the end?*)

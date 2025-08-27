@@ -127,7 +127,7 @@ NumericsForIBPReduction={};
 KiraCommand=""
 FermatPath=""
 ForceRemoveExistingKiraResults=False;
-RunFireFlyInKira=True;
+RunFireFlyInKira=Automatic;
 DeleteKiraDB=True;
 
 
@@ -173,6 +173,9 @@ FurtherSelectionSingularTimeConstraint=Infinity;(*seconds*)
 
 AllowInternet=True; (*One may disable this option to avoid the internet check of certain mathkernel functions, especially for downward supported versions of Mathematica*)
 IsASpanningCutsSubMission=False;(*to label whether this is a spanning cuts sub mission, do not set True if it is not! (will be auto-set as True in PrepareForSpanningCuts.wl for sub missions)*)
+
+VectorListFromSyzInSingularIntersection=False;
+ResultInRestoredLaportaIBPs=False;
 
 
 (*--------sectorwise settings-------------*)

@@ -1801,6 +1801,15 @@ v1.1.0.3
 
 2025.6.2:
 v1.1.0.4
+
+2025.7.xx
+developed an setting VectorListFromSyzInSingularIntersection, for future developments of 
+ResultInRestoredLaportaIBPs
+
+2025.8.27
+fixed a bug that RunFireFlyInKira does not work. Changed the default value of  RunFireFlyInKira as Automatic, which means run FireFly if the IBPs are not without variables, otherwise run fermat.
+
+v1.1.0.5
  
 
 
