@@ -373,7 +373,16 @@ If[And[NeedSymmetry===True,AdditionalMISymmetries===True],
 timer=AbsoluteTime[];
 relavantIntegrals=Get/@FileNames[All,outputPath<>"tmp/relavant_integrals/"];
 (*integralList=IntegralList[relavantIntegrals]*)
-integralList=IntegralList[Join[IBPs,MIs]];
+relavantIntegrals=IntegralList[relavantIntegrals];
+If[!ResultInRestoredLaportaIBPs,
+	integralList=IntegralList[Join[IBPs,MIs]];
+,
+	integralList=IntegralList[Join[IBPs,MIs],SortTheIntegrals->False];
+	integralList=Join[
+		IntegralList[Complement[integralList,relavantIntegrals]],
+		IntegralList[relavantIntegrals]
+	];
+]
 Export[outputPath<>"results/OrderedIntegrals.txt",integralList//InputForm//ToString];
 Export[outputPath<>"results/MI_all.txt",MIs//Flatten//InputForm//ToString];
 Export[outputPath<>"results/IBP_all.txt",IBPs//Flatten//InputForm//ToString];

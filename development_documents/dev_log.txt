@@ -1799,18 +1799,123 @@ v1.1.0.3
 3. Add: added a tutorial example dbox-spc-IBPReduction
 4. Modify: make the script to install SpaSM executable without sudo.
 
+--------------
 2025.6.2:
 v1.1.0.4
 
+---------------
 2025.7.xx
 developed an setting VectorListFromSyzInSingularIntersection, for future developments of 
 ResultInRestoredLaportaIBPs
 
+------------
 2025.8.27
 fixed a bug that RunFireFlyInKira does not work. Changed the default value of  RunFireFlyInKira as Automatic, which means run FireFly if the IBPs are not without variables, otherwise run fermat.
 
 v1.1.0.5
  
 
+------------
+2025.9.8
 
+1. Added BooleQCheck in Validations in Ini.wl
+
+2. In SyzygyRed.wl, SimplifyByCut[...], I modified:
+
+syzygyVectorPropDegrees=Table[
+		Exponent[vectors[[i]]/.GenericD/.GenericPoint/.Table[z[j]->tmp,{j,cutIndices}],tmp],
+		{i,Length[vectors]}
+	];
+	syzygyVectorISPDegrees=Table[
+		Exponent[vectors[[i]]/.GenericD/.GenericPoint/.Table[z[j]->tmp,{j,Complement[Range[SDim],cutIndices]}],tmp],
+		{i,Length[vectors]}
+	];
+	syzygyVectorAbsDegrees=Table[
+		Exponent[vectors[[i]]/.GenericD/.GenericPoint/.Table[z[j]->tmp,{j,Range[SDim]}],tmp],
+		{i,Length[vectors]}
+	];
+
+to
+
+syzygyVectorPropDegrees=Table[
+		Max[
+			Exponent[vectors[[i]]/.GenericD/.GenericPoint/.Table[z[j]->tmp,{j,cutIndices}],tmp]
+			+
+			degreeCompensator
+		],
+		{i,Length[vectors]}
+	];
+	syzygyVectorISPDegrees=Table[
+		Max[
+			Exponent[vectors[[i]]/.GenericD/.GenericPoint/.Table[z[j]->tmp,{j,Complement[Range[SDim],cutIndices]}],tmp]
+			+
+			degreeCompensator
+		],
+		{i,Length[vectors]}
+	];
+	syzygyVectorAbsDegrees=Table[
+		Max[
+			Exponent[vectors[[i]]/.GenericD/.GenericPoint/.Table[z[j]->tmp,{j,Range[SDim]}],tmp]
+			+
+			degreeCompensator
+		],
+		{i,Length[vectors]}
+	];
+
+the reason is:
+it is nonsense to compare the degrees of individual entry of the vectors.
+
+where the degreeCompensator is defined by:
+
+If[OptionValue[DCornerOnly],
+		degreeCompensator=Table[-1,SDim];
+		degreeCompensator=Append[degreeCompensator,0];
+		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"DCornerOnly mode, skip."];
+		
+	,
+		degreeCompensator=If[MemberQ[cutIndices,#],0,-1]&/@Range[SDim];
+		degreeCompensator=Append[degreeCompensator,0];
+...
+]
+
+----------
+2025.9 .23
+Modification in SyzygyRed.wl, at Tag2025092301, as:
+
+		(*Global`RelavantIntegrals[sector]=integrals;*)
+		Global`RelavantIntegrals[sector]=IntegralList[integrals,MIs];(*Tag2025092301*)
+
+In the very early version of NeatIBP, 
+RelavantIntegrals was used to determine the OrderedIntegrals
+but at 2024.7 .20 (see dev_log) it was discarded, 
+because sometimes it misses some MI (since some sector will skip if all targets are MI)
+So, till today, this RelavantIntegrals is used nowhere in NeatIBP
+Today I am giving it new usage :
+to record the relevant integrals in the original syzygy IBPs when
+   ResultInRestoredLaportaIBPs=True;
+Not to miss the MIs, we will write 
+Global`RelavantIntegrals[sector] = IntegralList[integrals, MIs]
+
+accordingly, in Summary.wl, I modified:
+
+integralList=IntegralList[Join[IBPs,MIs]];
+
+to:
+relavantIntegrals=IntegralList[relavantIntegrals];
+If[!ResultInRestoredLaportaIBPs,
+	integralList=IntegralList[Join[IBPs,MIs]];
+,
+	integralList=IntegralList[Join[IBPs,MIs],SortTheIntegrals->False];
+	integralList=Join[
+		IntegralList[Complement[integralList,relavantIntegrals]],
+		IntegralList[relavantIntegrals]
+	];
+]
+
+That means: when ResultInRestoredLaportaIBPs=True; the ordered integrals are no longer sorted by some kinds of degrees, it is more important whether it is irrelavant integrals (which means, appear in the restored Laporta IBPs, but not appear in the original syzygy IBPs)
+
+
+----------
+2025.10.23
+v1.1.0.6
 

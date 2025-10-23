@@ -126,9 +126,6 @@ PrintAndLog["\tDone. Time Used: ", Round[AbsoluteTime[]-timer], " second(s)."]
 (*Applying numerics for IBP reduction ;  *)
 
 
-
-
-
 If[!FileExistsQ[convertPath<>"tmp/NumericsForIBPReduction.txt"],
 	PrintAndLog["File "<>convertPath<>"tmp/NumericsForIBPReduction.txt dose not exist. Setting NumericsForIBPReduction={}"];
 	NumericsForIBPReduction={}
@@ -164,6 +161,9 @@ PreKiraOrder[ibp_]:=Module[{Gs},
 	Sort[Gs/.integralToPosition]
 ]
 presentIntegralsForEachIBP=Table[PreKiraOrder[IBPs[[i]]],{i,Length[IBPs]}];
+
+
+
 
 
 SortIBPsForKira[ibps_]:=Module[{maxLen,indices,kiraOrders,integralToPosition},

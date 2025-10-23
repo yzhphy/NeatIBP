@@ -339,7 +339,8 @@ ForwardRep,BackwardRep,Scalar2sp,sp2Scalar,sp,PolynomialU,PolynomialF,Polynomial
 ZeroSectors,NonZeroSectors,ZeroTargets,ReductionTargets,ReductionTasks,ZeroSectorRemoval,IBPList,MIList,SectorAnalyzeTiming,IntegralR,FI,BasicRawIBPs,FI0,ZM0,secNum,SelfSymmetryR,ZM,RelavantIntegrals,
 groupMomentumU,groupMomentumV,StdL,i,j,k,spanningCuts,bottomSectors,topSectors,spanningCutsMissionMainPath,TemporaryDirectory,
 Prepare,SectorwiseSettingListForCurrentSector,inputParameters,FI,ZM,FI0,ZM0,FIHead,ZMHead,FI00,ZM00,pshead,processes,checkTimes,
-spanningCuts,spanningCut,cut,outputPathsWithUnfinishedIni,ReductionOutputName,OutputName,AuxKinVar
+spanningCuts,spanningCut,cut,outputPathsWithUnfinishedIni,ReductionOutputName,OutputName,AuxKinVar,BooleQCheck,BooleQCheck,
+LIntegralR,LaportaFI
 },
 Table[ToExpression["z"<>ToString[i]],{i,1,Length[Propagators]}],
 Table[ToExpression["c"<>ToString[i]],{i,0,Length[Propagators]}]
@@ -438,6 +439,92 @@ OptionCheck[settingStr_,optionList_]:=Module[{settingValue=ToExpression[settingS
 		Exit[0]
 	]
 ]
+BooleQCheck[settingStr_]:=OptionCheck[settingStr,{True,False}]
+
+
+(* ::Subsubsection:: *)
+(*BooleQChecks*)
+
+
+BooleQCheck/@{
+	"FlexibleNeatIBPIntersectionDegreeBound",
+	"SimplifySyzygyVectorsByCut",
+	"SingularBaikovVariableBlockOrdering",
+	"NeedSymmetry",
+	"AdditionalMISymmetries",
+	"MIFromAzuritino",
+	"CriticalPointInAzuritino",
+	"StrictMI",
+	"StrictDenominatorPowerIndices",
+	"FineGrainedZurichSeeding",
+	"DeleteSingularScriptFiles",
+	"DeleteSingularResultFiles",
+	"UseGNUParallel",
+	"SilentExport",
+	"ExportTheModules",
+	"ExportUsedSyzygyVectors",
+	"ExportAllSyzygyVectorsBeforeSimplification",
+	"ExportAllSyzygyVectors",
+	"ExportUsedFIBPs",
+	"ExportAllFIBPs",
+	"ExportNCornerKilledFIBPs",
+	"ExportFinalRawIBPs",
+	"ExportFinalRawIBPsInFI0",
+	"ExportFinalNIBPs",
+	"ExportFinalNIBPsCutted",
+	"ExportCompleteRawIBPs",
+	"ExportCompleteRawIBPsInFI0",
+	"ExportCompleteNIBPs",
+	"ExportCompleteNIBPsCutted",
+	"ExportSubsecRemovedRawIBPs",
+	"ExportSubsecRemovedRawIBPsInFI0",
+	"ExportSubsecRemovedNIBPs",
+	"ExportSubsecRemovedNIBPsCutted",
+	"ExportSortedRawIBPs",
+	"ExportSortedRawIBPsInFI0",
+	"ExportSortedNIBPs",
+	"ExportSortedNIBPsCutted",
+	"ExportIndependentRawIBPs",
+	"ExportIndependentRawIBPsInFI0",
+	"ExportIndependentNIBPs",
+	"ExportIndependentNIBPsCutted",
+	"SpanningCutsMode",
+	"ShortenSpanningCutsIBPs",
+	"SpanningCutsConsistencyCheck",
+	"ConsistencyCheckParallelization",
+	"TrustHistoricalConsistencyCheckCertificate",
+	"PerformIBPReduction",
+	"SPCIBPReductionParallelization",
+	"ForceRemoveExistingKiraResults",
+	"DeleteKiraDB",
+	"DebugMode",
+	"DeveloperMode",
+	"seedingViaFIBPFunction",
+	"FIBPsNCornerKill",
+	"SowAndReap",
+	"ParallelInFindingSectorMaps",
+	"UseSRFindPivots",
+	"UseNicePropagatorsInMomentumMap",
+	"ReportNoticeInDeepMomentumMap",
+	"ReportWarningInMomentumMap",
+	"NumericIBP",
+	"ReportIrreducibleIntegralsAfterIBPAnalyze",
+	"AllowingDCornerOnlyModeInSimplifyByCut",
+	"SkipLiftSelection",
+	"FurtherSyzygyVectorsSelection",
+	"ReportFurtherSelectedSyzygyVectors",
+	"ParameterRepermute",
+	"AllowInternet",
+	"VectorListFromSyzInSingularIntersection",
+	"ResultInRestoredLaportaIBPs"
+}
+
+
+(* ::Subsubsection:: *)
+(*The rest checks*)
+
+
+OptionCheck["RunFireFlyInKira",{True,False,Automatic}]
 
 
 If[ValueQ[FurtherSyzygyVectorsSelectionStricty],
@@ -707,13 +794,13 @@ If[FIBPGroupingStartRatio>1||FIBPGroupingStartRatio<0,
 If[ResultInRestoredLaportaIBPs,
 	If[SimplifyByCutMethod==="LiftResubstitution",
 		ErrorLine[];
-		PrintAndLog["****  When ResultInRestoredLaportaIBPs==True,  SimplifyByCutMethod cannot be \"LiftResubstitution\". Exiting..."];
+		PrintAndLog["****  When ResultInRestoredLaportaIBPs=True,  SimplifyByCutMethod cannot be \"LiftResubstitution\". Exiting..."];
 		ErrorLine[];
 		Exit[0]
 	];
 	If[VectorListFromSyzInSingularIntersection=!=True,
 		ErrorLine[];
-		PrintAndLog["****  When ResultInRestoredLaportaIBPs==True,  must also set VectorListFromSyzInSingularIntersection=True. Exiting..."];
+		PrintAndLog["****  When ResultInRestoredLaportaIBPs=True,  must also set VectorListFromSyzInSingularIntersection=True. Exiting..."];
 		ErrorLine[];
 		Exit[0]
 	];
@@ -921,6 +1008,58 @@ If[UseShortenedSpanningCutsIBPs===True&&ShortenSpanningCutsIBPs===False,
 	ErrorLine[];
 	Exit[];
 ]
+
+
+If[ResultInRestoredLaportaIBPs===True&&(!(DeveloperMode===True)),
+	ErrorLine[];
+	PrintAndLog["In this version, ResultInRestoredLaportaIBPs is still under developement. If you want to use it, please set DeveloperMode=True."];
+	PrintAndLog["Developer tips:  See Initialization.wl for details for developer."];
+(*
+==========
+DETAILES
+==========
+1. Currently, restored Laporta basis overwrites original syzygy IBPs.
+2. In the future, we can keep both, but in this case, the IBP reducer interface should also adjust accordingly, letting the user choose which system to use in the reduction.
+3. If we use the restored Laporta IBPs for reduction, we should carefully consider the integral ordering, whether we should put the additional integrals in the Laporta IBPs in the front.
+4. Not yet tested the consistency in spanning cuts mode.
+5. This ruins the 1-to-1 relationship with the final IBPs in the output and additional outputs like rawIBPs
+6. we could set annothor setting as ExportRestoredLaportaIBPs, this means not overwrite.
+*)
+	ErrorLine[];
+	Exit[];
+]
+
+
+
+If[ResultInRestoredLaportaIBPs===True&&Or[
+	SpanningCutsMode,
+	CutIndices=!={}
+],
+	ErrorLine[];
+	PrintAndLog["In this version, ResultInRestoredLaportaIBPs dose not support any cut indices nor spanning cuts mode. Exiting..."];
+	PrintAndLog["Developer tips: We may support this in the future. See Initialization.wl for details for developer."];
+(*
+==========
+DETAILES
+==========
+The reason why we do not support this is, IBPGenerator dose not support cut unrestricted indices.
+And I used IBPGenerator[#,{}]&/@... to generate Laporta IBP generators from M1ext (search tag2025090901 in SyzygyRed.wl for the location)
+In fact, mathematically, this can be solved,
+ because we can use IBPGenerator[#,CutIndices]&/@... rather than IBPGenerator[#,{}]&/@...
+  to generate cut Laporta IBPs when CutIndices=!={},
+  but this part should be very carefull if we want to extend NeatIBP to be able to cut double propagators.
+  If so, we should adjust IBPCutGenerator, and this part should  also be adjusted. 
+  The latter, however, is very, very likely to be forgotten... that is troublesome.
+ Maybe a memo (bei4 wang4 lu4) can make these changes safer, but I will do this in the future.
+ This memo, is mandatory at the instance when I change IBPGenerator[#,{}]&/@... to IBPGenerator[#,CutIndices]&/@... 
+     in the location near tag2025090901
+
+
+*)
+	ErrorLine[];
+	Exit[];
+]
+
 
 
 (* ::Section:: *)

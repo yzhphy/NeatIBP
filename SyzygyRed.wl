@@ -6,6 +6,7 @@ LogFile="";
 RowReduceFunction=SRSparseRowReduce
 debugModification20230314=True;
 debugModification20231102=True;
+developerOption20250908=True;
 
 
 ReportIndent[n_]:=StringRiffle[Table["\t",n],""]
@@ -100,7 +101,7 @@ positivity[list_]:=If[Union[#>0&/@list]==Head[list][True],True,False];
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Baikov Representation*)
 
 
@@ -412,7 +413,7 @@ CollectG[exp_,OptionsPattern[]]:=Module[{Gs,coeffs,coeffForm},
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*old or unneeded codes*)
 
 
@@ -471,7 +472,7 @@ SectorWeightMatrix[sec_]:=Module[{propIndex,ISPIndex,matrix,i,ip,blockM},
 ];*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Singular Interface*)
 
 
@@ -527,7 +528,7 @@ SingularWpOrderingString[lengthList_,OptionsPattern[]]:=Module[{inputWeight,weig
 
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Singular GB*)
 
 
@@ -1127,17 +1128,31 @@ SingularLiftToGB[vectorList_,vars_,cutIndex_,OptionsPattern[]]:=Module[{M,cut,va
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*SimplifyByCut*)
 
 
-Options[SimplifyByCut]={sectorNumber->0,ReportLayer->2,DCornerOnly->False,SimplifyMethod->SimplifyByCutMethod,FurtherSelection->FurtherSyzygyVectorsSelection,Modulus->0,SkipLift->SkipLiftSelection};
+Options[SimplifyByCut]={
+sectorNumber->0,ReportLayer->2,DCornerOnly->False,
+SimplifyMethod->SimplifyByCutMethod,FurtherSelection->FurtherSyzygyVectorsSelection,
+Modulus->0,SkipLift->SkipLiftSelection,ReturnSelectionLabels->False};
+
 SimplifyByCut[vectorsInput_,cutIndices_,OptionsPattern[]]:=Module[
 {vectors,vectorsCutted,sortedVectorIndices,vectorsSorted,vectorsCuttedSorted,vectorsInputSorted,i,
 tmp,syzygyVectorAbsDegrees,syzygyVectorISPDegrees,syzygyVectorPropDegrees,FurtherSelectionETC,FurtherSelectionTimer,
 memoryUsed,timer,selectedIndices,selectedIndices2,selectedIndices2New,vectorsCuttedSortedSelectedGB2,
-vectorsCuttedSortedSelectedGB,vectorsCuttedSortedSelected,recoveredIndices,
-secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,timer3,memoryUsed3,timeForAGBComputation},
+vectorsCuttedSortedSelectedGB,vectorsCuttedSortedSelected,recoveredIndices,selectionLabels,
+secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,timer3,memoryUsed3,timeForAGBComputation,
+degreeCompensator
+},
+
+	If[OptionValue[ReturnSelectionLabels]===True,
+		If[OptionValue[SimplifyMethod]==="LiftResubstitution",
+			PrintAndLog["Error in SimplifyByCut: The LiftResubstitution method does not support ReturnSelectionLabels"];
+			Return[$Failed];
+		];	
+	];
+	selectionLabels=Range[Length[vectorsInput]];
 	secNo=OptionValue[sectorNumber];
 	reportLayer=OptionValue[ReportLayer];
 	
@@ -1145,9 +1160,16 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 	PrintAndLog["#",secNo,ReportIndent[reportLayer],"Reforming vector lists..."];
 	memoryUsed=MaxMemoryUsed[
 	vectors=vectorsInput;
+	
 	If[OptionValue[DCornerOnly],
-		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"DCornerOnly mode, skip."]
+		degreeCompensator=Table[-1,SDim];
+		degreeCompensator=Append[degreeCompensator,0];
+		PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"DCornerOnly mode, skip."];
+		
 	,
+		degreeCompensator=If[MemberQ[cutIndices,#],0,-1]&/@Range[SDim];
+		degreeCompensator=Append[degreeCompensator,0];
+		
 		For[ind1=1,ind1<=Length[vectors],ind1++,
 			For[ind2=1,ind2<=Length[cutIndices],ind2++,
 				cutInd=cutIndices[[ind2]];
@@ -1176,15 +1198,27 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 	PrintAndLog["#",secNo,ReportIndent[reportLayer],"Deriving syzygy vector degrees..."];
 	memoryUsed=MaxMemoryUsed[
 	syzygyVectorPropDegrees=Table[
-		Exponent[vectors[[i]]/.GenericD/.GenericPoint/.Table[z[j]->tmp,{j,cutIndices}],tmp],
+		Max[
+			Exponent[vectors[[i]]/.GenericD/.GenericPoint/.Table[z[j]->tmp,{j,cutIndices}],tmp]
+			+
+			degreeCompensator
+		],
 		{i,Length[vectors]}
 	];
 	syzygyVectorISPDegrees=Table[
-		Exponent[vectors[[i]]/.GenericD/.GenericPoint/.Table[z[j]->tmp,{j,Complement[Range[SDim],cutIndices]}],tmp],
+		Max[
+			Exponent[vectors[[i]]/.GenericD/.GenericPoint/.Table[z[j]->tmp,{j,Complement[Range[SDim],cutIndices]}],tmp]
+			+
+			degreeCompensator
+		],
 		{i,Length[vectors]}
 	];
 	syzygyVectorAbsDegrees=Table[
-		Exponent[vectors[[i]]/.GenericD/.GenericPoint/.Table[z[j]->tmp,{j,Range[SDim]}],tmp],
+		Max[
+			Exponent[vectors[[i]]/.GenericD/.GenericPoint/.Table[z[j]->tmp,{j,Range[SDim]}],tmp]
+			+
+			degreeCompensator
+		],
 		{i,Length[vectors]}
 	];
 	(*end of MaxMemoryUsed*)];
@@ -1204,6 +1238,7 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 	vectorsSorted=vectors[[sortedVectorIndices]];
 	vectorsCuttedSorted=vectorsCutted[[sortedVectorIndices]];
 	vectorsInputSorted=vectorsInput[[sortedVectorIndices]];
+	selectionLabels=selectionLabels[[sortedVectorIndices]];
 	(*end of MaxMemoryUsed*)];
 	PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Finished. Time Used: ", Round[AbsoluteTime[]-timer], " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB." ];
 	
@@ -1248,6 +1283,7 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 				PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Warning in SimplifyByCut, Singular returns $Failed (A possible reason: time used exceeds the user-set limit). Keeping result=vectorsInputSorted in this step."];
 				selectedIndices=Range[Length[vectorsInputSorted]];
 				result=vectorsInputSorted[[selectedIndices]];
+				selectionLabels=selectionLabels[[selectedIndices]];
 			,
 				timer2=AbsoluteTime[];
 				PrintAndLog["#",secNo,ReportIndent[reportLayer+1],"Lift selecting... [stricty=",Max[Min[LiftSelectionStrictness,1],0],"]"];
@@ -1268,6 +1304,7 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 				];
 				PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Vectors: ",Length[selectedIndices],"."];
 				result=vectorsInputSorted[[selectedIndices]];
+				selectionLabels=selectionLabels[[selectedIndices]];
 				(*end of MaxMemoryUsed*)];
 				PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB." ];
 			];	
@@ -1275,6 +1312,7 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 			PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"SkipLiftSelection is True, skipping the selection using lift matrix. "];
 			selectedIndices=Range[Length[vectorsInputSorted]];
 			result=vectorsInputSorted[[selectedIndices]];
+			selectionLabels=selectionLabels[[selectedIndices]];
 		];
 		
 		
@@ -1341,6 +1379,7 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 			PrintAndLog["#",secNo,ReportIndent[reportLayer+3],"Finished. Time Used: ",Round[AbsoluteTime[]-timer3], " second(s). Memory used: ",Round[memoryUsed3/(1024^2)]," MB." ];
 			
 			result=result[[selectedIndices2]];
+			selectionLabels=selectionLabels[[selectedIndices2]];
 			(*end of MaxMemoryUsed*)];
 			PrintAndLog["#",secNo,ReportIndent[reportLayer+2],"Finished. Time Used: ", Round[AbsoluteTime[]-timer2], " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB." ];
 		
@@ -1351,13 +1390,23 @@ secNo,reportLayer,ind1,ind2,result,cutInd,entry,liftMatrix,timer2,memoryUsed2,ti
 	PrintAndLog["#",secNo,ReportIndent[reportLayer],"Length of the simplified vector list: ",Length[result]];
 	PrintAndLog["#",secNo,ReportIndent[reportLayer],"LeafCount of the simplified vector list: ",LeafCount[result]];
 	PrintAndLog["#",secNo,ReportIndent[reportLayer],"ByteCount of the simplified vector list: ",ByteCount[result]];
-	result
+	If[OptionValue[ReturnSelectionLabels]===True,
+		If[developerOption20250908===True,
+			If[result=!=vectorsInput[[selectionLabels]],
+				PrintAndLog["#",secNo,"  Error code SimplifyByCut_E_20250908 from SyzygyRed.wl"];
+				Return[$Failed];
+			]
+		];
+		Return[{result,selectionLabels}];
+	,
+		Return[result];
+	];
 	
 ]
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*IBP generator*)
 
 
@@ -1374,7 +1423,7 @@ Std[f_,ref_]:=Total[(G@@(ref-#[[1]]))*(#[[2]])&/@CoefficientRules[f,var,DegreeRe
 Options[IBPGenerator]:={Cut->{}};
 IBPGenerator[vector_,RestrictedPropIndex_,OptionsPattern[]]:=Module[{i,b,ref,reflocal,term1,term2=0,h,f,bb,cutIndex},
 	cutIndex=OptionValue[Cut];
-	If[!SubsetQ[RestrictedPropIndex,cutIndex],PrintAndLog["Sorry... This version does not support the case with a cut propagator index UNrestricted ..."]; Return[];];
+	If[!SubsetQ[RestrictedPropIndex,cutIndex],PrintAndLog["Sorry... This version does not support the case with a cut propagator index UNrestricted ..."]; Return[$Failed];];
 	If[cutIndex=!={},Return[IBPCutGenerator[vector,RestrictedPropIndex,cutIndex]];];
 	b=vector[[-1]];
 	h=L+(n-1)+1;
@@ -1907,7 +1956,7 @@ LPSymmetryQ[integral1_,integral2_]:=Module[
 ]
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Azuritino*)
 
 
@@ -2526,83 +2575,6 @@ FullForm]\);(*?*)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 (* ::Subsection:: *)
 (*SectorAnalyze (main)*)
 
@@ -2617,7 +2589,9 @@ IBPISPdegrees,NewrawIBPs,NewnIBPs,timer2,M1,M1ext,M2,sectorMaps,mappedSectors,ta
 zs,zMaps,newNIBPs,FIBPCurrentSectorIntegrals,memoryUsed,memoryUsed2,nFIBPFunctions,newSymmetryRelations,VectorList1,irredIntegrals,FIBPs0,FIBPISPDegree0,
 redundantMIs,nFIBPs0,azuritinoMIFolder,nFIBPFunctions0,redundantMIsReduced,newMIs,FindIBPResult,redundantMIsToBeReduced,CompensationIBPDenominatorDegrees,
 reduceTowards,remainedFIBPlabels,usedVectors,usedFIBPs,additionalResultFolder,memoryUsed3,timer3,nIBPsCutted,NewnIBPsCutted,newSymmetryRelationsCutted,NewSectorIntegrals,
-NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimplifiedByCutWithDCornerOnly,VectorList00,FIBPs00,syzygies,syzygiesForM1
+NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimplifiedByCutWithDCornerOnly,VectorList00,FIBPs00,syzygies,syzygiesForM1,
+SBCSelectionLabels,SBCResult,rawIBPCopied,LaportaFIBPs,RestoredLaportaIBPs,mappedIntegralsForRestoringLaportaIBPs,
+subsectorSymmetryRelationsForRestoringLaportaIBPs,rawIBPsBeforeSubsectorMapping,integralsForRestoredLaportaIBPs
 },
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
@@ -2830,13 +2804,31 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 		timer=AbsoluteTime[];
 		memoryUsed=MaxMemoryUsed[
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Simplifying vector list by cut..."]];
-		VectorListSimplifiedByCut=SimplifyByCut[VectorList,secindex,
+		SBCResult=SimplifyByCut[VectorList,secindex,
 			DCornerOnly->And[(DenominatorTypes==={sector}),AllowingDCornerOnlyModeInSimplifyByCut],
 			sectorNumber->secNo,
-			Modulus->FiniteFieldModulus2
+			Modulus->FiniteFieldModulus2,
+			ReturnSelectionLabels->ResultInRestoredLaportaIBPs(*if ResultInRestoredLaportaIBPs, we need the labels*)
 		];
-		If[!StrictDenominatorPowerIndices,VectorList00=VectorList];
-		If[ResultInRestoredLaportaIBPs,VectorList00=VectorList];
+		If[SBCResult===$Failed,
+			PrintAndLog["#",secNo,"\t\t","***** SimplifyByCut returns $Failed. "];
+			PrintAndLog["***** sector",secNo," failed. Exiting."];
+			Exit[1];
+		];
+		If[ResultInRestoredLaportaIBPs===True,
+			{VectorListSimplifiedByCut,SBCSelectionLabels}=SBCResult;
+		,
+			VectorListSimplifiedByCut=SBCResult;
+		];
+		If[
+			Or[
+				!StrictDenominatorPowerIndices,
+				ExportAllSyzygyVectorsBeforeSimplification,
+				ResultInRestoredLaportaIBPs
+			],
+			VectorList00=VectorList
+		];
+		
 		
 		(*Terminology (very easy to be confused, so I write it here)
 			simplify by cut: SBC, kill N corner:KNC
@@ -2921,6 +2913,8 @@ NeatIBPIntersectionDegreeBoundDecreased,VectorListSimplifiedByCut,VectorListSimp
 		FIBPs=FIBPs1;
 		(*end of MaxMemoryUsed*)];
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  IBPs for lower sectors removed. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+	
+	
 	];
 	If[ExportNCornerKilledFIBPs,
 		ConvenientExport[outputPath<>"results/additional_outputs/n_corner_killed_FIBPs/"<>ToString[secNo]<>".txt",FIBPs//InputForm//ToString];
@@ -3231,7 +3225,7 @@ FullForm]\);(*?*)
 			NewnIBPsCutted=(#/.sectorCut)&/@NewnIBPs;
 			(*end of MaxMemoryUsed*)];
 			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ","\t\tFinished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
-		
+			
 			
 			If[Not[NeedSymmetry===False],
 				timer2=AbsoluteTime[];
@@ -3721,6 +3715,8 @@ FullForm]\);(*?*)
 	nIBPs=nIBPs[[UsedIndex]];(*although not needed, we keep this to debug*)
 	nIBPsCutted=nIBPsCutted[[UsedIndex]];
 	
+	
+	
 	(*ProbeIntermediateResult["rawIBPsFrom",secNo,rawIBPs[[All,1]]//Union];(*debug2023*)*)
 	(*we say this is the final rawIBP in the sence of concept. 
 	The same symbol is used for another concept afterwards in this function*)
@@ -3790,6 +3786,15 @@ FullForm]\);(*?*)
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Realizing raw IBPs..."]];
+	
+	If[ResultInRestoredLaportaIBPs,
+		rawIBPCopied=rawIBPs;
+	];
+	(*
+	I do not think it is good to mix use the var name rawIBPs in the lines following this comment..., 
+	so I restored it in the above If[...], 
+	since we will use it again later if we need to restore Laporta IBPs
+	*)
 	rawIBPs=rawIBPs/.FI0[i_]:>FIBPs0[[i]]/.FI[i_]:>FIBPs[[i]];
 	If[FIBPs00=!=None,rawIBPs=rawIBPs/.FI00[i_]:>FIBPs00[[i]]];
 	rawIBPs=rawIBPs/.IntegralR->IntegralRealization;   (* Only at this step, we obtain the analytic IBPs *)
@@ -3799,7 +3804,72 @@ FullForm]\);(*?*)
 	(*end of MaxMemoryUsed*)];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Raw IBP realized. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
-	
+	If[ResultInRestoredLaportaIBPs,
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ResultInRestoredLaportaIBPs is on, deriving restored Laporta IBPs the syzygy IBPs..."]];
+		memoryUsed=MaxMemoryUsed[
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Generating LaportaFIBPs..."]];
+		timer2=AbsoluteTime[];
+		memoryUsed2=MaxMemoryUsed[
+		LaportaFIBPs=IBPGenerator[#,{}]&/@M1ext;(*tag2025090901*)
+		
+		(*end of MaxMemoryUsed*)];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Done. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+		
+		
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Restoring to Original Syzygy IBP generators..."]];
+		timer2=AbsoluteTime[];
+		memoryUsed2=MaxMemoryUsed[
+		If[OptionValue[KillNCornerSubsecFIBPs],
+			rawIBPCopied=rawIBPCopied/.FI[x_]:>FI0[remainedFIBPlabels[[x]]];
+		,
+			rawIBPCopied=rawIBPCopied/.FI[x_]:>FI0[x];
+		];
+		If[SimplifySyzygyVectorsByCut,
+			rawIBPCopied=rawIBPCopied/.FI0[x_]:>FI00[SBCSelectionLabels[[x]]];
+		,
+			rawIBPCopied=rawIBPCopied/.FI0[x_]:>FI00[x];
+		];
+		(*end of MaxMemoryUsed*)];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  Done. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+		
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Restoring to Laporta IBP generators..."]];
+		timer2=AbsoluteTime[];
+		memoryUsed2=MaxMemoryUsed[
+			rawIBPCopied=rawIBPCopied/.IntegralR[FI00[x_],y_]:>SyzygyToLIntegralRs[syzygiesForM1[[x]],y];
+			ProbeIntermediateResult["rawIBPCopiedBeforeFlatten",secNo,rawIBPCopied];
+			rawIBPCopied=rawIBPCopied//Flatten//DeleteDuplicates;
+			ProbeIntermediateResult["rawIBPCopied",secNo,rawIBPCopied];
+			ProbeIntermediateResult["LaportaFIBPs",secNo,LaportaFIBPs];
+		(*end of MaxMemoryUsed*)];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  Done. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+		
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Realizing restored Laporta IBPs..."]];
+		timer2=AbsoluteTime[];
+		memoryUsed2=MaxMemoryUsed[
+			rawIBPCopied=rawIBPCopied/.IntegralR[FI00[x_],y_]:>SyzygyToLIntegralRs[syzygiesForM1[[x]],y];
+			rawIBPCopied=rawIBPCopied//Flatten//DeleteDuplicates;
+			
+			RestoredLaportaIBPs=rawIBPCopied/.LaportaFI[x_]:>LaportaFIBPs[[x]]/.LIntegralR->IntegralRealization;
+			ProbeIntermediateResult["RestoredLaportaIBPs",secNo,RestoredLaportaIBPs];
+			
+			If[Not[NeedSymmetry===False],
+				RestoredLaportaIBPs=RestoredLaportaIBPs/.ZM00->ZM/.ZM0->ZM/.ZM[i_]:>(zMaps[[i]])/.SelfSymmetryR->SelfSymmetryRealization;
+			];
+			
+		(*end of MaxMemoryUsed*)];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  Done. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+		
+		
+		
+		
+		
+		
+		(*end of MaxMemoryUsed*)];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Restored Laporta IBPs derived. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+		
+		
+		
+	];
 	
 	(*	 Mapping integrals *)
 	(*
@@ -3815,7 +3885,10 @@ FullForm]\);(*?*)
 		sectorMaps=OptionValue[SectorMappingRules];
 		mappedSectors=sectorMaps[[All,1]];
 		(*PrintAndLog["#",secNo,"\t",Length[mappedSectors]];*)
-		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Performing sector maps..."]];
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Performing sector maps to IBPs..."]];
+		If[ResultInRestoredLaportaIBPs,
+			rawIBPsBeforeSubsectorMapping=rawIBPs;
+		];
 		If[mappedSectors=!={},
 			(*rawIBPs=rawIBPs/.G[x__]:>GMapped[sectorMaps,{x}];*)
 			(*rawIBPs=SymmetryMap[sectorMaps,#]&/@rawIBPs;*)
@@ -3824,6 +3897,22 @@ FullForm]\);(*?*)
 		(*end of MaxMemoryUsed*)];
 		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Sector mapping finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 		
+		If[ResultInRestoredLaportaIBPs,
+			timer=AbsoluteTime[];
+			memoryUsed=MaxMemoryUsed[
+			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Adding sector map relations for restored Laporta IBPs..."]];
+			
+			mappedIntegralsForRestoringLaportaIBPs=Select[
+				IntegralList[rawIBPsBeforeSubsectorMapping,SortTheIntegrals->False],
+				MemberQ[mappedSectors,Sector[#]&]
+			];(*we only map the integrals for the original IBPs from syzygy, they are free of increased propagator powers*)
+			If[mappedIntegralsForRestoringLaportaIBPs=!={},
+				subsectorSymmetryRelationsForRestoringLaportaIBPs=(#-SymmetryMap[sectorMaps,#])&/@mappedIntegralsForRestoringLaportaIBPs;
+				RestoredLaportaIBPs=Join[RestoredLaportaIBPs,subsectorSymmetryRelationsForRestoringLaportaIBPs];
+			];
+			(*end of MaxMemoryUsed*)];
+			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+		];
 	];
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
@@ -3856,19 +3945,84 @@ FullForm]\);(*?*)
 	
 	(*end of MaxMemoryUsed*)];
 	
+	If[ResultInRestoredLaportaIBPs,
+		timer=AbsoluteTime[];
+		memoryUsed=MaxMemoryUsed[
+		(*	 Remove zero-sector integrals *)
+		
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Removing zero-sector integrals for restored Laporta IBPs..."]];
+		timer2=AbsoluteTime[];
+		memoryUsed2=MaxMemoryUsed[
+		
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Deriving integral list..."]];
+	    integralsForRestoredLaportaIBPs=Select[IntegralList[RestoredLaportaIBPs,SortTheIntegrals->False],!MemberQ[Global`ZeroSectors,Sector[#]]&];
+	    
+	    (*end of MaxMemoryUsed*)];
+	    If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+		
+		timer2=AbsoluteTime[];
+		memoryUsed2=MaxMemoryUsed[
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  removing zero integrals..."]];
+		
+		RestoredLaportaIBPs=CollectG[#,CoefficientForm->IBPCoefficientForm,RelevantGs->integralsForRestoredLaportaIBPs]&/@RestoredLaportaIBPs;
+		
+		ProbeIntermediateResult["RestoredLaportaIBPs2",secNo,RestoredLaportaIBPs];
+		ProbeIntermediateResult["integralsForRestoredLaportaIBPs",secNo,integralsForRestoredLaportaIBPs];
+		
+		
+		
+		(*end of MaxMemoryUsed*)];
+		
+		
+	    If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  Finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
+	
+		timer2=AbsoluteTime[];
+		memoryUsed2=MaxMemoryUsed[
+		If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  removing zero Laporta IBPs..."]];
+		(*
+			some Laporta IBPs contain only sub sector IBPs, and they might be all zero sectors, thus the IBP=0
+			(this will not happen to rawIBPs because we already deleted those IBPs in pure sub sectors)
+			
+		*)
+		RestoredLaportaIBPs=DeleteCases[RestoredLaportaIBPs,0];
+		ProbeIntermediateResult["RestoredLaportaIBPs3",secNo,RestoredLaportaIBPs];
+	    If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t\t  Finished. Time Used: ", Round[AbsoluteTime[]-timer2],  " second(s). Memory used: ",Round[memoryUsed2/(1024^2)]," MB."]];
 	
 	
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Zero-sector integrals removed. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
-	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," IBPs remaining with ",Length[IntegralList[rawIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
+		(*end of MaxMemoryUsed*)];
+		
+		
+		
+		
+		(*end of MaxMemoryUsed*)];
+		
+	
+	];
+	
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Finished. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
+	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  ",Length[rawIBPs]," Laporta IBPs restored with ",Length[IntegralList[rawIBPs/.SectorCut[sector],SortTheIntegrals->False]]," integrals in current sector."]];
 	timer=AbsoluteTime[];
 	memoryUsed=MaxMemoryUsed[
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  Saving results in current sector..."]];
 	
 	If[!OptionValue[TestOnly],
-		Global`IBPList[sector]=rawIBPs;
+		If[!ResultInRestoredLaportaIBPs,
+			Global`IBPList[sector]=rawIBPs;
+		,
+			If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"  ResultInRestoredLaportaIBPs is on, overwriting the IBPs with RestoredLaportaIBPs"]];
+			Global`IBPList[sector]=RestoredLaportaIBPs;
+		];
+		
+		(*Global`RelavantIntegrals[sector]=integrals;*)
+		Global`RelavantIntegrals[sector]=IntegralList[integrals,MIs];(*Tag2025092301*)
 		Global`MIList[sector]=MIs;
-		Global`RelavantIntegrals[sector]=integrals;
-		SubsectorInts=Select[IntegralList[rawIBPs],Sector[#]!=sector&];
+		
+		SubsectorInts=Select[IntegralList[rawIBPs],Sector[#]=!=sector&];
+		(*
+			RestoredLaportaIBPs and related variables are individually derived, without interfereing the original rawIBPs.
+			
+			Thus, it is still safe to derive the tail integrals with rawIBPs even when ResultInRestoredLaportaIBPs=True
+		*)
 		tailSectors=DeleteDuplicates[Sector/@SubsectorInts];
 		For[i=1,i<=Length[tailSectors],i++,
 			subsector=tailSectors[[i]];
@@ -3876,6 +4030,7 @@ FullForm]\);(*?*)
 		];
 		
 	];
+	
 	(*end of MaxMemoryUsed*)];
 	If[OptionValue[Verbosity]==1,PrintAndLog["#",secNo,"\t  Results saved for current sector. Time Used: ", Round[AbsoluteTime[]-timer],  " second(s). Memory used: ",Round[memoryUsed/(1024^2)]," MB."]];
 	
@@ -3885,63 +4040,23 @@ FullForm]\);(*?*)
 
 
 
+(* ::Subsection::Closed:: *)
+(*SyzygyToLIntegralRs*)
+
+
+SyzygyEntryToSeeds[vectorEntry_,seed_]:=Module[{cr},
+	cr=CoefficientRules[vectorEntry, Global`var];
+	(seed-#)&/@cr[[All,1]]
+]
+SyzygyToLIntegralRs[vector_,seed_]:=Flatten[Table[
+	LIntegralR[LaportaFI[i],#]&/@SyzygyEntryToSeeds[vector[[i]],seed],
+	{i,Length[vector]}
+]]
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Row Reduce Modules*)
 
 
